@@ -16,8 +16,9 @@ For clients to start chatting, they need to connect to the server.
 #include <exception>
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-#include <TGUI/TGUI.hpp>
+//#include <TGUI/TGUI.hpp>
 #include "System.hpp"
+#include <memory>
 
 namespace chat
 {

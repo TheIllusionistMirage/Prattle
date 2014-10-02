@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+#include <iostream>
 namespace chat
 {
     Server::Server() :

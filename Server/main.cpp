@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include <exception>
+#include <iostream>
 
 int main()
 {
