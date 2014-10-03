@@ -57,35 +57,21 @@ namespace chat
                 {
                     if (isUsernameTaken(userName))
                     {
-                        std::cout << "[" + userName + "] joined chat! Welcome!" << std::endl;
+                            std::cout << "[" + userName + "] joined chat! Welcome!" << std::endl;
+                            std::string msg = "registered";
+                            sf::Packet msgPacket;
+                            msgPacket << msg;
 
-                        std::string msg = "registered";
-                        sf::Packet msgPacket;
-
-                        msgPacket << msg;
-
-                        if (newClient->send(msgPacket) != sf::Socket::Done ||
-                            newClient->send(msgPacket) == sf::Socket::Error)
-                        {
-<<<<<<< HEAD
-                            std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
-                        }
-
-                        m_clients.insert(std::make_pair(userName, std::move(newClient)));
+                            if (newClient->send(msgPacket) != sf::Socket::Done ||
+                                newClient->send(msgPacket) == sf::Socket::Error)
+                            {
+                                std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
+                            }
+                            m_clients.insert(std::pair<std::string, std::unique_ptr<sf::TcpSocket>>(userName, std::move(newClient)));
                     }
-
                     else
                     {
-                        sf::TcpSocket remotePeer;
-                        sf::Socket::Status status = remotePeer.connect(remotePeer.getRemoteAddress(), remotePeer.getRemotePort());
-
-                        if (status == sf::Socket::Done)
-                        {
                             std::string msg = "unregistered";
-=======
-                            std::cout << "[" + userName + "] joined chat! Welcome!" << std::endl;
-                            //std::cout << "ADASD" << std::endl;
-                            std::string msg = "registered";
                             sf::Packet msgPacket;
                             msgPacket << msg;
                             if (newClient->send(msgPacket) != sf::Socket::Done ||
@@ -93,53 +79,10 @@ namespace chat
                             {
                                 std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
                             }
-                            m_clients.insert(std::pair<std::string, std::unique_ptr<sf::TcpSocket>>(userName, std::move(newClient)));
-                        }
-
-                        else
-                        {
-//                            sf::TcpSocket remotePeer;
-//                            sf::Socket::Status status = remotePeer.connect(remotePeer.getRemoteAddress(), remotePeer.getRemotePort());
-
-//                            if (status == sf::Socket::Done)
-//                            {
-//                                std::string msg = "unregistered";
-//
-//                                sf::Packet msgPacket;
-//                                msgPacket << msg;
-//
-//                                if (remotePeer.send(msgPacket) != sf::Socket::Done ||
-//                                    remotePeer.send(msgPacket) == sf::Socket::Error)
-//                                {
-//                                    std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
-//                                }
-                                std::string msg = "unregistered";
->>>>>>> 5cfa78ee825a8c73f3e3c6d89bb19fcedf559054
-
-                            sf::Packet msgPacket;
-                            msgPacket << msg;
-
-<<<<<<< HEAD
-                            if (remotePeer.send(msgPacket) != sf::Socket::Done ||
-                                remotePeer.send(msgPacket) == sf::Socket::Error)
-                            {
-                                std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
-                            }
-=======
-                                if (newClient->send(msgPacket) != sf::Socket::Done ||
-                                    newClient->send(msgPacket) == sf::Socket::Error)
-                                {
-                                    std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
-                                }
-//                            }
-
-                            m_selector.remove(*newClient);
-                            std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
->>>>>>> 5cfa78ee825a8c73f3e3c6d89bb19fcedf559054
-                        }
 
                         m_selector.remove(*newClient);
                         std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
+
                     }
                 }
             }

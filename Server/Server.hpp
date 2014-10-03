@@ -13,10 +13,11 @@ For clients to start chatting, they need to connect to the server.
 #include <ctime>
 #include <map>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <exception>
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-#include <TGUI/TGUI.hpp>
 #include "System.hpp"
 
 namespace chat
