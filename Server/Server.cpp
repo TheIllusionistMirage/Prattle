@@ -107,7 +107,7 @@ namespace chat
                 if (status == sf::Socket::Done)
                 {
                     if (dataPacket >> data)
-                        std::cout << data << std::endl;
+                        std::cout << itr->first << " : " << data << std::endl;
                 }
 
                 if (status == sf::Socket::Disconnected)

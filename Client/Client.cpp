@@ -89,7 +89,6 @@ namespace chat
                     }
                 }
             }
-
             else if (m_client.send(msgPacket) == sf::Socket::Error)
                 std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
         }

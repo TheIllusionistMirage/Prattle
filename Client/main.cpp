@@ -5,7 +5,7 @@ int main()
     chat::Client client;
     client.loginPrompt();
 
-    /*char choice;
+    char choice;
     do
     {
         std::cout << "(R)egister or (L)ogin to start chatting!" << std::endl;
@@ -20,7 +20,7 @@ int main()
             case 'L' : client.login(); break;
             default  : std::cout << "Please enter a valid option!" << std::endl;
         }
-    } while (choice != 'r' || choice != 'R' || choice != 'l' || choice != 'L');*/
+    } while (choice != 'r' && choice != 'R' && choice != 'l' && choice != 'L');
 
     client.login();
     while (client.isLoggedIn())
