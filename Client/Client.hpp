@@ -10,7 +10,7 @@ The client side application for chatting.
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-//#include <TGUI/TGUI.hpp>
+#include <TGUI/TGUI.hpp>
 #include "System.hpp"
 
 namespace chat
@@ -20,8 +20,7 @@ namespace chat
         public:
             Client();
             void loginPrompt();
-            /* The guest's username and password have been hardcoded. */
-            bool login();//const std::string& username = "Guest", const std::string& password = "guest");
+            bool login();
             bool logout();
             void signup();
             sf::Socket::Status send(sf::Packet& packet);

@@ -1,11 +1,9 @@
 #include "Client.hpp"
-#include <iostream>
 
 namespace chat
 {
     Client::Client()
     {
-        //m_client.setBlocking(true);
         m_loginStatus = false;
     }
 
@@ -17,63 +15,52 @@ namespace chat
         std::cout << "          |  CHAT PROGRAM - v 0.1  |" << std::endl;
         std::cout << "          ==========================" << std::endl << std::endl;
 
-        std::cout << "(C) Copyright texus & The Illusionist Mirage" << std::endl << std::endl;
+        std::cout << "By texus, amhndu & TheIllusionistMirage" << std::endl << std::endl;
 
     }
 
     void Client::signup()
     {
-        /*std::fstream userDatabase(USER_LIST, std::ios::in | std::ios::out);
+        /*std::fstream userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
         std::string newUserName;
         bool success = true;;
 
-        std::cout << "Welcome to Chat Program aignup page! Please fill out the following details." <<std::endl << std::endl;
+        std::cout << "Welcome to Chat Program signup page! Please fill out the following details." <<std::endl << std::endl;
         std::cout << "Your Username : ";
+        std::getline(std::cin, newUserName);
 
-        do
+        userDatabase.seekg(0);
+
+        if (userDatabase.good() && userDatabase.is_open())
         {
-            success = true;
-
-            std::cout << "Enter a new username : ";
-            std::cin.ignore();
-            std::getline(std::cin, newUserName);
-
-            std::vector<std::string> existingUser;
-
-            userDatabase.seekg(0);
-            while (userDatabase.is_open())
+            while (!userDatabase.eof())
             {
-                std::string str;
+                std::string record;
+                std::getline(userDatabase, record, '\n');
 
-                char ch;
-
-                while (userDatabase.get(ch))
-                {
-                    str += ch;
-                }
-
-                existingUser.push_back(str);
+                if (record[0] != '#')
+                    continue;
+                else
+                    if (record == newUserName)
+                        success = false;
             }
 
-            for (auto itr = existingUser.begin(); itr != existingUser.end(); itr++)
+            if (!success)
+                std::cout << "The username \"" + newUserName + "\" is already been taken! Please use something else." << std::endl;
+            else
             {
-                if (newUserName == *itr)
-                {
-                    std::cout << "Sorry, but that username has already been taken! Please use another one.";
-                    success = false;
-                }
+                userDatabase.seekp(std::ios::end);
+                userDatabase << newUserName;
             }
-        } while (!success);*/
+        }*/
     }
 
-    //bool Client::login(const std::string& username, const std::string& password)
     bool Client::login()
     {
         sf::Socket::Status loginSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
 
         if (loginSuccess == sf::Socket::Done)
         {
-            //std::cout << "(L)ogin if you're an existing user OR (R)egister with us today!" << std::endl;
             std::cout << "Enter your username : ";
 
             std::string userName, serverReply;
@@ -94,6 +81,10 @@ namespace chat
                         {
                             m_loginStatus = true;
                             std::cout << "Login Successful!" << std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
                         }
                     }
                 }

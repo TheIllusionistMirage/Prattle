@@ -16,9 +16,8 @@ For clients to start chatting, they need to connect to the server.
 #include <exception>
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-//#include <TGUI/TGUI.hpp>
+#include <TGUI/TGUI.hpp>
 #include "System.hpp"
-#include <memory>
 
 namespace chat
 {
@@ -30,13 +29,12 @@ namespace chat
             bool isRunning();
             bool wait();
             bool isReady();
-            //bool addNewClient(const std::string& userName);
             bool addNewClient();
             bool receive();
             bool send();
             void openDatabase(const std::string& userList = chat::USER_LIST);
             void shutdown();
-            std::vector<std::string>& getRecords();
+            std::vector<std::string> getRecords();
             bool isUsernameTaken(const std::string& userName);
             bool addNewUser(const std::string& userName);
 
@@ -44,13 +42,10 @@ namespace chat
 
         private:
             sf::TcpListener m_server;
-            //std::list<std::unique_ptr<sf::TcpSocket>> m_clients;
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;
-
             sf::SocketSelector m_selector;
             bool m_running;
             std::vector<std::string> m_members;
-            //std::vector<std::string> m_packets;
             std::fstream m_userDatabase;
     };
 }

@@ -1,22 +1,18 @@
 #include "Server.hpp"
 #include <exception>
-#include <iostream>
 
 int main()
 {
     try
     {
         chat::Server server;
-        server.getRecords();
 
         while (server.isRunning())
         {
             if (server.wait())
             {
-                //std::cout << "ADASD" << std::endl;
                 if (server.isReady())
                 {
-                    //std::cout << "ADASD" << std::endl;
                     server.addNewClient();
                 }
 
@@ -24,12 +20,7 @@ int main()
                 {
                     server.receive();
                 }
-
-                //std::cout << "ADASD" << std::endl;
             }
-
-            /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) && sf::Keyboard::isKeyPressed(sf::Keyboard::X))
-                server.shutdown();*/
 
             sf::sleep(sf::milliseconds(1));
         }

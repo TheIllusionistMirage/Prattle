@@ -1,19 +1,34 @@
 #include "Client.hpp"
-#include <iostream>
 
 int main()
 {
     chat::Client client;
-    //client.login();
     client.loginPrompt();
-    client.login();
 
+    /*char choice;
+    do
+    {
+        std::cout << "(R)egister or (L)ogin to start chatting!" << std::endl;
+        std::cin >> choice;
+        std::cin.ignore();
+
+        switch (choice)
+        {
+            case 'r' :;
+            case 'R' : client.signup(); break;
+            case 'l' :;
+            case 'L' : client.login(); break;
+            default  : std::cout << "Please enter a valid option!" << std::endl;
+        }
+    } while (choice != 'r' || choice != 'R' || choice != 'l' || choice != 'L');*/
+
+    client.login();
     while (client.isLoggedIn())
     {
         std::cout << "Me : ";
 		std::string message;
-		//std::cin >> message;
-		std::getline(std::cin, message);
+
+		std::getline(std::cin, message, '\n');
 
 		sf::Packet msgPacket;
 		msgPacket << message;
