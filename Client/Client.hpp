@@ -10,7 +10,7 @@ The client side application for chatting.
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-#include <iostream>
+#include <TGUI/TGUI.hpp>
 #include "System.hpp"
 #include "../Server/Server.hpp"
 

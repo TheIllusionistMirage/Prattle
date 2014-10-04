@@ -296,4 +296,3 @@ namespace chat
         m_userDatabase.close();
     }
 }
-

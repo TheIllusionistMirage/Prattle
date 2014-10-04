@@ -150,4 +150,3 @@ namespace chat
         return m_friend;
     }
 }
-

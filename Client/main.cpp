@@ -34,6 +34,8 @@ int main()
 		if (client.send(msgPacket) == sf::Socket::Error)
 			std::cout << "ERROR :: Error in sending message! Please try again" << std::endl;
 
+        client.receive();
+
 		sf::sleep(sf::milliseconds(1));
     }
 
