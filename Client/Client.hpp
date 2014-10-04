@@ -7,12 +7,9 @@ The client side application for chatting.
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-
-#include <SFML/Graphics.hpp>
+#include <iostream>
 #include <SFML/Network.hpp>
-#include <TGUI/TGUI.hpp>
 #include "System.hpp"
-#include "../Server/Server.hpp"
 
 namespace chat
 {

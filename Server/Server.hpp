@@ -14,7 +14,6 @@ For clients to start chatting, they need to connect to the server.
 #include <map>
 #include <fstream>
 #include <exception>
-#include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 #include <iostream>
 #include <memory>

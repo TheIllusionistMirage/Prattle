@@ -2,7 +2,6 @@
 #define SYSTEM_HPP
 
 #include <string>
-#include <SFML/Network.hpp>
 
 namespace chat
 {
