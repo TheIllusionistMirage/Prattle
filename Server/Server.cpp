@@ -68,7 +68,7 @@ namespace chat
                         if (newClient->send(msgPacket) != sf::Socket::Done ||
                             newClient->send(msgPacket) == sf::Socket::Error)
                         {
-                            std::cerr << "ERROR :: Server.cpp:71\tUser: "<< userName << "\nCouln't Send msgPacket" << std::endl;
+                            std::cerr << "ERROR :: Server.cpp:71\tUser: "<< userName << "\nCouldn't Send msgPacket" << std::endl;
                         }
 
                         m_clients.insert(std::make_pair(userName, std::move(newClient)));
@@ -112,7 +112,7 @@ namespace chat
             std::string data;
             sf::Packet msgPacket;
 
-            msgPacket << senderUserName << ":" << dataPacket;
+            msgPacket = dataPacket;
 
             if (itr->second->send(msgPacket) != sf::Socket::Done ||
                 itr->second->send(msgPacket) == sf::Socket::Error)
@@ -296,3 +296,4 @@ namespace chat
         m_userDatabase.close();
     }
 }
+
