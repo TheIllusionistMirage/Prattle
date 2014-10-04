@@ -1,3 +1,4 @@
+#include <cctype>
 #include "Client.hpp"
 
 int main()
@@ -12,17 +13,14 @@ int main()
         std::cin >> choice;
         std::cin.ignore();
 
-        switch (choice)
+        switch (tolower(choice))
         {
-            case 'r' :;
-            case 'R' : client.signup(); break;
-            case 'l' :;
-            case 'L' : client.login(); break;
+            case 'r' : client.signup(); break;
+            case 'l' : client.login(); break;
             default  : std::cout << "Please enter a valid option!" << std::endl;
         }
-    } while (choice != 'r' && choice != 'R' && choice != 'l' && choice != 'L');
+    } while (choice != 'r' && choice != 'l');
 
-    client.login();
     while (client.isLoggedIn())
     {
         std::cout << "Me : ";
@@ -31,10 +29,10 @@ int main()
 		std::getline(std::cin, message, '\n');
 
 		sf::Packet msgPacket;
-		msgPacket << message;
+		msgPacket << client.getUserName() + ":" + client.getFriendName() + ":" + message;
 
 		if (client.send(msgPacket) == sf::Socket::Error)
-			std::cout << "> Error in sending message! Please try again" << std::endl;
+			std::cout << "ERROR :: Error in sending message! Please try again" << std::endl;
 
 		sf::sleep(sf::milliseconds(1));
     }

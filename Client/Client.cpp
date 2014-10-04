@@ -2,9 +2,11 @@
 
 namespace chat
 {
-    Client::Client()
+    Client::Client() :
+        m_loginStatus(false),
+        m_onlineStatus(status::Unavailable)
     {
-        m_loginStatus = false;
+
     }
 
     void Client::loginPrompt()
@@ -21,8 +23,7 @@ namespace chat
 
     void Client::signup()
     {
-        /*std::fstream userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
-        std::string newUserName;
+        /*std::fstream userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app);       std::string newUserName;
         bool success = true;;
 
         std::cout << "Welcome to Chat Program signup page! Please fill out the following details." <<std::endl << std::endl;
@@ -63,11 +64,11 @@ namespace chat
         {
             std::cout << "Enter your username : ";
 
-            std::string userName, serverReply;
-            std::getline(std::cin, userName);
+            std::string serverReply;
+            std::getline(std::cin, m_userName);
 
             sf::Packet msgPacket;
-            msgPacket << userName;
+            msgPacket << m_userName;
 
             if (m_client.send(msgPacket) == sf::Socket::Done)
             {
@@ -81,6 +82,10 @@ namespace chat
                         {
                             m_loginStatus = true;
                             std::cout << "Login Successful!" << std::endl;
+
+                            std::cout << "Enter the name of the person you want to chat with : ";
+                            std::getline(std::cin, m_friend);
+                            m_onlineStatus = Client::status::Available;
                         }
                         else
                         {
@@ -98,6 +103,26 @@ namespace chat
         }
     }
 
+    bool Client::receive()
+    {
+        sf::Packet dataPacket;
+        sf::Socket::Status status = m_client.receive(dataPacket);
+
+        if (status == sf::Socket::Error)
+        {
+            std::cout << "ERROR :: Unable to receive data from remote peer!" <<  std::endl;
+        }
+        else
+        {
+            std::string data;
+
+            if (dataPacket >> data)
+            {
+                std::cout << data << std::endl;
+            }
+        }
+    }
+
     bool Client::logout()
     {
         m_client.disconnect();
@@ -112,5 +137,15 @@ namespace chat
     sf::Socket::Status Client::send(sf::Packet& packet)
     {
         return m_client.send(packet);
+    }
+
+    const std::string& Client::getUserName()
+    {
+        return m_userName;
+    }
+
+    const std::string& Client::getFriendName()
+    {
+        return m_friend;
     }
 }
