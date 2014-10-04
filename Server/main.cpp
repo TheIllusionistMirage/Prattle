@@ -11,7 +11,7 @@ int main()
         {
             if (server.wait())
             {
-                if (server.isReady())
+                if (server.newConnectionRequest())
                 {
                     server.addNewClient();
                 }

@@ -6,8 +6,8 @@ namespace chat
         m_userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app),
         timeOut(sf::seconds(5))
     {
-        m_server.listen(chat::OPEN_PORT);
-        m_selector.add(m_server);
+        m_listener.listen(chat::OPEN_PORT);
+        m_selector.add(m_listener);
         m_running = true;
 
         std::cout << "          ==========================" << std::endl;
@@ -35,16 +35,16 @@ namespace chat
         return m_selector.wait(timeOut);
     }
 
-    bool Server::isReady()
+    bool Server::newConnectionRequest()
     {
-        return m_selector.isReady(m_server);
+        return m_selector.isReady(m_listener);
     }
 
     bool Server::addNewClient()
     {
         std::unique_ptr<sf::TcpSocket> newClient{new sf::TcpSocket};
 
-        if (m_server.accept(*newClient) == sf::Socket::Done)
+        if (m_listener.accept(*newClient) == sf::Socket::Done)
         {
             m_selector.add(*newClient);
             sf::Packet loginPacket;
@@ -241,7 +241,7 @@ namespace chat
     {
         std::unique_ptr<sf::TcpSocket> newClient{new sf::TcpSocket};
 
-        if (m_server.accept(*newClient) == sf::Socket::Done)
+        if (m_listener.accept(*newClient) == sf::Socket::Done)
         {
             m_selector.add(*newClient);
             sf::Packet loginPacket;
@@ -306,7 +306,7 @@ namespace chat
 
     void Server::shutdown()
     {
-        m_server.close();
+        m_listener.close();
         m_userDatabase.close();
     }
 }

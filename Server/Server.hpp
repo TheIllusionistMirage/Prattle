@@ -29,7 +29,7 @@ namespace chat
 
             bool isRunning();
             bool wait();
-            bool isReady();
+            bool newConnectionRequest();
             bool addNewClient();
             bool receive();
             bool send(const std::string &senderUserName, const std::string &receiverUserName, const sf::Packet& dataPacket);
@@ -43,7 +43,7 @@ namespace chat
             sf::Time timeOut;
 
         private:
-            sf::TcpListener m_server;
+            sf::TcpListener m_listener;
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;
             sf::SocketSelector m_selector;
             bool m_running;
