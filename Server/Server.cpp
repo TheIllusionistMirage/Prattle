@@ -3,7 +3,8 @@
 namespace chat
 {
     Server::Server() :
-        m_userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app)
+        m_userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app),
+        timeOut(sf::seconds(5))
     {
         m_server.listen(chat::OPEN_PORT);
         m_selector.add(m_server);
@@ -31,7 +32,7 @@ namespace chat
 
     bool Server::wait()
     {
-        return m_selector.wait();
+        return m_selector.wait(timeOut);
     }
 
     bool Server::isReady()
@@ -57,38 +58,81 @@ namespace chat
                 {
                     if (isUsernameTaken(userName))
                     {
-                            std::cout << "[" + userName + "] joined chat! Welcome!" << std::endl;
-                            std::string msg = "registered";
+                        std::cout << "[" + userName + "] joined chat! Welcome!" << std::endl;
+
+                        std::string msg = "registered";
+                        sf::Packet msgPacket;
+
+                        msgPacket << msg;
+
+                        if (newClient->send(msgPacket) != sf::Socket::Done ||
+                            newClient->send(msgPacket) == sf::Socket::Error)
+                        {
+                            std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
+                        }
+
+                        m_clients.insert(std::make_pair(userName, std::move(newClient)));
+                    }
+
+                    else
+                    {
+                        sf::TcpSocket remotePeer;
+                        sf::Socket::Status status = remotePeer.connect(remotePeer.getRemoteAddress(), remotePeer.getRemotePort());
+
+                        if (status == sf::Socket::Done)
+                        {
+                            std::string msg = "unregistered";
+
                             sf::Packet msgPacket;
                             msgPacket << msg;
 
-                            if (newClient->send(msgPacket) != sf::Socket::Done ||
-                                newClient->send(msgPacket) == sf::Socket::Error)
+                            if (remotePeer.send(msgPacket) != sf::Socket::Done ||
+                                remotePeer.send(msgPacket) == sf::Socket::Error)
                             {
                                 std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
                             }
-                            m_clients.insert(std::pair<std::string, std::unique_ptr<sf::TcpSocket>>(userName, std::move(newClient)));
-                    }
-                    else
-                    {
-                            std::string msg = "unregistered";
-                            sf::Packet msgPacket;
-                            msgPacket << msg;
-                            if (newClient->send(msgPacket) != sf::Socket::Done ||
-                                newClient->send(msgPacket) == sf::Socket::Error)
-                            {
-                                std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
-                            }
+                        }
 
                         m_selector.remove(*newClient);
                         std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
-
                     }
                 }
             }
             else
             {
                 std::cout << "Unable to receive data from client!" << std::endl;
+            }
+        }
+    }
+
+    bool Server::send(const std::string &senderUserName, const std::string &receiverUserName, const sf::Packet& dataPacket)
+    {
+        auto itr = m_clients.find(receiverUserName);
+
+        if (itr == m_clients.end())
+        {
+            m_messages.insert(std::make_pair(std::make_pair(senderUserName, receiverUserName), dataPacket));
+        }
+
+        else
+        {
+            sf::TcpSocket remotePeer;
+            sf::Socket::Status status = remotePeer.connect(remotePeer.getRemoteAddress(), remotePeer.getRemotePort());
+
+            if (status == sf::Socket::Error || status != sf::Socket::Done)
+            {
+                std::cout << "ERROR :: Error in sending data to user" << std::endl;
+            }
+
+            std::string data;
+            sf::Packet msgPacket;
+
+            msgPacket << senderUserName << dataPacket;
+
+            if (remotePeer.send(msgPacket) != sf::Socket::Done ||
+                remotePeer.send(msgPacket) == sf::Socket::Error)
+            {
+                std::cout << "ERROR :: An error occured in sending message!" << std::endl;
             }
         }
     }
@@ -107,7 +151,35 @@ namespace chat
                 if (status == sf::Socket::Done)
                 {
                     if (dataPacket >> data)
-                        std::cout << data << std::endl;
+                    {
+                        std::string sender;
+                        std::string receiver;
+                        std::string msg;
+
+                        /*for (auto I = data[0]; I != ':'; I++)
+                            user += data[I];
+
+                        std::size_t pos = data.find(":");
+                        msg = data.substr(pos);
+
+                        //std::cout << data << std::endl;
+
+                        m_messages.insert(std::make_pair(user, msg));
+                        send(user, )*/
+
+                        std::size_t pos = data.find(":");
+                        sender = data.substr(0, pos);
+                        data = data.substr(pos + 1);
+                        receiver = data.substr(0, data.find(":"));
+                        msg = data.substr(data.find(":") + 1);
+
+                        sf::Packet msgPacket;
+                        msgPacket << msg;
+
+                        //std::cout << sender +  " " + receiver + " " + msg;
+                        if (!send(sender, receiver, msgPacket))
+                            std::cout << "ERROR :: Error in sending message to user!" << std::endl;
+                    }
                 }
 
                 if (status == sf::Socket::Disconnected)
@@ -138,6 +210,11 @@ namespace chat
 
     bool Server::isUsernameTaken(const std::string& userName)
     {
+        if (m_userDatabase.is_open())
+            m_userDatabase.close();
+
+        m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
+
         if (m_userDatabase.is_open() && m_userDatabase.good())
         {
             /*std::vector<std::string> parsedRecords;
@@ -160,14 +237,45 @@ namespace chat
         }
     }
 
-    bool Server::addNewUser(const std::string& userName)
+    bool Server::addNewUser()
     {
-        if (m_userDatabase.is_open() && m_userDatabase.good())
-        {
-            m_userDatabase.seekp(std::ios_base::end);
-            m_userDatabase << userName;
+        std::unique_ptr<sf::TcpSocket> newClient{new sf::TcpSocket};
 
-            return true;
+        if (m_server.accept(*newClient) == sf::Socket::Done)
+        {
+            m_selector.add(*newClient);
+            sf::Packet loginPacket;
+            std::string userName;
+
+            auto status = newClient->receive(loginPacket);
+
+            if (status == sf::Socket::Done)
+            {
+                if (loginPacket >> userName)
+                {
+                    if (!isUsernameTaken(userName))
+                    {
+                        if (m_userDatabase.is_open())
+                            m_userDatabase.close();
+
+                        m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
+
+                        if (m_userDatabase.is_open() && m_userDatabase.good())
+                        {
+                            m_userDatabase.seekp(std::ios_base::end);
+                            m_userDatabase << userName;
+
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        m_selector.remove(*newClient);
+                        std::cout << "Sorry, but that username's already been taken!" << std::endl;
+                    }
+                }
+                std::cout << "ERROR :: Unable to receive data from remote client!" << std::endl;
+            }
         }
 
         return false;
@@ -178,7 +286,7 @@ namespace chat
         std::vector<std::string> parsedRecords;
         if (m_userDatabase.is_open() && m_userDatabase.good())
         {
-            m_userDatabase.seekg(0);
+            //m_userDatabase.seekg(0);
 
             std::string record;
             while (!m_userDatabase.eof())
@@ -187,6 +295,10 @@ namespace chat
                 if (record[0] != '#')
                     parsedRecords.push_back(record);
             }
+        }
+        else
+        {
+            std::cout << "ERROR :: Error in opening user database!" << std::endl;
         }
 
         return parsedRecords;
