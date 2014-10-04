@@ -68,7 +68,7 @@ namespace chat
                         if (newClient->send(msgPacket) != sf::Socket::Done ||
                             newClient->send(msgPacket) == sf::Socket::Error)
                         {
-                            std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
+                            std::cerr << "ERROR :: Server.cpp:71\tUser: "<< userName << "\nCouln't Send msgPacket" << std::endl;
                         }
 
                         m_clients.insert(std::make_pair(userName, std::move(newClient)));
@@ -76,31 +76,24 @@ namespace chat
 
                     else
                     {
-                        sf::TcpSocket remotePeer;
-                        sf::Socket::Status status = remotePeer.connect(remotePeer.getRemoteAddress(), remotePeer.getRemotePort());
+                        std::string msg = "unregistered";
 
-                        if (status == sf::Socket::Done)
+                        sf::Packet msgPacket;
+                        msgPacket << msg;
+
+                        if (newClient->send(msgPacket) != sf::Socket::Done ||
+                            newClient->send(msgPacket) == sf::Socket::Error)
                         {
-                            std::string msg = "unregistered";
-
-                            sf::Packet msgPacket;
-                            msgPacket << msg;
-
-                            if (remotePeer.send(msgPacket) != sf::Socket::Done ||
-                                remotePeer.send(msgPacket) == sf::Socket::Error)
-                            {
-                                std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
-                            }
+                            std::cerr << "ERROR :: Server.cpp:87\tUser: "<< userName << "\nCouln't Send msgPacket" << std::endl;
                         }
-
                         m_selector.remove(*newClient);
-                        std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
+//What's the point of this ? --> std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
                     }
                 }
             }
             else
             {
-                std::cout << "Unable to receive data from client!" << std::endl;
+                std::cerr << "Server.cpp:96 :: Unable to receive data from client!" << std::endl;
             }
         }
     }
@@ -108,7 +101,7 @@ namespace chat
     bool Server::send(const std::string &senderUserName, const std::string &receiverUserName, const sf::Packet& dataPacket)
     {
         auto itr = m_clients.find(receiverUserName);
-
+        bool result = true;
         if (itr == m_clients.end())
         {
             m_messages.insert(std::make_pair(std::make_pair(senderUserName, receiverUserName), dataPacket));
@@ -116,25 +109,19 @@ namespace chat
 
         else
         {
-            sf::TcpSocket remotePeer;
-            sf::Socket::Status status = remotePeer.connect(remotePeer.getRemoteAddress(), remotePeer.getRemotePort());
-
-            if (status == sf::Socket::Error || status != sf::Socket::Done)
-            {
-                std::cout << "ERROR :: Error in sending data to user" << std::endl;
-            }
-
             std::string data;
             sf::Packet msgPacket;
 
-            msgPacket << senderUserName << dataPacket;
+            msgPacket << senderUserName << ":" << dataPacket;
 
-            if (remotePeer.send(msgPacket) != sf::Socket::Done ||
-                remotePeer.send(msgPacket) == sf::Socket::Error)
+            if (itr->second->send(msgPacket) != sf::Socket::Done ||
+                itr->second->send(msgPacket) == sf::Socket::Error)
             {
-                std::cout << "ERROR :: An error occured in sending message!" << std::endl;
+                std::cerr << "ERROR :: Server.cpp:120 ::An error occured in sending message from "<< senderUserName << " to " << receiverUserName << std::endl;
+                result = false;
             }
         }
+        return result;
     }
 
     bool Server::receive()
@@ -181,8 +168,7 @@ namespace chat
                             std::cout << "ERROR :: Error in sending message to user!" << std::endl;
                     }
                 }
-
-                if (status == sf::Socket::Disconnected)
+                else if (status == sf::Socket::Disconnected)
                 {
                     std::cout << "[" + itr->first + "] left chat! See him soon!" << std::endl;
                     m_selector.remove(*itr->second);

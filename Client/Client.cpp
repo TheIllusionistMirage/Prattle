@@ -101,6 +101,7 @@ namespace chat
         {
             std::cout << "ERROR :: Couldn't connect to the server! Please make sure that the server is up and running." << std::endl;
         }
+
     }
 
     bool Client::receive()
