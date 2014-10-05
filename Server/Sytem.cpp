@@ -2,7 +2,7 @@
 
 namespace chat
 {
-    const std::string getCurrentTimeAndDate()
+    std::string getCurrentTimeAndDate()
     {
         time_t now = time(0);
         struct tm tstruct;

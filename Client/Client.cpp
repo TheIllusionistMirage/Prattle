@@ -6,7 +6,6 @@ namespace chat
         m_loginStatus(false),
         m_onlineStatus(status::Unavailable)
     {
-
     }
 
     void Client::loginPrompt()
@@ -78,7 +77,7 @@ namespace chat
                 {
                     if (msgPacket >> serverReply)
                     {
-                        if (serverReply != "unregistered")
+                        if (serverReply == "registered")
                         {
                             m_loginStatus = true;
                             std::cout << "Login Successful!" << std::endl;
@@ -86,20 +85,25 @@ namespace chat
                             std::cout << "Enter the name of the person you want to chat with : ";
                             std::getline(std::cin, m_friend);
                             m_onlineStatus = Client::status::Available;
+                            m_client.setBlocking(false);
+                        }
+                        else if(serverReply == "unregistered")
+                        {
+                            std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
                         }
                         else
                         {
-                            std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
+                            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unknown reply from the server" << std::endl;
                         }
                     }
                 }
             }
             else if (m_client.send(msgPacket) == sf::Socket::Error)
-                std::cout << "ERROR :: An error occured in logging in! Please try again" << std::endl;
+                std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in logging in! Please try again" << std::endl;
         }
         else
         {
-            std::cout << "ERROR :: Couldn't connect to the server! Please make sure that the server is up and running." << std::endl;
+            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Couldn't connect to the server! Please make sure that the server is up and running." << std::endl;
         }
 
     }
@@ -109,18 +113,18 @@ namespace chat
         sf::Packet dataPacket;
         sf::Socket::Status status = m_client.receive(dataPacket);
 
-        if (status == sf::Socket::Error)
-        {
-            std::cout << "ERROR :: Unable to receive data from remote peer!" <<  std::endl;
-        }
-        else
+        while(status == sf::Socket::Done)
         {
             std::string data;
-
             if (dataPacket >> data)
             {
                 std::cout << data << std::endl;
             }
+            status = m_client.receive(dataPacket);
+        }
+        if (status == sf::Socket::Error)
+        {
+            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unable to receive data from remote peer!" <<  std::endl;
         }
     }
 

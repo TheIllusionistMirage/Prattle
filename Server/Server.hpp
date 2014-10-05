@@ -48,7 +48,9 @@ namespace chat
             bool m_running;
             std::vector<std::string> m_members;
             std::fstream m_userDatabase;
-            std::map<std::pair<std::string, std::string>, sf::Packet> m_messages;
+
+            //receiver , (sender,packet)
+            std::multimap<std::string, std::pair<std::string,sf::Packet> > m_messages;
     };
 }
 

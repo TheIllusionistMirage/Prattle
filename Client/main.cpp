@@ -23,8 +23,10 @@ int main()
             }
         } while (choice != 'r' && choice != 'l');
 
+        std::cout << "Enter a blank message to update ." << std::endl;
         while (client.isLoggedIn())
         {
+            client.receive();
             std::cout << "Me : ";
             std::string message;
 
@@ -34,9 +36,7 @@ int main()
             msgPacket << client.getUserName() + ":" + client.getFriendName() + ":" + message;
 
             if (client.send(msgPacket) == sf::Socket::Error)
-                std::cout << "ERROR :: Error in sending message! Please try again" << std::endl;
-
-            client.receive();
+                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
 
             sf::sleep(sf::milliseconds(1));
         }
