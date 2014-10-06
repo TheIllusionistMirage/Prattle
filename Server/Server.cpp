@@ -4,7 +4,7 @@ namespace chat
 {
     Server::Server() :
         m_userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app),
-        timeOut(sf::seconds(5))
+        timeOut(sf::seconds(60))
     {
         m_listener.listen(chat::OPEN_PORT);
         m_selector.add(m_listener);
@@ -21,7 +21,7 @@ namespace chat
 
         if (!m_userDatabase.good())
         {
-            throw std::runtime_error("Unable to open the user database " + USER_LIST + " !");
+            throw std::runtime_error("ERROR :: Unable to open the user database " + USER_LIST + " ! Exiting application.");
         }
     }
 
@@ -47,6 +47,7 @@ namespace chat
         if (m_listener.accept(*newClient) == sf::Socket::Done)
         {
             m_selector.add(*newClient);
+
             sf::Packet loginPacket;
             std::string userName;
             std::string password;
@@ -62,8 +63,8 @@ namespace chat
                     {
                         std::string msg = "registered";
                         sf::Packet msgPacket;
-
                         msgPacket << msg;
+
                         if (newClient->send(msgPacket) != sf::Socket::Done)
                         {
                             std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
@@ -75,6 +76,7 @@ namespace chat
                         std::cout << "[" + userName + "] joined chat! Welcome!" << std::endl;
 
                         auto itr_end = m_messages.upper_bound(userName);
+
                         for(auto itr = m_messages.lower_bound(userName) ; itr != itr_end ; ++itr)
                         {
                             if (newClient->send(itr->second.second) != sf::Socket::Done)
@@ -82,6 +84,7 @@ namespace chat
                                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< itr->first << " to " << userName << std::endl;
                             }
                         }
+
                         m_messages.erase(userName);
                         m_clients.insert(std::make_pair(userName, std::move(newClient)));
 
@@ -94,8 +97,8 @@ namespace chat
                         {
                             std::string msg = "registered";
                             sf::Packet msgPacket;
-
                             msgPacket << msg;
+
                             if (newClient->send(msgPacket) != sf::Socket::Done)
                             {
                                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
@@ -104,7 +107,7 @@ namespace chat
                                 return false;
                             }
 
-                             m_selector.remove(*newClient);
+                            m_selector.remove(*newClient);
                         }
 
                         else
@@ -114,7 +117,6 @@ namespace chat
                     if (!isUserRegistered(userName, password))
                     {
                         std::string msg = "unregistered";
-
                         sf::Packet msgPacket;
                         msgPacket << msg;
 
@@ -122,6 +124,7 @@ namespace chat
                         {
                             std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
                         }
+
                         m_selector.remove(*newClient);
 
                         return false;
@@ -132,8 +135,6 @@ namespace chat
             {
                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
             }
-
-            std::cout << userName + "&" + password + "&" + info << std::endl;
         }
     }
 
@@ -141,6 +142,7 @@ namespace chat
     {
         auto itr = m_clients.find(receiverUserName);
         bool result = true;
+
         if (itr == m_clients.end())
         {
             m_messages.insert(std::make_pair(receiverUserName,std::make_pair(senderUserName, dataPacket)));
@@ -183,6 +185,7 @@ namespace chat
                             std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Error in sending message to user!" << std::endl;
                     }
                 }
+
                 else if (status == sf::Socket::Disconnected)
                 {
                     std::cout << "[" + itr->first + "] left chat! See him soon!" << std::endl;
@@ -192,6 +195,7 @@ namespace chat
                     continue;
                 }
             }
+
             itr++;
         }
     }

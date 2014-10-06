@@ -1,3 +1,4 @@
+#include <exception>
 #include <cctype>
 #include "Client.hpp"
 
@@ -8,30 +9,14 @@ int main()
         chat::Client client;
         client.loginPrompt();
 
-        char choice;
-
-        do
-        {
-            std::cout << "(R)egister or (L)ogin to start chatting!" << std::endl;
-            std::cin >> choice;
-            std::cin.ignore();
-
-            switch (tolower(choice))
-            {
-                case 'r' : client.signup(); break;
-                case 'l' : client.login(); break;
-                default  : std::cout << "Please enter a valid option!" << std::endl;
-            }
-
-        } while (choice != 'r' && choice != 'l');
-
-        std::cout << "Enter a blank message to update ." << std::endl;
+        std::cout << "[ Press ENTER to update chat console ]" << std::endl;
 
         while (client.isLoggedIn())
         {
             std::string message;
 
             client.receive();
+
             std::cout << "Me : ";
             std::getline(std::cin, message, '\n');
 

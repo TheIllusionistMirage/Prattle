@@ -8,6 +8,8 @@ The client side application for chatting.
 #define CLIENT_HPP
 
 #include <iostream>
+#include <string>
+#include <vector>
 #include <SFML/Network.hpp>
 #include "System.hpp"
 
@@ -17,15 +19,24 @@ namespace chat
     {
         public:
             Client();
+
             void loginPrompt();
-            bool login();
-            bool logout();
+
             void signup();
-            sf::Socket::Status send(sf::Packet& packet);
-            bool receive();
+
+            bool login();
+
             bool isLoggedIn();
+
+            sf::Socket::Status send(sf::Packet& packet);
+
+            bool receive();
+
             const std::string& getUserName();
+
             const std::string& getFriendName();
+
+            bool logout();
 
         protected:
 
@@ -37,10 +48,10 @@ namespace chat
             //std::vector<std::string> m_friendList;
             std::string m_friend;
             enum class status{
-                Available = 0,
-                Busy,
+                Available  ,
+                Busy       ,
                 Unavailable,
-                Invisible
+                Offline
             } m_onlineStatus;
     };
 }

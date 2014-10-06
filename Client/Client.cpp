@@ -18,6 +18,22 @@ namespace chat
 
         std::cout << "By texus, amhndu & TheIllusionistMirage" << std::endl << std::endl;
 
+        char choice;
+
+        do
+        {
+            std::cout << "(R)egister or (L)ogin to start chatting!" << std::endl;
+            std::cin >> choice;
+            std::cin.ignore();
+
+            switch (tolower(choice))
+            {
+                case 'r' : signup(); break;
+                case 'l' : login(); break;
+                default  : std::cout << "Please enter a valid option!" << std::endl;
+            }
+
+        } while (choice != 'r' && choice != 'l');
     }
 
     void Client::signup()
@@ -123,6 +139,16 @@ namespace chat
 
     }
 
+    bool Client::isLoggedIn()
+    {
+        return m_loginStatus;
+    }
+
+    sf::Socket::Status Client::send(sf::Packet& packet)
+    {
+        return m_client.send(packet);
+    }
+
     bool Client::receive()
     {
         sf::Packet dataPacket;
@@ -137,28 +163,17 @@ namespace chat
             {
                 std::cout << sender << " : " << data << std::endl;
             }
+
             status = m_client.receive(dataPacket);
         }
+
         if (status == sf::Socket::Error)
         {
             std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unable to receive data from remote peer!" <<  std::endl;
+            return false;
         }
-    }
 
-    bool Client::logout()
-    {
-        m_client.disconnect();
-        m_loginStatus = false;
-    }
-
-    bool Client::isLoggedIn()
-    {
-        return m_loginStatus;
-    }
-
-    sf::Socket::Status Client::send(sf::Packet& packet)
-    {
-        return m_client.send(packet);
+        return true;
     }
 
     const std::string& Client::getUserName()
@@ -169,5 +184,11 @@ namespace chat
     const std::string& Client::getFriendName()
     {
         return m_friend;
+    }
+
+    bool Client::logout()
+    {
+        m_client.disconnect();
+        m_loginStatus = false;
     }
 }
