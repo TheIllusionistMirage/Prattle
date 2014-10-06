@@ -82,7 +82,7 @@ namespace chat
                                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< itr->first << " to " << userName << std::endl;
                             }
                         }
-                        m_messages.erase(userName);//assuming all went well
+                        m_messages.erase(userName);
                         m_clients.insert(std::make_pair(userName, std::move(newClient)));
 
                         return true;
@@ -90,7 +90,6 @@ namespace chat
 
                     if (info == "new_user")
                     {
-                        //std::cout << userName << "&" << password << std::endl;
                         if (addNewUser(userName, password))
                         {
                             std::string msg = "registered";
@@ -112,7 +111,7 @@ namespace chat
                             std::cout << "Couldn't register new user!" << std::endl;
                     }
 
-                    if (!isUserRegistered(userName, password))// && info == "existing_user")
+                    if (!isUserRegistered(userName, password))
                     {
                         std::string msg = "unregistered";
 
@@ -167,7 +166,6 @@ namespace chat
             if (m_selector.isReady(*itr->second))
             {
                 sf::Packet dataPacket;
-                //std::string data;
                 std::string sender;
                 std::string receiver;
                 std::string msg;
@@ -178,12 +176,6 @@ namespace chat
                 {
                     if (dataPacket >> sender >> receiver >> msg)
                     {
-                        /*std::size_t pos = data.find(":");
-                        sender = data.substr(0, pos);
-                        data = data.substr(pos + 1);
-                        receiver = data.substr(0, data.find(":"));
-                        msg = data.substr(data.find(":") + 1);*/
-
                         sf::Packet msgPacket;
                         msgPacket << sender << msg;
 
@@ -217,8 +209,7 @@ namespace chat
         }
     }
 
-    //bool Server::isUserRegistered(const std::string& userName, const std::string& password)
-    bool Server::isUserRegistered(const std::string userName, const std::string password)
+    bool Server::isUserRegistered(const std::string& userName, const std::string& password)
     {
         if (m_userDatabase.is_open())
             m_userDatabase.close();
@@ -238,51 +229,8 @@ namespace chat
         }
     }
 
-    //bool Server::addNewUser(const std::string& userName, const std::string& password)
-    bool Server::addNewUser(const std::string userName, const std::string password)
+    bool Server::addNewUser(const std::string& userName, const std::string& password)
     {
-        /*std::unique_ptr<sf::TcpSocket> newClient{new sf::TcpSocket};
-
-        if (m_listener.accept(*newClient) == sf::Socket::Done)
-        {
-            m_selector.add(*newClient);
-            sf::Packet loginPacket;
-            std::string userName;
-            std::string password;
-
-            auto status = newClient->receive(loginPacket);
-
-            if (status == sf::Socket::Done)
-            {
-                if (loginPacket >> userName >> password)
-                {
-                    if (!isUserRegistered(userName, password))
-                    {
-                        if (m_userDatabase.is_open())
-                            m_userDatabase.close();
-
-                        m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
-
-                        if (m_userDatabase.is_open() && m_userDatabase.good())
-                        {
-                            m_userDatabase.seekp(std::ios_base::end);
-                            m_userDatabase << userName;
-
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        m_selector.remove(*newClient);
-                        std::cout << "Sorry, but that username's already been taken!" << std::endl;
-                    }
-                }
-                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from remote client!" << std::endl;
-            }
-        }
-
-        return false;*/
-
         if (!isUserRegistered(userName, password))
         {
             if (m_userDatabase.is_open())
@@ -293,8 +241,7 @@ namespace chat
             if (m_userDatabase.is_open() && m_userDatabase.good())
             {
                 m_userDatabase.seekp(std::ios_base::end);
-                //std::cout << userName << ":" << password << std::endl;
-                m_userDatabase << userName << ":" << password;
+                m_userDatabase << userName << ":" << password << std::endl;
 
                 return true;
             }

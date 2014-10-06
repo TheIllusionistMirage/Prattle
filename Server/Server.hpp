@@ -35,10 +35,8 @@ namespace chat
             void openDatabase(const std::string& userList = chat::USER_LIST);
             void shutdown();
             std::vector<std::string> getRecords();
-            //bool isUserRegistered(const std::string& userName, const std::string& password);
-            bool isUserRegistered(const std::string userName, const std::string password);
-            //bool addNewUser(const std::string& userName, const std::string& password);
-            bool addNewUser(const std::string userName, const std::string password);
+            bool isUserRegistered(const std::string& userName, const std::string& password);
+            bool addNewUser(const std::string& userName, const std::string& password);
 
         protected:
             sf::Time timeOut;
@@ -50,8 +48,6 @@ namespace chat
             bool m_running;
             std::vector<std::string> m_members;
             std::fstream m_userDatabase;
-
-            //receiver , (sender,packet)
             std::multimap<std::string, std::pair<std::string,sf::Packet> > m_messages;
     };
 }

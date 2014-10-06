@@ -22,54 +22,20 @@ namespace chat
 
     void Client::signup()
     {
-        /*std::fstream userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app);       std::string newUserName;
-        bool success = true;;
-
-        std::cout << "Welcome to Chat Program signup page! Please fill out the following details." <<std::endl << std::endl;
-        std::cout << "Your Username : ";
-        std::getline(std::cin, newUserName);
-
-        userDatabase.seekg(0);
-
-        if (userDatabase.good() && userDatabase.is_open())
-        {
-            while (!userDatabase.eof())
-            {
-                std::string record;
-                std::getline(userDatabase, record, '\n');
-
-                if (record[0] != '#')
-                    continue;
-                else
-                    if (record == newUserName)
-                        success = false;
-            }
-
-            if (!success)
-                std::cout << "The username \"" + newUserName + "\" is already been taken! Please use something else." << std::endl;
-            else
-            {
-                userDatabase.seekp(std::ios::end);
-                userDatabase << newUserName;
-            }
-        }*/
-
         sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
 
         if (connectionSuccess == sf::Socket::Done)
         {
-            std::string username;
-            std::string password;
-            std::string msg = "new_user";
+            std::string info = "new_user";
 
             std::cout << "Pick a username : ";
-            std::getline(std::cin, username);
+            std::getline(std::cin, m_userName);
 
             std::cout << "Choose a password [Tip : Make you passwor strong by including lowercase/uppercase letters, digits and special characters] : ";
-            std::getline(std::cin, password);
+            std::getline(std::cin, m_password);
 
             sf::Packet msgPacket;
-            msgPacket << m_userName << m_password << msg;
+            msgPacket << m_userName << m_password << info;
 
             if (m_client.send(msgPacket) == sf::Socket::Done)
             {
@@ -85,12 +51,11 @@ namespace chat
                         {
                             m_loginStatus = false;
                             std::cout << "Registration successful!" << std::endl;
-                            std::cout << "Now restart application and login to start chatting!" << std::endl;
+                            std::cout << "Now login to start chatting!" << std::endl;
                         }
 
                         else if (serverReply != "registered")
                         {
-                            //std::cout << serverReply;
                             std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Problem occured in registration! Please try again" << std::endl;
                         }
                     }
@@ -116,7 +81,6 @@ namespace chat
 
             sf::Packet msgPacket;
             msgPacket << m_userName << m_password << info;
-            //////////////
 
             if (m_client.send(msgPacket) == sf::Socket::Done)
             {

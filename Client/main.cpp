@@ -9,6 +9,7 @@ int main()
         client.loginPrompt();
 
         char choice;
+
         do
         {
             std::cout << "(R)egister or (L)ogin to start chatting!" << std::endl;
@@ -21,19 +22,21 @@ int main()
                 case 'l' : client.login(); break;
                 default  : std::cout << "Please enter a valid option!" << std::endl;
             }
+
         } while (choice != 'r' && choice != 'l');
 
         std::cout << "Enter a blank message to update ." << std::endl;
+
         while (client.isLoggedIn())
         {
-            client.receive();
-            std::cout << "Me : ";
             std::string message;
 
+            client.receive();
+            std::cout << "Me : ";
             std::getline(std::cin, message, '\n');
 
             sf::Packet msgPacket;
-            //msgPacket << client.getUserName() + ":" + client.getFriendName() + ":" + message;
+
             msgPacket << client.getUserName() << client.getFriendName() << message;
 
             if (client.send(msgPacket) == sf::Socket::Error)
