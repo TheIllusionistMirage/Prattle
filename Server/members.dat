@@ -1,5 +1,8 @@
-eric
-tom
-henry
-jerry
-louis
+# Entries are in the format
+# USERNAME:PASSWORD
+
+eric:123abc
+tom:cbfg23
+henry:password
+jerry:asmd00
+louis:louispass

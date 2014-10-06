@@ -33,6 +33,7 @@ namespace chat
             sf::TcpSocket m_client;
             bool m_loginStatus;
             std::string m_userName;
+            std::string m_password;
             //std::vector<std::string> m_friendList;
             std::string m_friend;
             enum class status{

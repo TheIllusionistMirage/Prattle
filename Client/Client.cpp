@@ -53,21 +53,23 @@ namespace chat
                 userDatabase << newUserName;
             }
         }*/
-    }
 
-    bool Client::login()
-    {
-        sf::Socket::Status loginSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
+        sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
 
-        if (loginSuccess == sf::Socket::Done)
+        if (connectionSuccess == sf::Socket::Done)
         {
-            std::cout << "Enter your username : ";
+            std::string username;
+            std::string password;
+            std::string msg = "new_user";
 
-            std::string serverReply;
-            std::getline(std::cin, m_userName);
+            std::cout << "Pick a username : ";
+            std::getline(std::cin, username);
+
+            std::cout << "Choose a password [Tip : Make you passwor strong by including lowercase/uppercase letters, digits and special characters] : ";
+            std::getline(std::cin, password);
 
             sf::Packet msgPacket;
-            msgPacket << m_userName;
+            msgPacket << m_userName << m_password << msg;
 
             if (m_client.send(msgPacket) == sf::Socket::Done)
             {
@@ -75,6 +77,55 @@ namespace chat
 
                 if (status == sf::Socket::Done)
                 {
+                    std::string serverReply;
+
+                    if (msgPacket >> serverReply)
+                    {
+                        if (serverReply == "registered")
+                        {
+                            m_loginStatus = false;
+                            std::cout << "Registration successful!" << std::endl;
+                            std::cout << "Now restart application and login to start chatting!" << std::endl;
+                        }
+
+                        else if (serverReply != "registered")
+                        {
+                            //std::cout << serverReply;
+                            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Problem occured in registration! Please try again" << std::endl;
+                        }
+                    }
+                }
+            }
+            else if (m_client.send(msgPacket) == sf::Socket::Error)
+                std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in registration! Please try again" << std::endl;
+        }
+    }
+
+    bool Client::login()
+    {
+        sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
+
+        if (connectionSuccess == sf::Socket::Done)
+        {
+            std::string info = "existing_user";
+
+            std::cout << "Enter your username : ";
+            std::getline(std::cin, m_userName);
+            std::cout << "Enter your password : ";
+            std::getline(std::cin, m_password);
+
+            sf::Packet msgPacket;
+            msgPacket << m_userName << m_password << info;
+            //////////////
+
+            if (m_client.send(msgPacket) == sf::Socket::Done)
+            {
+                sf::Socket::Status status = m_client.receive(msgPacket);
+
+                if (status == sf::Socket::Done)
+                {
+                    std::string serverReply;
+
                     if (msgPacket >> serverReply)
                     {
                         if (serverReply == "registered")
@@ -115,10 +166,12 @@ namespace chat
 
         while(status == sf::Socket::Done)
         {
+            std::string sender;
             std::string data;
-            if (dataPacket >> data)
+
+            if (dataPacket >> sender >> data)
             {
-                std::cout << data << std::endl;
+                std::cout << sender << " : " << data << std::endl;
             }
             status = m_client.receive(dataPacket);
         }

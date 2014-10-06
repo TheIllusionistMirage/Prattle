@@ -33,7 +33,8 @@ int main()
             std::getline(std::cin, message, '\n');
 
             sf::Packet msgPacket;
-            msgPacket << client.getUserName() + ":" + client.getFriendName() + ":" + message;
+            //msgPacket << client.getUserName() + ":" + client.getFriendName() + ":" + message;
+            msgPacket << client.getUserName() << client.getFriendName() << message;
 
             if (client.send(msgPacket) == sf::Socket::Error)
                 std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;

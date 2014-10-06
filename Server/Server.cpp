@@ -49,24 +49,26 @@ namespace chat
             m_selector.add(*newClient);
             sf::Packet loginPacket;
             std::string userName;
+            std::string password;
+            std::string info;
 
             auto status = newClient->receive(loginPacket);
 
             if (status == sf::Socket::Done)
             {
-                if (loginPacket >> userName)
+                if (loginPacket >> userName >> password >> info)
                 {
-                    if (isUsernameTaken(userName))
+                    if (isUserRegistered(userName, password) && info == "existing_user")
                     {
                         std::string msg = "registered";
                         sf::Packet msgPacket;
 
                         msgPacket << msg;
-                        if (newClient->send(msgPacket) != sf::Socket::Done)/* ||
-                            newClient->send(msgPacket) == sf::Socket::Error)*/
+                        if (newClient->send(msgPacket) != sf::Socket::Done)
                         {
                             std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
                             m_selector.remove(*newClient);
+
                             return false;
                         }
 
@@ -75,29 +77,55 @@ namespace chat
                         auto itr_end = m_messages.upper_bound(userName);
                         for(auto itr = m_messages.lower_bound(userName) ; itr != itr_end ; ++itr)
                         {
-                            if (newClient->send(itr->second.second) != sf::Socket::Done)/* ||
-                                newClient->send(itr->second.second) == sf::Socket::Error)*/
-                            {   //Should this be added to queue ?
+                            if (newClient->send(itr->second.second) != sf::Socket::Done)
+                            {
                                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< itr->first << " to " << userName << std::endl;
                             }
                         }
                         m_messages.erase(userName);//assuming all went well
                         m_clients.insert(std::make_pair(userName, std::move(newClient)));
+
+                        return true;
                     }
 
-                    else
+                    if (info == "new_user")
+                    {
+                        //std::cout << userName << "&" << password << std::endl;
+                        if (addNewUser(userName, password))
+                        {
+                            std::string msg = "registered";
+                            sf::Packet msgPacket;
+
+                            msgPacket << msg;
+                            if (newClient->send(msgPacket) != sf::Socket::Done)
+                            {
+                                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
+                                m_selector.remove(*newClient);
+
+                                return false;
+                            }
+
+                             m_selector.remove(*newClient);
+                        }
+
+                        else
+                            std::cout << "Couldn't register new user!" << std::endl;
+                    }
+
+                    if (!isUserRegistered(userName, password))// && info == "existing_user")
                     {
                         std::string msg = "unregistered";
 
                         sf::Packet msgPacket;
                         msgPacket << msg;
 
-                        if (newClient->send(msgPacket) != sf::Socket::Done)/* ||
-                            newClient->send(msgPacket) == sf::Socket::Error)*/
+                        if (newClient->send(msgPacket) != sf::Socket::Done)
                         {
                             std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
                         }
                         m_selector.remove(*newClient);
+
+                        return false;
                     }
                 }
             }
@@ -105,6 +133,8 @@ namespace chat
             {
                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
             }
+
+            std::cout << userName + "&" + password + "&" + info << std::endl;
         }
     }
 
@@ -121,8 +151,7 @@ namespace chat
         {
             sf::Packet msgPacket{dataPacket};
 
-            if (itr->second->send(msgPacket) != sf::Socket::Done) /*||
-                itr->second->send(msgPacket) == sf::Socket::Error)*/
+            if (itr->second->send(msgPacket) != sf::Socket::Done)
             {
                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< senderUserName << " to " << receiverUserName << std::endl;
                 result = false;
@@ -138,39 +167,26 @@ namespace chat
             if (m_selector.isReady(*itr->second))
             {
                 sf::Packet dataPacket;
-                std::string data;
+                //std::string data;
+                std::string sender;
+                std::string receiver;
+                std::string msg;
 
                 auto status = (itr->second)->receive(dataPacket);
 
                 if (status == sf::Socket::Done)
                 {
-                    if (dataPacket >> data)
+                    if (dataPacket >> sender >> receiver >> msg)
                     {
-                        std::string sender;
-                        std::string receiver;
-                        std::string msg;
-
-                        /*for (auto I = data[0]; I != ':'; I++)
-                            user += data[I];
-
-                        std::size_t pos = data.find(":");
-                        msg = data.substr(pos);
-
-                        //std::cout << data << std::endl;
-
-                        m_messages.insert(std::make_pair(user, msg));
-                        send(user, )*/
-
-                        std::size_t pos = data.find(":");
+                        /*std::size_t pos = data.find(":");
                         sender = data.substr(0, pos);
                         data = data.substr(pos + 1);
                         receiver = data.substr(0, data.find(":"));
-                        msg = data.substr(data.find(":") + 1);
+                        msg = data.substr(data.find(":") + 1);*/
 
                         sf::Packet msgPacket;
-                        msgPacket << sender+" : "+msg;
+                        msgPacket << sender << msg;
 
-                        //std::cout << sender +  " " + receiver + " " + msg;
                         if (!send(sender, receiver, msgPacket))
                             std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Error in sending message to user!" << std::endl;
                     }
@@ -201,7 +217,8 @@ namespace chat
         }
     }
 
-    bool Server::isUsernameTaken(const std::string& userName)
+    //bool Server::isUserRegistered(const std::string& userName, const std::string& password)
+    bool Server::isUserRegistered(const std::string userName, const std::string password)
     {
         if (m_userDatabase.is_open())
             m_userDatabase.close();
@@ -210,43 +227,36 @@ namespace chat
 
         if (m_userDatabase.is_open() && m_userDatabase.good())
         {
-            /*std::vector<std::string> parsedRecords;
-            m_userDatabase.seekg(0);
-            std::string record;
-
-            while (!m_userDatabase.eof())
-            {
-                std::getline(m_userDatabase, record, '\n');
-                parsedRecords.push_back(record);
-            }*/
-
             std::vector<std::string> parsedRecords = getRecords();
-            auto itr = std::find(parsedRecords.begin(), parsedRecords.end(), userName);
+            auto itr = std::find(parsedRecords.begin(), parsedRecords.end(), userName + ":" + password);
 
             if (itr != parsedRecords.end())
                 return true;
+
             else
                 return false;
         }
     }
 
-    bool Server::addNewUser()
+    //bool Server::addNewUser(const std::string& userName, const std::string& password)
+    bool Server::addNewUser(const std::string userName, const std::string password)
     {
-        std::unique_ptr<sf::TcpSocket> newClient{new sf::TcpSocket};
+        /*std::unique_ptr<sf::TcpSocket> newClient{new sf::TcpSocket};
 
         if (m_listener.accept(*newClient) == sf::Socket::Done)
         {
             m_selector.add(*newClient);
             sf::Packet loginPacket;
             std::string userName;
+            std::string password;
 
             auto status = newClient->receive(loginPacket);
 
             if (status == sf::Socket::Done)
             {
-                if (loginPacket >> userName)
+                if (loginPacket >> userName >> password)
                 {
-                    if (!isUsernameTaken(userName))
+                    if (!isUserRegistered(userName, password))
                     {
                         if (m_userDatabase.is_open())
                             m_userDatabase.close();
@@ -271,24 +281,51 @@ namespace chat
             }
         }
 
+        return false;*/
+
+        if (!isUserRegistered(userName, password))
+        {
+            if (m_userDatabase.is_open())
+                m_userDatabase.close();
+
+            m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
+
+            if (m_userDatabase.is_open() && m_userDatabase.good())
+            {
+                m_userDatabase.seekp(std::ios_base::end);
+                //std::cout << userName << ":" << password << std::endl;
+                m_userDatabase << userName << ":" << password;
+
+                return true;
+            }
+        }
+
+        else
+        {
+            std::cout << "Sorry, but that username's already been taken! Please try another name!" << std::endl;
+        }
+
         return false;
     }
 
     std::vector<std::string> Server::getRecords()
     {
         std::vector<std::string> parsedRecords;
+
         if (m_userDatabase.is_open() && m_userDatabase.good())
         {
-            //m_userDatabase.seekg(0);
-
+            m_userDatabase.seekg(0);
             std::string record;
+
             while (!m_userDatabase.eof())
             {
                 std::getline(m_userDatabase, record, '\n');
+
                 if (record[0] != '#')
                     parsedRecords.push_back(record);
             }
         }
+
         else
         {
             std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Error in opening user database!" << std::endl;
