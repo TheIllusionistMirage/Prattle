@@ -131,9 +131,11 @@ namespace chat
                     }
                 }
             }
+
             else
             {
                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
+                return false;
             }
         }
     }
@@ -161,7 +163,7 @@ namespace chat
         return result;
     }
 
-    bool Server::receive()
+    void Server::receive()
     {
         for (auto itr = m_clients.begin(); itr != m_clients.end(); )
         {

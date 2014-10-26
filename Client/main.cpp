@@ -7,11 +7,12 @@ int main()
     try
     {
         chat::Client client;
-        client.loginPrompt();
+        client.run();
+        //client.loginPrompt();
 
-        std::cout << "[ Press ENTER to update chat console ]" << std::endl;
+        //std::cout << "[ Press ENTER to update chat console ]" << std::endl;
 
-        while (client.isLoggedIn())
+        /*while (client.isLoggedIn())
         {
             std::string message;
 
@@ -27,10 +28,12 @@ int main()
             if (client.send(msgPacket) == sf::Socket::Error)
                 std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
 
+            //client.renderScreen();
+
             sf::sleep(sf::milliseconds(1));
         }
 
-        client.logout();
+        client.logout();*/
 
         return 0;
     }

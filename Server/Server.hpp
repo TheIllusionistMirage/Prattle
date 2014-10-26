@@ -40,7 +40,7 @@ namespace chat
                       const std::string &receiverUserName,
                       const sf::Packet& dataPacket);
 
-            bool receive();
+            void receive();
 
             void openDatabase(const std::string& userList = chat::USER_LIST);
 
