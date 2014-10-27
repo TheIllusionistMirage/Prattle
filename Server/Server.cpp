@@ -132,8 +132,10 @@ namespace chat
                 }
             }
             else
+
             {
                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
+                return false;
             }
         }
     }
@@ -161,7 +163,7 @@ namespace chat
         return result;
     }
 
-    bool Server::receive()
+    void Server::receive()
     {
         for (auto itr = m_clients.begin(); itr != m_clients.end(); )
         {
@@ -215,11 +217,11 @@ namespace chat
 
     bool Server::isUserRegistered(const std::string& userName, const std::string& password)
     {
-        if (m_userDatabase.is_open())
-            m_userDatabase.close();
-
-        m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
-
+//        if (m_userDatabase.is_open())
+//            m_userDatabase.close();
+//
+//        m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
+//
         if (m_userDatabase.is_open() && m_userDatabase.good())
         {
             std::vector<std::string> parsedRecords = getRecords();
@@ -237,10 +239,10 @@ namespace chat
     {
         if (!isUserRegistered(userName, password))
         {
-            if (m_userDatabase.is_open())
-                m_userDatabase.close();
-
-            m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
+//            if (m_userDatabase.is_open())
+//                m_userDatabase.close();
+//
+//            m_userDatabase.open(USER_LIST, std::ios::in | std::ios::out | std::ios::app);
 
             if (m_userDatabase.is_open() && m_userDatabase.good())
             {
@@ -275,6 +277,9 @@ namespace chat
                 if (record[0] != '#')
                     parsedRecords.push_back(record);
             }
+            //Reset file
+            m_userDatabase.clear();
+            m_userDatabase.seekg(0);
         }
 
         else
