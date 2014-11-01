@@ -1,8 +1,8 @@
 # Entries are in the format
 # USERNAME:PASSWORD
 
-eric:123abc
-tom:cbfg23
-henry:password
-jerry:asmd00
+eric:ericpass
+tom:tompass
+henry:henrypass
+jerry:jerrypass
 louis:louispass

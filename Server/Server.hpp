@@ -18,6 +18,7 @@ For clients to start chatting, they need to connect to the server.
 #include <vector>
 #include <map>
 #include <ctime>
+#include <list>
 #include <SFML/Network.hpp>
 #include "System.hpp"
 
@@ -34,7 +35,7 @@ namespace chat
 
             bool newConnectionRequest();
 
-            bool addNewClient();
+            void addNewClient();
 
             bool send(const std::string &senderUserName,
                       const std::string &receiverUserName,
@@ -54,16 +55,15 @@ namespace chat
 
             void shutdown();
 
-        protected:
-            sf::Time timeOut;
-
         private:
             sf::TcpListener m_listener;
             sf::SocketSelector m_selector;
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;
             bool m_running;
             std::fstream m_userDatabase;
+            sf::Time timeOut;
             std::multimap<std::string, std::pair<std::string,sf::Packet>> m_messages;
+            std::list<std::unique_ptr<sf::TcpSocket>> newConnections;
     };
 }
 

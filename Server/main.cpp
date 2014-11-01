@@ -15,7 +15,6 @@ int main()
                 {
                     server.addNewClient();
                 }
-
                 else
                 {
                     server.receive();
