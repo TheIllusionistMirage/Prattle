@@ -3,7 +3,6 @@
 namespace chat
 {
     Server::Server() :
-        m_userDatabase(USER_LIST, std::ios::in | std::ios::out | std::ios::app),
         timeOut(sf::seconds(60))
     {
         m_listener.listen(chat::OPEN_PORT);
@@ -18,11 +17,6 @@ namespace chat
 
         std::cout << "--- Server went up at " << chat::getCurrentTimeAndDate() << " ---" << std::endl;
         std::cout << "--- Listening to incoming connections at port " << chat::OPEN_PORT << " ---" << std::endl;
-
-        if (!m_userDatabase.good())
-        {
-            throw std::runtime_error("ERROR :: Unable to open the user database " + USER_LIST + " ! Exiting application.");
-        }
     }
 
     bool Server::isRunning()
@@ -50,7 +44,7 @@ namespace chat
             newClient->setBlocking(false);
             newConnections.push_back(std::move(newClient));
 
-//TO KC : Feel free to delete the following commented lines
+///TO KC : Feel free to delete the following commented lines
 //            sf::Packet loginPacket;
 //            std::string userName;
 //            std::string password;
@@ -220,7 +214,7 @@ namespace chat
                 {
                     if (loginPacket >> userName >> password >> info)
                     {
-                        if (isUserRegistered(userName, password) && info == "existing_user")
+                        if (db.isValidPassword(userName, password) && info == "existing_user")
                         {
                             std::string msg = "registered";
                             sf::Packet msgPacket;
@@ -252,7 +246,7 @@ namespace chat
 
                         if (info == "new_user")
                         {
-                            if (addNewUser(userName, password))
+                            if (db.addNewUser(userName, password))
                             {
                                 std::string msg = "registered";
                                 sf::Packet msgPacket;
@@ -270,7 +264,7 @@ namespace chat
                                 std::cout << "Couldn't register new user!" << std::endl;
                         }
 
-                        if (!isUserRegistered(userName, password))
+                        if (! db.isValidPassword(userName, password))
                         {
                             std::string msg = "unregistered";
                             sf::Packet msgPacket;
@@ -301,83 +295,8 @@ namespace chat
         }
     }
 
-    void Server::openDatabase(const std::string& userList)
-    {
-        if (m_userDatabase.is_open())
-            m_userDatabase.close();
-
-        m_userDatabase.open(userList, std::ios::in | std::ios::out | std::ios::app);
-
-        if (!m_userDatabase.good())
-        {
-            throw std::runtime_error("Unable to open the user database " + userList + " !");
-        }
-    }
-
-    bool Server::isUserRegistered(const std::string& userName, const std::string& password)
-    {
-        if (m_userDatabase.is_open() && m_userDatabase.good())
-        {
-            std::vector<std::string> parsedRecords = getRecords();
-            auto itr = std::find(parsedRecords.begin(), parsedRecords.end(), userName + ":" + password);
-
-            if (itr != parsedRecords.end())
-                return true;
-        }
-        return false;
-    }
-
-    bool Server::addNewUser(const std::string& userName, const std::string& password)
-    {
-        if (!isUserRegistered(userName, password))
-        {
-            if (m_userDatabase.is_open() && m_userDatabase.good())
-            {
-                m_userDatabase.seekp(std::ios_base::end);
-                m_userDatabase << userName << ":" << password << std::endl;
-
-                return true;
-            }
-        }
-//  To KC : Why output the below to stdout in the Server ?
-//        else
-//        {
-//            std::cout << "Sorry, but that username has already been taken! Please try another name!" << std::endl;
-//        }
-//
-        return false;
-    }
-
-    std::vector<std::string> Server::getRecords()
-    {
-        std::vector<std::string> parsedRecords;
-
-        if (m_userDatabase.is_open() && m_userDatabase.good())
-        {
-            m_userDatabase.seekg(0);
-            std::string record;
-
-            while (!m_userDatabase.eof())
-            {
-                std::getline(m_userDatabase, record, '\n');
-                if (record.size() > 2)
-                    parsedRecords.push_back(record);
-            }
-            //Reset file
-            m_userDatabase.clear();
-            m_userDatabase.seekg(0);
-        }
-        else
-        {
-            std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Error in opening user database!" << std::endl;
-        }
-
-        return parsedRecords;
-    }
-
     void Server::shutdown()
     {
         m_listener.close();
-        m_userDatabase.close();
     }
 }

@@ -13,4 +13,8 @@ namespace chat
 
         return buf;
     }
+    std::string pwd_hash(const std::string& str)
+    {
+        return str;
+    }
 }

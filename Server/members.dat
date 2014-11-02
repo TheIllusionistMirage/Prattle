@@ -1,7 +1,9 @@
 # Entries are in the format
-# USERNAME:PASSWORD
+# USERNAME:PASSWORD:
+# Anything after the last colon is ignored
+# A line starting with '#' is ignored
 
-raptor:raptorpass
-trex:trexpass
-firefly:fireflypass
-albatross:albatrosspass
+raptor:raptorpass:
+trex:trexpass:
+firefly:fireflypass:
+albatross:albatrosspass:
