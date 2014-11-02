@@ -5,6 +5,12 @@
 #include <iostream>
 #include "System.hpp"
 
+struct Record
+{
+    std::string hashed_pwd;
+    std::string salt;
+};
+
 namespace chat
 {
     class UserDatabase
@@ -18,8 +24,8 @@ namespace chat
             void parse_file();
 
             std::fstream dbFile;
-            //format : (username,hashed password)
-            std::map<std::string,std::string> records;
+            //          (User name,Record)
+            std::map<std::string,Record> records;
     };
 }
 #endif // USERDATABASE_H

@@ -5,7 +5,11 @@ namespace chat
     Server::Server() :
         timeOut(sf::seconds(60))
     {
-        m_listener.listen(chat::OPEN_PORT);
+        auto status = m_listener.listen(chat::OPEN_PORT);
+        if(status != sf::Socket::Done)
+        {
+            throw std::runtime_error("Fatal error : Error binding the listener at "+std::to_string(chat::OPEN_PORT));
+        }
         m_selector.add(m_listener);
         m_running = true;
 

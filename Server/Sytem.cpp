@@ -13,7 +13,11 @@ namespace chat
 
         return buf;
     }
-    std::string pwd_hash(const std::string& str)
+    std::string generate_salt()
+    {
+        return "";
+    }
+    std::string pwd_hash(const std::string& str,const std::string& salt)
     {
         return str;
     }
