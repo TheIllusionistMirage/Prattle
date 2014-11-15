@@ -3,7 +3,7 @@ Prattle
 
 Prattle is a simple chat program written in C++, using SFML.
 
-Currently, console chat is possible. A GUI, file transfer facility, multiple friendlist and online statuses will be soon added.
+Currently, console chat is possible and a secure user database exists. A GUI, file transfer facility, multiple friendlist and online statuses with a range of other stuff will be added soon.
 
 
 Authors
