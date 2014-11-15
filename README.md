@@ -1,7 +1,7 @@
-ChatProgram
+Prattle
 ===========
 
-A simple chat program written in C++, using SFML.
+Prattle is a simple chat program written in C++, using SFML.
 
 Currently, console chat is possible. A GUI, file transfer facility, multiple friendlist and online statuses will be soon added.
 
