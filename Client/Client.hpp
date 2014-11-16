@@ -17,6 +17,8 @@ The client side application for chatting.
 
 namespace chat
 {
+    void changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel);
+
     class Client
     {
         public:
@@ -49,6 +51,9 @@ namespace chat
         protected:
             void changeScreenState(chat::ScreenState screenState);
 
+            // GUI related functions
+            //void changePanelVisibility(tgui::Panel::Ptr panel);
+
         private:
 
             /* Communication related members */
@@ -60,6 +65,8 @@ namespace chat
             //std::vector<std::string> m_friendList;
             std::string m_friend;
             OnlineStatus m_onlineStatus;
+            int minUserNameLength{8};
+            int maxUserNameLength{15};
 
             /* GUI related members*/
 
@@ -109,10 +116,31 @@ namespace chat
 
             // Chat screen related widgets
 
+            /*tgui::Tab::Ptr m_chatTab;
+            tgui::Button::Ptr m_friendListButton;
             tgui::Label::Ptr m_userNameLabel;
             tgui::Button::Ptr m_logoutButton;
-            tgui::TextBox::Ptr m_chatTextbox;
-            tgui::Button::Ptr m_sendMsgButton;
+            tgui::TextBox::Ptr m_chatBox;
+            tgui::TextBox::Ptr m_userInputTextbox;
+            tgui::Label::Ptr m_friendListLabel;
+            tgui::ListBox::Ptr m_friendList;
+            tgui::Panel::Ptr m_friendListPanel;
+            tgui::Button::Ptr m_sendMsgButton;*/
+
+            tgui::Label::Ptr m_userNameLabel;
+            tgui::Button::Ptr m_logoutButton;
+            tgui::Tab::Ptr m_friendChatTabs;
+            tgui::Button::Ptr m_friendListVisibilityButton;
+            tgui::Panel::Ptr m_friendlistPanel;
+            bool panelVisibility{true};
+            tgui::ListBox::Ptr m_friendsOnline;
+            tgui::TextBox::Ptr m_chatBox;
+            tgui::TextBox::Ptr m_inputTextBox;
+
+            //for test purposes
+            const std::string frnd1 = "raptor";
+            const std::string frnd2 = "trex";
+            const std::string frnd3 = "firefly";
     };
 }
 

@@ -2,13 +2,32 @@
 
 namespace chat
 {
+    void changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel)
+    {
+        //visibility ? panel->show() : panel->hide();
+
+        if (visibility)
+        {
+            panel->show();
+            visibility = false;
+            std::cout << "A";
+        }
+        else
+        {
+            panel->hide();
+            visibility = true;
+            std::cout << "B";
+        }
+    }
+
     Client::Client() :
+        m_userName("albatross"),
         m_loginStatus(false),
         //m_onlineStatus(chat::OnlineStatus::Unavailable),
         m_width(800),
         m_height(600),
         m_bpp(32),
-        m_window(sf::VideoMode(800, 600, 32), "Prattle - v 0.1 [Written by texus, amhndu & TheIllusionistMirage]", sf::Style::Close)
+        m_window(sf::VideoMode(800, 600, 32), "Prattle - v 0.1 [Written by texus, amhndu & TheIllusionistMirage]")//, sf::Style::Closed)
     {
         m_gui.setWindow(m_window);
         m_gui.setGlobalFont(DEFAULT_GLOBAL_FONT);
@@ -29,8 +48,8 @@ namespace chat
         m_chatPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
         m_gui.add(m_chatPanel);
 
-        m_background = tgui::Picture::create(DEFAULT_BACKGROUND);
-        m_background->setSize(tgui::bindMaximum(800, tgui::bindWidth(m_gui)),tgui::bindMaximum(600, tgui::bindHeight(m_gui)));
+        m_background = tgui::Picture::create(CHAT_BACKGROUND);
+        //m_background->setSize(tgui::bindMaximum(800, tgui::bindWidth(m_gui)),tgui::bindMaximum(600, tgui::bindHeight(m_gui)));
         //m_gui.add(m_background);
 
         m_logo = tgui::Picture::create(DEFAULT_LOGO);
@@ -78,8 +97,8 @@ namespace chat
         //m_gui.add(m_rememberMeCheckbox);
 
         m_registerMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
-        m_registerMsg->setPosition(tgui::bindWidth(m_gui) / 5, tgui::bindHeight(m_gui) / 1.09);
-        m_registerMsg->setText("New user? Need an account? Then signup!");
+        m_registerMsg->setPosition(tgui::bindWidth(m_gui) / 3.4, tgui::bindHeight(m_gui) / 1.09);
+        m_registerMsg->setText("Need an account? Then signup!");
         m_registerMsg->setTextSize(15);
         m_registerMsg->setTextColor(sf::Color::White);
         //m_gui.add(m_registerMsg);
@@ -88,7 +107,7 @@ namespace chat
         m_signUpButton->setText("Sign Up");
         m_signUpButton->setTextSize(15);
         m_signUpButton->setSize(tgui::bindWidth(m_passwordField) / 3 + 0, tgui::bindHeight(m_passwordField) - 20);
-        m_signUpButton->setPosition(tgui::bindWidth(m_gui) / 1.63, tgui::bindHeight(m_gui) / 1.09 - 3);
+        m_signUpButton->setPosition(tgui::bindWidth(m_gui) / 1.65, tgui::bindHeight(m_gui) / 1.09 - 3);
         //m_gui.add(m_signUpButton);
 
         m_loginPanel->add(m_background);
@@ -153,8 +172,77 @@ namespace chat
         m_registerPanel->add(m_submitButton);
         m_registerPanel->add(m_backButton);
 
-        m_userNameLabel = tgui::Label::create(DEFAULT_TGUI_THEME);
-        m_userNameLabel->setPosition(tgui::bindWidth(m_gui) / 1.6 - 100, 40);
+////////
+
+        m_userNameLabel = tgui::Label::create();
+        m_userNameLabel->setText("Logged in as : " + m_userName);
+        m_userNameLabel->setTextSize(15);
+        m_userNameLabel->setTextColor(sf::Color::White);
+        m_userNameLabel->setPosition(tgui::bindWidth(m_gui) / 1.6 - m_userName.length() * 8, 40);
+
+        m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
+        m_logoutButton->setText("Logout");
+        m_logoutButton->setTextSize(15);
+        m_logoutButton->setSize(100, 25);
+        m_logoutButton->setPosition(tgui::bindWidth(m_gui) - 150, m_userNameLabel->getPosition().y - 6);
+
+        m_friendListVisibilityButton = tgui::Button::create(DEFAULT_TGUI_THEME);
+        m_friendListVisibilityButton->setText("My Buddies");
+        m_friendListVisibilityButton->setTextSize(10);
+        m_friendListVisibilityButton->setSize(120, 30);
+        m_friendListVisibilityButton->setPosition(40, tgui::bindHeight(m_logoutButton) + 20);
+
+        m_friendChatTabs = tgui::Tab::create();//DEFAULT_TGUI_THEME);
+        m_friendChatTabs->setSize(200, 50);
+        m_friendChatTabs->setTextSize(12);
+        m_friendChatTabs->setTabHeight(20);
+        m_friendChatTabs->setPosition(tgui::bindLeft(m_friendListVisibilityButton),
+                                      tgui::bindTop(m_friendListVisibilityButton) + m_friendListVisibilityButton->getSize().y + 18);
+        m_friendChatTabs->add(frnd1);
+        m_friendChatTabs->add(frnd2);
+        m_friendChatTabs->add(frnd3);
+        m_friendChatTabs->select(0);
+
+        m_friendsOnline = tgui::ListBox::create();
+        m_friendsOnline->addItem(frnd1, "rappy");
+        m_friendsOnline->addItem(frnd2, "rexy");
+        m_friendsOnline->addItem(frnd3, "firey");
+        //m_friendsOnline->setSize(100, 100);
+        m_friendsOnline->setPosition(10, 10);
+
+        m_chatBox = tgui::TextBox::create();
+        m_chatBox->setSize(tgui::bindWidth(m_window) - 80, 320);
+        m_chatBox->setTextSize(15);
+        m_chatBox->setPosition(40, tgui::bindHeight(m_gui) / 5.2);
+        m_chatBox->setReadOnly(true);
+
+        m_inputTextBox = tgui::TextBox::create();//DEFAULT_TGUI_THEME);
+        m_inputTextBox->setSize(tgui::bindWidth(m_window) - 80, 110);
+        m_inputTextBox->setTextSize(15);
+        m_inputTextBox->setPosition(40, tgui::bindHeight(m_window) / 1.35);
+
+        m_friendlistPanel = tgui::Panel::create(sf::Vector2f(200, m_window.getSize().y));
+        m_chatPanel->add(m_friendlistPanel);
+        m_friendlistPanel->setSize(200, tgui::bindHeight(m_gui) - 100);
+        m_friendlistPanel->setPosition(40, tgui::bindHeight(m_friendListVisibilityButton) + 45);
+        m_friendlistPanel->add(m_friendsOnline);
+        m_friendlistPanel->hide();
+        m_friendListVisibilityButton->connect("pressed", changePanelVisibility, panelVisibility, m_friendlistPanel);
+
+        m_chatPanel->add(m_background);
+        m_chatPanel->add(m_userNameLabel);
+        m_chatPanel->add(m_logoutButton);
+        m_chatPanel->add(m_friendChatTabs);
+        m_chatPanel->add(m_friendListVisibilityButton);
+        //m_chatPanel->add(m_friendsOnline);
+        m_chatPanel->add(m_chatBox);
+        //m_chatPanel->add(m_friendsOnline);
+        m_chatPanel->add(m_inputTextBox);
+        m_chatPanel->add(m_friendlistPanel);
+
+////////
+        /*m_userNameLabel = tgui::Label::create(DEFAULT_TGUI_THEME);
+        m_userNameLabel->setPosition(tgui::bindWidth(m_gui) / 1.6 - m_userName.length() * 10, 40);
         m_userNameLabel->setText("Logged in as " + m_userName);
         m_userNameLabel->setTextSize(15);
         m_userNameLabel->setTextColor(sf::Color::White);
@@ -165,24 +253,45 @@ namespace chat
         m_logoutButton->setSize(100, 25);
         m_logoutButton->setPosition(tgui::bindWidth(m_gui) - 150, m_userNameLabel->getPosition().y - 6);
 
-        m_chatTextbox = tgui::TextBox::create("");//(DEFAULT_TGUI_THEME);
-        m_chatTextbox->setSize(400, 300);
-        m_chatTextbox->setTextSize(15);
-        m_chatTextbox->setPosition(tgui::bindWidth(m_gui) / 5, tgui::bindHeight(m_gui) / 3);
+        m_chatBox = tgui::TextBox::create();//DEFAULT_TGUI_THEME);
+        m_chatBox->setSize(tgui::bindWidth(m_window) - 80, 320);
+        m_chatBox->setTextSize(15);
+        m_chatBox->setPosition(40, tgui::bindHeight(m_gui) / 6);
+        m_chatBox->setReadOnly(true);
+
+        m_userInputTextbox = tgui::TextBox::create();//DEFAULT_TGUI_THEME);
+        m_userInputTextbox->setSize(tgui::bindWidth(m_window) - 80, 120);
+        m_userInputTextbox->setTextSize(15);
+        m_userInputTextbox->setPosition(40, tgui::bindHeight(m_window) / 1.4);
+
+        m_friendListButton = tgui::Button::create(DEFAULT_TGUI_THEME);
+        m_friendListButton->setPosition();
+
+        m_chatTab = tgui::Tab::create(DEFAULT_TGUI_THEME);
+        m_chatTab->setSize(70, 20);
+        m_chatTab->setTextSize(10);
+        m_chatTab->setTabHeight(20);
+        m_chatTab->setPosition(40, 70);
+        m_chatTab->add("Friend 1");
+        m_chatTab->add("Friend 2");
+        m_chatTab->add("Friend 3");
+        m_chatTab->select(0);
 
         m_chatPanel->add(m_background);
-        m_chatPanel->add(m_logo);
-        m_chatPanel->add(m_caption);
+        //m_chatPanel->add(m_logo);
+        //m_chatPanel->add(m_caption);
+        m_chatPanel->add(m_chatTab);
         m_chatPanel->add(m_userNameLabel);
         m_chatPanel->add(m_logoutButton);
-        m_chatPanel->add(m_chatTextbox);
+        m_chatPanel->add(m_chatBox);
+        m_chatPanel->add(m_userInputTextbox);*/
 
         /*
         m_gui.add(m_userNameLabel);
         m_gui.add(m_logoutButton);
         m_gui.add(m_chatTextbox);
         m_gui.add(m_sendMsgButton);*/
-
+/////////////
         m_loginPanel->hide();
         m_registerPanel->hide();
         m_chatPanel->hide();
@@ -193,15 +302,14 @@ namespace chat
 
         m_screenState = chat::ScreenState::LoginScreen;
         //m_screenState = chat::ScreenState::SignUpScreen;
-
-
-        std::cout << "in ctor " << (int)m_screenState << std::endl;
     }
 
     void Client::changeScreenState(chat::ScreenState screenState)
     {
         m_screenState = screenState;
     }
+
+    //void Client::changePanelVisibility(tgui::Panel::Ptr panel)
 
     /*void Client::loginPrompt()
     {
@@ -450,6 +558,19 @@ namespace chat
                     m_chatPanel->show();
                     m_loginPanel->hide();
                     m_registerPanel->hide();
+
+                    /*auto chatBoxSize = m_chatBox->getSize();
+                    auto chatBoxPos = m_chatBox->getPosition();
+                    if (m_friendlistPanel->isVisible())
+                    {
+                        m_chatBox->setSize(m_chatBox->getSize().x - m_friendlistPanel->getSize().x - 10, m_chatBox->getPosition().y);
+                        m_chatBox->setPosition(m_friendlistPanel->getPosition().x + m_friendlistPanel->getSize().x + 10, m_chatBox->getPosition().y);
+                    }
+                    else
+                    {
+                        m_chatBox->setSize(chatBoxSize);
+                        m_chatBox->setPosition(chatBoxPos);
+                    }*/
                 } break;
         }
 
@@ -473,6 +594,12 @@ namespace chat
                             m_window.close();
                             logout();
                         } break;
+
+                    /*case sf::Event::Resized:
+                        {
+                            m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                            m_gui.setView(m_window.getView());
+                        } break;*/
                 }
 
                 m_gui.handleEvent(event);
