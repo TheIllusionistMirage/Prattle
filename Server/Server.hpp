@@ -21,7 +21,7 @@ For clients to start chatting, they need to connect to the server.
 #include <list>
 #include <SFML/Network.hpp>
 #include "System.hpp"
-#include "UserDatabase.h"
+#include "UserDatabase.hpp"
 
 namespace chat
 {

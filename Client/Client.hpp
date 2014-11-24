@@ -11,18 +11,23 @@ The client side application for chatting.
 #include <string>
 #include <vector>
 #include <SFML/Network.hpp>
-#include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include "System.hpp"
 
 namespace chat
 {
-    void changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel);
-
     class Client
     {
         public:
             Client();
+
+            void run();
+
+            void selectScreenForRendering();
+
+            void changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel);
+
+            void changeScreenState(const ScreenState& screenState);
 
             void loginPrompt();
 
@@ -34,55 +39,43 @@ namespace chat
 
             sf::Socket::Status send(sf::Packet& packet);
 
-            bool receive();
+            bool  receive();
 
             const std::string& getUserName();
 
             const std::string& getFriendName();
 
-            void logout();
-
-            /* GUI related methods */
-
-            void renderScreen();
-
-            void run();
+            bool  logout();
 
         protected:
-            void changeScreenState(chat::ScreenState screenState);
-
-            // GUI related functions
-            //void changePanelVisibility(tgui::Panel::Ptr panel);
 
         private:
 
-            /* Communication related members */
-
+            /* Core members */
             sf::TcpSocket m_client;
             bool m_loginStatus;
             std::string m_userName;
             std::string m_password;
             //std::vector<std::string> m_friendList;
-            std::string m_friend;
-            OnlineStatus m_onlineStatus;
-            int minUserNameLength{8};
-            int maxUserNameLength{15};
+            std::vector<std::string> m_friends;
+            enum class Status{
+                Online  ,
+                Busy    ,
+                Offline
+            } m_onlineStatus;
+            ScreenState m_screenState;
 
             /* GUI related members*/
 
             // Window related SFML objects
 
             sf::RenderWindow m_window;
-            int m_width;
-            int m_height;
-            int m_bpp;
+            //int m_width;
+            //int m_height;
+            //int m_bpp;
             std::string m_title;
-            sf::Color DEFAULT_BG_COLOR = sf::Color::Black;
-            sf::Color DEFAULT_FG_COLOR = sf::Color::White;
 
             // Widgets related members
-
-            ScreenState m_screenState;
 
             tgui::Gui m_gui;
             tgui::Picture::Ptr m_background;
@@ -116,23 +109,12 @@ namespace chat
 
             // Chat screen related widgets
 
-            /*tgui::Tab::Ptr m_chatTab;
-            tgui::Button::Ptr m_friendListButton;
-            tgui::Label::Ptr m_userNameLabel;
-            tgui::Button::Ptr m_logoutButton;
-            tgui::TextBox::Ptr m_chatBox;
-            tgui::TextBox::Ptr m_userInputTextbox;
-            tgui::Label::Ptr m_friendListLabel;
-            tgui::ListBox::Ptr m_friendList;
-            tgui::Panel::Ptr m_friendListPanel;
-            tgui::Button::Ptr m_sendMsgButton;*/
-
             tgui::Label::Ptr m_userNameLabel;
             tgui::Button::Ptr m_logoutButton;
             tgui::Tab::Ptr m_friendChatTabs;
             tgui::Button::Ptr m_friendListVisibilityButton;
             tgui::Panel::Ptr m_friendlistPanel;
-            bool panelVisibility{true};
+            bool panelVisibility;
             tgui::ListBox::Ptr m_friendsOnline;
             tgui::TextBox::Ptr m_chatBox;
             tgui::TextBox::Ptr m_inputTextBox;

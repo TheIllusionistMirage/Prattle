@@ -2,43 +2,23 @@
 
 namespace chat
 {
-    void changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel)
-    {
-        //visibility ? panel->show() : panel->hide();
-
-        if (visibility)
-        {
-            panel->show();
-            visibility = false;
-            std::cout << "A";
-        }
-        else
-        {
-            panel->hide();
-            visibility = true;
-            std::cout << "B";
-        }
-    }
-
     Client::Client() :
-        m_userName("albatross"),
         m_loginStatus(false),
-        //m_onlineStatus(chat::OnlineStatus::Unavailable),
-        m_width(800),
-        m_height(600),
-        m_bpp(32),
-        m_window(sf::VideoMode(800, 600, 32), "Prattle - v 0.1 [Written by texus, amhndu & TheIllusionistMirage]")//, sf::Style::Closed)
+        m_onlineStatus(Status::Offline),
+        //m_width(800),
+        //m_height(600),
+        //m_bpp(32),
+        m_window(sf::VideoMode(800, 600, 32), "Prattle - v 0.1 [Written by texus, amhndu & TheIllusionistMirage]", sf::Style::Close)
     {
+        /* Initializing the GUI */
+
+        // Initialize the SFML window as the renderer for the TGUI widgets
         m_gui.setWindow(m_window);
+        // Set the global font for TGUI
         m_gui.setGlobalFont(DEFAULT_GLOBAL_FONT);
 
-        m_gui.getGlobalFont();
-
-        std::fstream userLocalInfo(LOCAL_INFO, std::ios::in);
-
-        if (!userLocalInfo.good())
-            throw std::runtime_error("ERROR :: Unable to find \"" + LOCAL_INFO + "\" !");
-
+        // Initialize the panels which serve as the login screen, the signup
+        // screen and the chat screen. Add them to TGUI
         m_loginPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
         m_gui.add(m_loginPanel);
 
@@ -48,68 +28,62 @@ namespace chat
         m_chatPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
         m_gui.add(m_chatPanel);
 
+        // The background image of the application
         m_background = tgui::Picture::create(CHAT_BACKGROUND);
-        //m_background->setSize(tgui::bindMaximum(800, tgui::bindWidth(m_gui)),tgui::bindMaximum(600, tgui::bindHeight(m_gui)));
-        //m_gui.add(m_background);
 
+        // The logo of the application
         m_logo = tgui::Picture::create(DEFAULT_LOGO);
         m_logo->setPosition(tgui::bindWidth(m_gui) / 4, tgui::bindHeight(m_gui) / 4 - 80);
         m_logo->getTooltip()->setText("Always be near");
-        //m_gui.add(m_logo);
 
+        // The motto of Prattle (Always be near)
         m_caption = tgui::Label::create(DEFAULT_TGUI_THEME);
         m_caption->setPosition(tgui::bindWidth(m_gui) / 2, tgui::bindHeight(m_gui) / 3.5);
         m_caption->setText("Always be near");
         m_caption->setTextColor(sf::Color(0, 242, 255));
-        //m_gui.add(m_caption);
 
         m_loginMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
         m_loginMsg->setPosition(tgui::bindWidth(m_gui) / 3 + 30, tgui::bindHeight(m_gui) / 2.25);
         m_loginMsg->setText("Login to start prattling");
         m_loginMsg->setTextSize(22);
         m_loginMsg->setTextColor(sf::Color::White);
-        //m_gui.add(m_loginMsg);
 
         m_usernameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_usernameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
         m_usernameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
         m_usernameField->setDefaultText("Username");
-        //m_gui.add(m_usernameField, "Username");
 
         m_passwordField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_passwordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
         m_passwordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
         m_passwordField->setDefaultText("Password");
-        m_passwordField->setPasswordCharacter('*');
-        //m_gui.add(m_passwordField, "Password");
+        m_passwordField->setPasswordCharacter('?');
 
         m_loginButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_loginButton->setText("Login");
         m_loginButton->setSize(tgui::bindWidth(m_passwordField) - 100, tgui::bindHeight(m_passwordField) - 10);
         m_loginButton->setPosition(tgui::bindWidth(m_gui) / 3 + 100, tgui::bindBottom(m_passwordField) + 20);
         m_loginButton->getTooltip()->setText("Login to start prattling");
-        //m_gui.add(m_loginButton);
 
         m_rememberMeCheckbox = tgui::Checkbox::create(DEFAULT_TGUI_THEME);
         m_rememberMeCheckbox->setText("Remember me");
         m_rememberMeCheckbox->setSize(tgui::bindWidth(m_passwordField) / 10 - 20, tgui::bindHeight(m_passwordField) - 20);
         m_rememberMeCheckbox->setPosition(tgui::bindWidth(m_passwordField) + 100, tgui::bindBottom(m_passwordField) + 60);
-        //m_gui.add(m_rememberMeCheckbox);
 
         m_registerMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
         m_registerMsg->setPosition(tgui::bindWidth(m_gui) / 3.4, tgui::bindHeight(m_gui) / 1.09);
         m_registerMsg->setText("Need an account? Then signup!");
         m_registerMsg->setTextSize(15);
         m_registerMsg->setTextColor(sf::Color::White);
-        //m_gui.add(m_registerMsg);
 
         m_signUpButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_signUpButton->setText("Sign Up");
         m_signUpButton->setTextSize(15);
         m_signUpButton->setSize(tgui::bindWidth(m_passwordField) / 3 + 0, tgui::bindHeight(m_passwordField) - 20);
         m_signUpButton->setPosition(tgui::bindWidth(m_gui) / 1.65, tgui::bindHeight(m_gui) / 1.09 - 3);
-        //m_gui.add(m_signUpButton);
 
+        // Add all these widgets to the login panel so that they get
+        // displayed in the login screen
         m_loginPanel->add(m_background);
         m_loginPanel->add(m_logo);
         m_loginPanel->add(m_caption);
@@ -121,47 +95,44 @@ namespace chat
         m_loginPanel->add(m_registerMsg);
         m_loginPanel->add(m_signUpButton);
 
+        // Widgets for signup screen
+
         m_signUpMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
         m_signUpMsg->setPosition(tgui::bindWidth(m_gui) / 3 + 30, tgui::bindHeight(m_gui) / 2.25);
         m_signUpMsg->setText("Fill your details");
         m_signUpMsg->setTextSize(22);
         m_signUpMsg->setTextColor(sf::Color::White);
-        //m_gui.add(m_signUpMsg);
 
         m_fullNameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_fullNameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
         m_fullNameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
         m_fullNameField->setDefaultText("Your full name");
-        //m_gui.add(m_fullNameField, "Your full name");
 
         m_newUsernameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_newUsernameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
         m_newUsernameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
         m_newUsernameField->setDefaultText("Pick a username");
-        //m_gui.add(m_newUsernameField, "Pick a username");
 
         m_newPasswordField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_newPasswordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
         m_newPasswordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
         m_newPasswordField->setDefaultText("Choose a password");
-        m_newPasswordField->setPasswordCharacter('*');
-        //m_gui.add(m_newPasswordField, "Choose a password");
-        //m_gui.add(m_newPasswordField);
+        m_newPasswordField->setPasswordCharacter('?');
 
         m_submitButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_submitButton->setText("Sign Up");
         m_submitButton->setTextSize(15);
         m_submitButton->setSize(tgui::bindWidth(m_passwordField), tgui::bindHeight(m_passwordField) + 10);
         m_submitButton->setPosition(tgui::bindWidth(m_newPasswordField), tgui::bindHeight(m_gui) / 1.3 - 3);
-        //m_gui.add(m_submitButton);
 
         m_backButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_backButton->setText("Back");
         m_backButton->setTextSize(15);
         m_backButton->setSize(100, 30);
         m_backButton->setPosition(tgui::bindWidth(m_newPasswordField) + 80, tgui::bindHeight(m_gui) / 1.15);
-        //m_gui.add(m_backButton);
 
+        // Add all these widgets to the signup panel so they get
+        // displayed in the signup screen
         m_registerPanel->add(m_background);
         m_registerPanel->add(m_logo);
         m_registerPanel->add(m_caption);
@@ -172,13 +143,12 @@ namespace chat
         m_registerPanel->add(m_submitButton);
         m_registerPanel->add(m_backButton);
 
-////////
-
+        // Chat screen related widgets
         m_userNameLabel = tgui::Label::create();
         m_userNameLabel->setText("Logged in as : " + m_userName);
         m_userNameLabel->setTextSize(15);
         m_userNameLabel->setTextColor(sf::Color::White);
-        m_userNameLabel->setPosition(tgui::bindWidth(m_gui) / 1.6 - m_userName.length() * 8, 40);
+        m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - m_userName.length() * 10, 40);
 
         m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_logoutButton->setText("Logout");
@@ -188,27 +158,18 @@ namespace chat
 
         m_friendListVisibilityButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_friendListVisibilityButton->setText("My Buddies");
-        m_friendListVisibilityButton->setTextSize(10);
+        m_friendListVisibilityButton->setTextSize(12);
         m_friendListVisibilityButton->setSize(120, 30);
         m_friendListVisibilityButton->setPosition(40, tgui::bindHeight(m_logoutButton) + 20);
 
-        m_friendChatTabs = tgui::Tab::create();//DEFAULT_TGUI_THEME);
+        m_friendsOnline = tgui::ListBox::create(DEFAULT_TGUI_THEME);
+        m_friendsOnline->setPosition(10, 10);
+
+        m_friendChatTabs = tgui::Tab::create();
         m_friendChatTabs->setSize(200, 50);
         m_friendChatTabs->setTextSize(12);
         m_friendChatTabs->setTabHeight(20);
-        m_friendChatTabs->setPosition(tgui::bindLeft(m_friendListVisibilityButton),
-                                      tgui::bindTop(m_friendListVisibilityButton) + m_friendListVisibilityButton->getSize().y + 18);
-        m_friendChatTabs->add(frnd1);
-        m_friendChatTabs->add(frnd2);
-        m_friendChatTabs->add(frnd3);
-        m_friendChatTabs->select(0);
-
-        m_friendsOnline = tgui::ListBox::create();
-        m_friendsOnline->addItem(frnd1, "rappy");
-        m_friendsOnline->addItem(frnd2, "rexy");
-        m_friendsOnline->addItem(frnd3, "firey");
-        //m_friendsOnline->setSize(100, 100);
-        m_friendsOnline->setPosition(10, 10);
+        m_friendChatTabs->setPosition(tgui::bindLeft(m_friendListVisibilityButton), tgui::bindTop(m_friendListVisibilityButton) + m_friendListVisibilityButton->getSize().y + 18);
 
         m_chatBox = tgui::TextBox::create();
         m_chatBox->setSize(tgui::bindWidth(m_window) - 80, 320);
@@ -216,103 +177,60 @@ namespace chat
         m_chatBox->setPosition(40, tgui::bindHeight(m_gui) / 5.2);
         m_chatBox->setReadOnly(true);
 
-        m_inputTextBox = tgui::TextBox::create();//DEFAULT_TGUI_THEME);
+        m_inputTextBox = tgui::TextBox::create();
         m_inputTextBox->setSize(tgui::bindWidth(m_window) - 80, 110);
         m_inputTextBox->setTextSize(15);
         m_inputTextBox->setPosition(40, tgui::bindHeight(m_window) / 1.35);
 
         m_friendlistPanel = tgui::Panel::create(sf::Vector2f(200, m_window.getSize().y));
         m_chatPanel->add(m_friendlistPanel);
-        m_friendlistPanel->setSize(200, tgui::bindHeight(m_gui) - 100);
+        m_friendlistPanel->setSize(tgui::bindWidth(m_friendsOnline) + 20, tgui::bindHeight(m_friendsOnline) + 20);
         m_friendlistPanel->setPosition(40, tgui::bindHeight(m_friendListVisibilityButton) + 45);
         m_friendlistPanel->add(m_friendsOnline);
         m_friendlistPanel->hide();
-        m_friendListVisibilityButton->connect("pressed", changePanelVisibility, panelVisibility, m_friendlistPanel);
+        m_friendListVisibilityButton->connect("pressed", &Client::changePanelVisibility, this, panelVisibility, m_friendlistPanel);
 
+        // Add these widgets to the chat panel so they show up for
+        // god's sake on the goddamm chat screen
         m_chatPanel->add(m_background);
         m_chatPanel->add(m_userNameLabel);
         m_chatPanel->add(m_logoutButton);
         m_chatPanel->add(m_friendChatTabs);
         m_chatPanel->add(m_friendListVisibilityButton);
-        //m_chatPanel->add(m_friendsOnline);
         m_chatPanel->add(m_chatBox);
-        //m_chatPanel->add(m_friendsOnline);
         m_chatPanel->add(m_inputTextBox);
         m_chatPanel->add(m_friendlistPanel);
 
-////////
-        /*m_userNameLabel = tgui::Label::create(DEFAULT_TGUI_THEME);
-        m_userNameLabel->setPosition(tgui::bindWidth(m_gui) / 1.6 - m_userName.length() * 10, 40);
-        m_userNameLabel->setText("Logged in as " + m_userName);
-        m_userNameLabel->setTextSize(15);
-        m_userNameLabel->setTextColor(sf::Color::White);
-
-        m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
-        m_logoutButton->setText("Logout");
-        m_logoutButton->setTextSize(15);
-        m_logoutButton->setSize(100, 25);
-        m_logoutButton->setPosition(tgui::bindWidth(m_gui) - 150, m_userNameLabel->getPosition().y - 6);
-
-        m_chatBox = tgui::TextBox::create();//DEFAULT_TGUI_THEME);
-        m_chatBox->setSize(tgui::bindWidth(m_window) - 80, 320);
-        m_chatBox->setTextSize(15);
-        m_chatBox->setPosition(40, tgui::bindHeight(m_gui) / 6);
-        m_chatBox->setReadOnly(true);
-
-        m_userInputTextbox = tgui::TextBox::create();//DEFAULT_TGUI_THEME);
-        m_userInputTextbox->setSize(tgui::bindWidth(m_window) - 80, 120);
-        m_userInputTextbox->setTextSize(15);
-        m_userInputTextbox->setPosition(40, tgui::bindHeight(m_window) / 1.4);
-
-        m_friendListButton = tgui::Button::create(DEFAULT_TGUI_THEME);
-        m_friendListButton->setPosition();
-
-        m_chatTab = tgui::Tab::create(DEFAULT_TGUI_THEME);
-        m_chatTab->setSize(70, 20);
-        m_chatTab->setTextSize(10);
-        m_chatTab->setTabHeight(20);
-        m_chatTab->setPosition(40, 70);
-        m_chatTab->add("Friend 1");
-        m_chatTab->add("Friend 2");
-        m_chatTab->add("Friend 3");
-        m_chatTab->select(0);
-
-        m_chatPanel->add(m_background);
-        //m_chatPanel->add(m_logo);
-        //m_chatPanel->add(m_caption);
-        m_chatPanel->add(m_chatTab);
-        m_chatPanel->add(m_userNameLabel);
-        m_chatPanel->add(m_logoutButton);
-        m_chatPanel->add(m_chatBox);
-        m_chatPanel->add(m_userInputTextbox);*/
-
-        /*
-        m_gui.add(m_userNameLabel);
-        m_gui.add(m_logoutButton);
-        m_gui.add(m_chatTextbox);
-        m_gui.add(m_sendMsgButton);*/
-/////////////
         m_loginPanel->hide();
         m_registerPanel->hide();
         m_chatPanel->hide();
 
-        m_loginButton->connect("pressed", &Client::changeScreenState, this, ScreenState::ChatScreen);
-        m_signUpButton->connect("pressed", &Client::changeScreenState, this, ScreenState::SignUpScreen);
+        //m_loginButton->connect("pressed", &Client::changeScreenState, this, ScreenState::ChatScreen);
+        m_loginButton->connect("pressed", &Client::login, this);
+        m_signUpButton->connect("pressed", &Client::changeScreenState, this, ScreenState::SignupScreen);
         m_backButton->connect("pressed", &Client::changeScreenState, this, ScreenState::LoginScreen);
 
         m_screenState = chat::ScreenState::LoginScreen;
-        //m_screenState = chat::ScreenState::SignUpScreen;
     }
 
-    void Client::changeScreenState(chat::ScreenState screenState)
+    void Client::changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel)
     {
-        m_screenState = screenState;
+        if (visibility)
+        {
+            panel->show();
+            visibility = false;
+        }
+        else
+        {
+            panel->hide();
+            visibility = true;
+        }
     }
-
-    //void Client::changePanelVisibility(tgui::Panel::Ptr panel)
 
     /*void Client::loginPrompt()
     {
+        char loginOption;
+
         std::cout << "          ==========================" << std::endl;
         std::cout << "          |  CHAT PROGRAM - v 0.1  |" << std::endl;
         std::cout << "          ==========================" << std::endl << std::endl;
@@ -330,28 +248,113 @@ namespace chat
             switch (tolower(choice))
             {
                 case 'r' : signup(); break;
-
                 case 'l' : login(); break;
-
                 default  : std::cout << "Please enter a valid option!" << std::endl;
             }
 
         } while (choice != 'r' && choice != 'l');
     }*/
 
-    /*void Client::signup()
+    void Client::changeScreenState(const ScreenState& screenState)
     {
+        m_screenState = screenState;
+    }
+
+    void Client::selectScreenForRendering()
+    {
+        switch (m_screenState)
+        {
+            case chat::ScreenState::LoginScreen:
+                {
+                    m_loginPanel->show();
+                    m_registerPanel->hide();
+                    m_chatPanel->hide();
+                } break;
+
+            case chat::ScreenState::SignupScreen:
+                {
+                    m_loginPanel->hide();
+                    m_registerPanel->show();
+                    m_chatPanel->hide();
+                } break;
+
+            case chat::ScreenState::ChatScreen:
+                {
+                    m_loginPanel->hide();
+                    m_registerPanel->hide();
+                    m_chatPanel->show();
+                } break;
+        }
+    }
+
+    void Client::run()
+    {
+        while (m_window.isOpen())
+        {
+            sf::Event event;
+            while (m_window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                    m_window.close();
+                if (event.type == sf::Event::KeyPressed)
+                {
+
+                }
+                m_gui.handleEvent(event);
+            }
+
+            selectScreenForRendering();
+
+            if (isLoggedIn())
+            {
+                std::string message;
+
+                receive();
+
+                //std::cout << "Me : ";
+                //std::getline(std::cin, message, '\n');
+                if (m_inputTextBox->getText() != "")
+                    message = m_inputTextBox->getText();
+
+
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+                {
+                    sf::Packet msgPacket;
+                    msgPacket << m_userName << m_friends.back() << message;
+
+                    if (send(msgPacket) == sf::Socket::Error)
+                        std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
+                }
+
+                //m_chatBox->addText("\n" + m_userName + " : " + message);
+
+                //sf::sleep(sf::milliseconds(1));
+            }
+
+            m_window.clear(sf::Color::Black);
+            m_gui.draw();
+            m_window.display();
+        }
+    }
+
+    void Client::signup()
+    {
+        changeScreenState(ScreenState::SignupScreen);
+
         sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
 
         if (connectionSuccess == sf::Socket::Done)
         {
             std::string info = "new_user";
 
-            std::cout << "Pick a username : ";
+            /*std::cout << "Pick a username : ";
             std::getline(std::cin, m_userName);
 
             std::cout << "Choose a password [Tip : Make you passwor strong by including lowercase/uppercase letters, digits and special characters] : ";
-            std::getline(std::cin, m_password);
+            std::getline(std::cin, m_password);*/
+
+            m_userName = m_newUsernameField->getText();
+            m_password = m_passwordField->getText();
 
             sf::Packet msgPacket;
             msgPacket << m_userName << m_password << info;
@@ -383,73 +386,140 @@ namespace chat
             else if (m_client.send(msgPacket) == sf::Socket::Error)
                 std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in registration! Please try again" << std::endl;
         }
-    }*/
+        /*else
+        {
+            tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
+            errorWindow->setSize(200, 50);
+            errorWindow->setTitle("Error!");
+            m_gui.add(errorWindow);
 
-    /*bool Client::login()
+            tgui::Label::Ptr errorLabel = tgui::Label::create();
+            errorLabel->setText("Unable to connect to server! Please make sure that the server is up and you're connected to the internet.");
+            errorLabel->setTextSize(12);
+            errorLabel->setPosition(20, 10);
+            errorWindow->add(errorLabel);
+        }*/
+    }
+
+    bool Client::login()
     {
-        m_screenState = chat::ScreenState::LoginScreen;
+        //std::cout << "1234" << std::endl;
 
+        m_client.disconnect();
         sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
 
         if (connectionSuccess == sf::Socket::Done)
         {
+            //std::cout << "ABABAB" << std::endl;
+
             std::string info = "existing_user";
 
-            std::cout << "Enter your username : ";
+            /*std::cout << "Enter your username : ";
             std::getline(std::cin, m_userName);
             std::cout << "Enter your password : ";
-            std::getline(std::cin, m_password);
+            std::getline(std::cin, m_password);*/
 
-            sf::Packet msgPacket;
-            msgPacket << m_userName << m_password << info;
+            //sf::Packet msgPacket;
+            //msgPacket << m_userName << m_password << info;
 
-            if (m_client.send(msgPacket) == sf::Socket::Done)
+
+            if (m_usernameField->getText() != "" && m_passwordField->getText() != "")
             {
-                sf::Socket::Status status = m_client.receive(msgPacket);
+                m_userName = m_usernameField->getText();
+                m_password = m_passwordField->getText();
 
-                if (status == sf::Socket::Done)
+                sf::Packet msgPacket;
+                msgPacket << m_userName << m_password << info;
+
+                if (m_client.send(msgPacket) == sf::Socket::Done)
                 {
-                    std::string serverReply;
+                    sf::Socket::Status status = m_client.receive(msgPacket);
 
-                    if (msgPacket >> serverReply)
+                    if (status == sf::Socket::Done)
                     {
-                        if (serverReply == "registered")
+                        std::string serverReply;
+
+                        if (msgPacket >> serverReply)
                         {
-                            m_loginStatus = true;
-                            std::cout << "Login Successful!" << std::endl;
+                            if (serverReply == "registered")
+                            {
+                                m_loginStatus = true;
+                                //std::cout << "Login Successful!" << std::endl;
 
-                            std::cout << "Enter the name of the person you want to chat with : ";
-                            std::getline(std::cin, m_friend);
-                            m_onlineStatus = chat::OnlineStatus::Available;
-                            m_client.setBlocking(false);
+                                std::cout << "Enter the name of the person you want to chat with : ";
+                                std::string name;
+                                std::getline(std::cin, name);
+                                m_friends.push_back(name);
+                                //m_onlineStatus = Client::Status::Online;
+                                m_friendsOnline->addItem(name, "frnd1");
+                                m_friendChatTabs->add(name);
+                                m_friendChatTabs->select(0);
+                                m_client.setBlocking(false);
+                                changeScreenState(ScreenState::ChatScreen);
+                            }
+                            else if(serverReply == "unregistered")
+                            {
+                                /*std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
+                                */
+                                tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
+                                errorWindow->setSize(400, 60);
+                                errorWindow->setTitle("Error!");
+                                errorWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - errorWindow->getSize().y);
+                                m_gui.add(errorWindow);
 
-                            return true;
-                        }
-
-                        else if(serverReply == "unregistered")
-                        {
-                            std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
-                        }
-
-                        else
-                        {
-                            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unknown reply from the server" << std::endl;
+                                tgui::Label::Ptr errorLabel = tgui::Label::create();
+                                errorLabel->setText("Can't recognize the username-password combination!\nIf you're not registered with us, please consider signing up.");
+                                errorLabel->setTextSize(12);
+                                errorLabel->setPosition(20, 10);
+                                errorWindow->add(errorLabel);
+                            }
+                            else
+                            {
+                                std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unknown reply from the server" << std::endl;
+                            }
                         }
                     }
                 }
+                else if (m_client.send(msgPacket) == sf::Socket::Error)
+                    std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in logging in! Please try again" << std::endl;
+            }
+            else
+            {
+                tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
+                errorWindow->setSize(400, 60);
+                errorWindow->setTitle("Error!");
+                errorWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - errorWindow->getSize().y);
+                m_gui.add(errorWindow);
+                errorWindow->keepInParent(true);
+                errorWindow->focusWidget(errorWindow);
+
+                tgui::Label::Ptr errorLabel = tgui::Label::create();
+                errorLabel->setText("You can't leave either of the fields blank!");
+                errorLabel->setTextSize(12);
+                errorLabel->setPosition(20, 10);
+                errorWindow->add(errorLabel);
             }
 
-            else if (m_client.send(msgPacket) == sf::Socket::Error)
-                std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in logging in! Please try again" << std::endl;
         }
-
         else
         {
-            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Couldn't connect to the server! Please make sure that the server is up and running." << std::endl;
-        }
-        return false;
+            //std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Couldn't connect to the server! Please make sure that the server is up and running." << std::endl;
+            tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
+            errorWindow->setSize(400, 60);
+            errorWindow->setTitle("Error!");
+            errorWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - errorWindow->getSize().y);
+            m_gui.add(errorWindow);
 
-    }*/
+            tgui::Label::Ptr errorLabel = tgui::Label::create();
+            errorLabel->setText("Unable to connect to server! Please make sure that the\n     server is up and you're connected to the internet.");
+            errorLabel->setTextSize(12);
+            errorLabel->setPosition(20, 10);
+            errorWindow->add(errorLabel);
+        }
+
+        //std::cout << "XZXZXZX" << std::endl;
+
+    }
 
     bool Client::isLoggedIn()
     {
@@ -473,7 +543,10 @@ namespace chat
 
             if (dataPacket >> sender >> data)
             {
-                std::cout << sender << " : " << data << std::endl;
+                //std::cout << sender << " : " << data << std::endl;
+
+                if (data != "")
+                    m_chatBox->addText("\n" + sender + " : " + data);
             }
 
             status = m_client.receive(dataPacket);
@@ -488,124 +561,19 @@ namespace chat
         return true;
     }
 
-    const std::string& Client::getUserName()
-    {
-        return m_userName;
-    }
+    //const std::string& Client::getUserName()
+    //{
+    //    return m_userName;
+    //}
 
-    const std::string& Client::getFriendName()
-    {
-        return m_friend;
-    }
+    //const std::string& Client::getFriendName()
+    //{
+    //    return m_friend;
+    //}
 
-    void Client::logout()
+    bool Client::logout()
     {
         m_client.disconnect();
         m_loginStatus = false;
-    }
-
-    /*void Client::drawLoginScreen()
-    {
-
-    }
-
-    void Client::drawRegistrationScreen()
-    {
-
-    }
-
-    void Client::drawChatScreen()
-    {
-
-    }
-
-    void Client::updateScreen()
-    {
-        if (m_window.isOpen())
-        {
-            sf::Event event;
-        }
-    }*/
-
-    void Client::renderScreen()
-    {
-        switch (m_screenState)
-        {
-            case chat::ScreenState::LoginScreen:
-                {
-                    //m_registerPanel->show();
-                    //m_loginPanel->hide();
-                    //std::cout << (int)m_screenState << std::endl;
-
-                    m_loginPanel->show();
-                    m_registerPanel->hide();
-                    m_chatPanel->hide();
-                } break;
-
-            case chat::ScreenState::SignUpScreen:
-                {
-                    //m_loginPanel->show();
-                    //m_registerPanel->hide();
-                    //std::cout << (int)m_screenState << std::endl;
-
-                    m_registerPanel->show();
-                    m_loginPanel->hide();
-                    m_chatPanel->hide();
-                } break;
-
-            case chat::ScreenState::ChatScreen:
-                {
-                    m_chatPanel->show();
-                    m_loginPanel->hide();
-                    m_registerPanel->hide();
-
-                    /*auto chatBoxSize = m_chatBox->getSize();
-                    auto chatBoxPos = m_chatBox->getPosition();
-                    if (m_friendlistPanel->isVisible())
-                    {
-                        m_chatBox->setSize(m_chatBox->getSize().x - m_friendlistPanel->getSize().x - 10, m_chatBox->getPosition().y);
-                        m_chatBox->setPosition(m_friendlistPanel->getPosition().x + m_friendlistPanel->getSize().x + 10, m_chatBox->getPosition().y);
-                    }
-                    else
-                    {
-                        m_chatBox->setSize(chatBoxSize);
-                        m_chatBox->setPosition(chatBoxPos);
-                    }*/
-                } break;
-        }
-
-        m_window.clear(DEFAULT_BG_COLOR);
-        m_gui.draw();
-        m_window.display();
-    }
-
-    void Client::run()
-    {
-        while (m_window.isOpen())
-        {
-            sf::Event event;
-
-            while (m_window.pollEvent(event))
-            {
-                switch (event.type)
-                {
-                    case sf::Event::Closed:
-                        {
-                            m_window.close();
-                            logout();
-                        } break;
-
-                    /*case sf::Event::Resized:
-                        {
-                            m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-                            m_gui.setView(m_window.getView());
-                        } break;*/
-                }
-
-                m_gui.handleEvent(event);
-            }
-
-            renderScreen();
-        }
     }
 }
