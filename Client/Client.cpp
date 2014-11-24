@@ -289,6 +289,7 @@ namespace chat
 
     void Client::run()
     {
+        std::string message;
         while (m_window.isOpen())
         {
             sf::Event event;
@@ -298,6 +299,21 @@ namespace chat
                     m_window.close();
                 if (event.type == sf::Event::KeyPressed)
                 {
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+                    {
+                        if (m_inputTextBox->getText() != "")
+                        {
+                            message = m_inputTextBox->getText();
+                            m_chatBox->addText(m_userName + " : " + message + "\n");
+                            m_inputTextBox->setText("");
+
+                            sf::Packet msgPacket;
+                            msgPacket << m_userName << m_friends.back() << message;
+
+                            if (send(msgPacket) == sf::Socket::Error)
+                                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
+                        }
+                    }
 
                 }
                 m_gui.handleEvent(event);
@@ -307,24 +323,24 @@ namespace chat
 
             if (isLoggedIn())
             {
-                std::string message;
+                //std::string message;
 
                 receive();
 
                 //std::cout << "Me : ";
                 //std::getline(std::cin, message, '\n');
-                if (m_inputTextBox->getText() != "")
-                    message = m_inputTextBox->getText();
+                //if (m_inputTextBox->getText() != "")
+                //    message = m_inputTextBox->getText();
 
 
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
-                {
-                    sf::Packet msgPacket;
-                    msgPacket << m_userName << m_friends.back() << message;
+                //if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+                //{
+                //    sf::Packet msgPacket;
+                //    msgPacket << m_userName << m_friends.back() << message;
 
-                    if (send(msgPacket) == sf::Socket::Error)
-                        std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
-                }
+                //    if (send(msgPacket) == sf::Socket::Error)
+                //        std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
+                //}
 
                 //m_chatBox->addText("\n" + m_userName + " : " + message);
 
@@ -546,7 +562,7 @@ namespace chat
                 //std::cout << sender << " : " << data << std::endl;
 
                 if (data != "")
-                    m_chatBox->addText("\n" + sender + " : " + data);
+                    m_chatBox->addText(sender + " : " + data + "\n");
             }
 
             status = m_client.receive(dataPacket);
