@@ -213,6 +213,28 @@ namespace chat
         m_screenState = chat::ScreenState::LoginScreen;
     }
 
+    bool Client::checkIfWhitespace(const std::string& message)
+    {
+        /*std::vector<bool> isCharWhitespace{message.length(), true};
+
+        for (auto itr = message.begin(), int index = 0; itr != message.end(); itr++, index++)
+        {
+            if (!tgui::isWhitespace(*itr))
+                isCharWhitespace[index] = false;
+        }
+
+        */
+        //bool isMessageWhitespace = true;
+
+        for (auto itr = message.begin(); itr != message.end(); itr++)
+        {
+            if (!tgui::isWhitespace(*itr))
+            {
+                return false;
+            }
+        }
+    }
+
     void Client::changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel)
     {
         if (visibility)
@@ -297,25 +319,24 @@ namespace chat
             {
                 if (event.type == sf::Event::Closed)
                     m_window.close();
-                if (event.type == sf::Event::KeyPressed)
+                if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
                 {
-                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
-                    {
-                        if (m_inputTextBox->getText() != "")
+                    if (isLoggedIn())
+                        if (!checkIfWhitespace(m_inputTextBox->getText()))
                         {
                             message = m_inputTextBox->getText();
-                            m_chatBox->addText(m_userName + " : " + message + "\n");
+                            m_chatBox->addText(m_userName + " : " + message);
                             m_inputTextBox->setText("");
 
                             sf::Packet msgPacket;
                             msgPacket << m_userName << m_friends.back() << message;
 
-                            if (send(msgPacket) == sf::Socket::Error)
-                                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
+                            //if (sf::Event::KeyReleased)
+                                if (send(msgPacket) == sf::Socket::Error)
+                                    std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
                         }
-                    }
-
                 }
+
                 m_gui.handleEvent(event);
             }
 
@@ -562,7 +583,7 @@ namespace chat
                 //std::cout << sender << " : " << data << std::endl;
 
                 if (data != "")
-                    m_chatBox->addText(sender + " : " + data + "\n");
+                    m_chatBox->addText(sender + " : " + data);
             }
 
             status = m_client.receive(dataPacket);

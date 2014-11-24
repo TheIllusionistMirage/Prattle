@@ -21,6 +21,8 @@ namespace chat
         public:
             Client();
 
+            bool checkIfWhitespace(const std::string& message);
+
             void run();
 
             void selectScreenForRendering();
