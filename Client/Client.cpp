@@ -233,6 +233,8 @@ namespace chat
                 return false;
             }
         }
+
+        return true;
     }
 
     void Client::changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel)
