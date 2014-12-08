@@ -13,6 +13,8 @@ The client side application for chatting.
 #include <SFML/Network.hpp>
 #include <TGUI/TGUI.hpp>
 #include "System.hpp"
+//#include <X11/Xlib.h>
+//#include <X11/Xutil.h>
 
 namespace chat
 {
@@ -72,9 +74,9 @@ namespace chat
             // Window related SFML objects
 
             sf::RenderWindow m_window;
-            //int m_width;
-            //int m_height;
-            //int m_bpp;
+            int m_width;
+            int m_height;
+            int m_bpp;
             std::string m_title;
 
             // Widgets related members

@@ -5,11 +5,14 @@ namespace chat
     Client::Client() :
         m_loginStatus(false),
         m_onlineStatus(Status::Offline),
-        //m_width(800),
-        //m_height(600),
-        //m_bpp(32),
+        m_width(800),
+        m_height(600),
+        m_bpp(32),
         m_window(sf::VideoMode(800, 600, 32), "Prattle - v 0.1 [Written by texus, amhndu & TheIllusionistMirage]", sf::Style::Close)
     {
+        /* Setting the minimum window size for the X window system */
+
+
         /* Initializing the GUI */
 
         // Initialize the SFML window as the renderer for the TGUI widgets
@@ -57,7 +60,7 @@ namespace chat
         m_passwordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
         m_passwordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
         m_passwordField->setDefaultText("Password");
-        m_passwordField->setPasswordCharacter('?');
+        m_passwordField->setPasswordCharacter('*');
 
         m_loginButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_loginButton->setText("Login");
@@ -209,23 +212,14 @@ namespace chat
         m_loginButton->connect("pressed", &Client::login, this);
         m_signUpButton->connect("pressed", &Client::changeScreenState, this, ScreenState::SignupScreen);
         m_backButton->connect("pressed", &Client::changeScreenState, this, ScreenState::LoginScreen);
+        m_logoutButton->connect("pressed", &Client::changeScreenState, this, ScreenState::LoginScreen);
 
         m_screenState = chat::ScreenState::LoginScreen;
+        changeScreenState(m_screenState);
     }
 
     bool Client::checkIfWhitespace(const std::string& message)
     {
-        /*std::vector<bool> isCharWhitespace{message.length(), true};
-
-        for (auto itr = message.begin(), int index = 0; itr != message.end(); itr++, index++)
-        {
-            if (!tgui::isWhitespace(*itr))
-                isCharWhitespace[index] = false;
-        }
-
-        */
-        //bool isMessageWhitespace = true;
-
         for (auto itr = message.begin(); itr != message.end(); itr++)
         {
             if (!tgui::isWhitespace(*itr))
@@ -251,37 +245,11 @@ namespace chat
         }
     }
 
-    /*void Client::loginPrompt()
-    {
-        char loginOption;
-
-        std::cout << "          ==========================" << std::endl;
-        std::cout << "          |  CHAT PROGRAM - v 0.1  |" << std::endl;
-        std::cout << "          ==========================" << std::endl << std::endl;
-
-        std::cout << "By texus, amhndu & TheIllusionistMirage" << std::endl << std::endl;
-
-        char choice;
-
-        do
-        {
-            std::cout << "(R)egister or (L)ogin to start chatting!" << std::endl;
-            std::cin >> choice;
-            std::cin.ignore();
-
-            switch (tolower(choice))
-            {
-                case 'r' : signup(); break;
-                case 'l' : login(); break;
-                default  : std::cout << "Please enter a valid option!" << std::endl;
-            }
-
-        } while (choice != 'r' && choice != 'l');
-    }*/
-
     void Client::changeScreenState(const ScreenState& screenState)
     {
         m_screenState = screenState;
+
+        selectScreenForRendering();
     }
 
     void Client::selectScreenForRendering()
@@ -290,6 +258,13 @@ namespace chat
         {
             case chat::ScreenState::LoginScreen:
                 {
+                    logout();
+                    std::cout << "ASASD" << std::endl;
+                    if (!m_rememberMeCheckbox->isChecked())
+                    {
+                        m_usernameField->setText("");
+                        m_passwordField->setText("");
+                    }
                     m_loginPanel->show();
                     m_registerPanel->hide();
                     m_chatPanel->hide();
@@ -321,6 +296,42 @@ namespace chat
             {
                 if (event.type == sf::Event::Closed)
                     m_window.close();
+
+                /*sf::View lastWindowView = m_window.getView();
+                sf::Vector2u lastWindowSize = m_window.getSize();
+
+                if (event.type == sf::Event::Resized)
+                {
+                    if (event.size.width >= 800 && event.size.height >= 600)
+                    {
+                        m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                        m_gui.setView(m_window.getView());
+                    }
+                    else
+                    {
+                        m_window.setSize(sf::Vector2u(lastWindowSize.x, lastWindowSize.y));
+                        m_window.setView(sf::View(sf::FloatRect(0, 0, lastWindowSize.x, lastWindowSize.y)));
+                        m_gui.setView(lastWindowView);
+                    }
+                }*/
+
+                if (event.type == sf::Event::Resized)
+                {
+                    if (event.size.width >= 800 && event.size.height >= 600)
+                        m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                    else
+                    {
+                        unsigned int width = std::max(event.size.width, 800u);
+                        unsigned int height = std::max(event.size.height, 600u);
+
+                        sf::sleep(sf::milliseconds(100));
+                        m_window.setSize(sf::Vector2u{800, 600});
+                        m_window.setView(sf::View(sf::FloatRect(0, 0, 800, 600)));
+                    }
+
+                    m_gui.setView(m_window.getView());
+                }
+
                 if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
                 {
                     if (isLoggedIn())
@@ -342,32 +353,9 @@ namespace chat
                 m_gui.handleEvent(event);
             }
 
-            selectScreenForRendering();
-
             if (isLoggedIn())
             {
-                //std::string message;
-
                 receive();
-
-                //std::cout << "Me : ";
-                //std::getline(std::cin, message, '\n');
-                //if (m_inputTextBox->getText() != "")
-                //    message = m_inputTextBox->getText();
-
-
-                //if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
-                //{
-                //    sf::Packet msgPacket;
-                //    msgPacket << m_userName << m_friends.back() << message;
-
-                //    if (send(msgPacket) == sf::Socket::Error)
-                //        std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
-                //}
-
-                //m_chatBox->addText("\n" + m_userName + " : " + message);
-
-                //sf::sleep(sf::milliseconds(1));
             }
 
             m_window.clear(sf::Color::Black);
@@ -442,15 +430,12 @@ namespace chat
 
     bool Client::login()
     {
-        //std::cout << "1234" << std::endl;
+        logout();
 
-        m_client.disconnect();
         sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
 
         if (connectionSuccess == sf::Socket::Done)
         {
-            //std::cout << "ABABAB" << std::endl;
-
             std::string info = "existing_user";
 
             /*std::cout << "Enter your username : ";
@@ -484,6 +469,10 @@ namespace chat
                             {
                                 m_loginStatus = true;
                                 //std::cout << "Login Successful!" << std::endl;
+                                m_userNameLabel->setText( m_userNameLabel->getText() + m_userName);
+                                //m_userNameLabel->setText(std::basic_string<sf::Uint32>{0x1F601});
+
+                                m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - m_userName.length() * 10, 40);
 
                                 std::cout << "Enter the name of the person you want to chat with : ";
                                 std::string name;
@@ -495,6 +484,8 @@ namespace chat
                                 m_friendChatTabs->select(0);
                                 m_client.setBlocking(false);
                                 changeScreenState(ScreenState::ChatScreen);
+
+
                             }
                             else if(serverReply == "unregistered")
                             {

@@ -293,7 +293,13 @@ namespace chat
                 else
                 {
                     std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
-                    ++i;
+
+                    //i = newConnections.erase(i);
+
+                    //++i;
+
+                    m_selector.remove(**i);
+                    i = newConnections.erase(i);
                 }
             }
             else
