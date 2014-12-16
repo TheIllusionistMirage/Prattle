@@ -116,7 +116,12 @@ namespace chat
         changeScreenState(m_screenState);
 
         m_messageWindow = tgui::ChildWindow::create();
+        m_gui.add(m_messageWindow, "message_window");
+        m_messageWindow->hide();
+        m_messageWindow->keepInParent(true);
+
         m_messageLabel = tgui::Label::create();
+        m_messageWindow->add(m_messageLabel);
 
         m_messageWindow->connect("Closed", std::bind(&tgui::ChildWindow::hide, m_messageWindow));
     }
@@ -128,16 +133,18 @@ namespace chat
 
         /** The following for setting minimum window size is applicable only for X based window systems **/
         /* Setting the minimum window size for the X window system */
-        auto win = m_window.getSystemHandle();
-        Display* display = XOpenDisplay(NULL);
-        XSizeHints* win_size_hints = XAllocSizeHints();
-        win_size_hints->flags = PMinSize;
-        win_size_hints->min_width = 800;
-        win_size_hints->min_height = 600;
-        XSetWMNormalHints(display, win, win_size_hints);
-        XFree(win_size_hints);
-        XFlush(display);
-        XCloseDisplay(display);
+        #if defined(SFML_SYSTEM_LINUX) || defined(SFML_SYSTEM_FREEBSD)
+            auto win = m_window.getSystemHandle();
+            Display* display = XOpenDisplay(NULL);
+            XSizeHints* win_size_hints = XAllocSizeHints();
+            win_size_hints->flags = PMinSize;
+            win_size_hints->min_width = 800;
+            win_size_hints->min_height = 600;
+            XSetWMNormalHints(display, win, win_size_hints);
+            XFree(win_size_hints);
+            XFlush(display);
+            XCloseDisplay(display);
+        #endif // defined
 
         m_caption->setPosition(tgui::bindWidth(m_gui) / 2, tgui::bindHeight(m_gui) / 3.5);
         m_caption->setText("Always be near");
@@ -255,11 +262,6 @@ namespace chat
         m_friendlistPanel->add(m_friendsOnline);
         m_friendlistPanel->hide();
         m_friendListVisibilityButton->connect("pressed", &Client::changePanelVisibility, this, panelVisibility, m_friendlistPanel);
-
-        m_gui.add(m_messageWindow, "message_window");
-        m_messageWindow->hide();
-        m_messageWindow->keepInParent(true);
-        m_messageWindow->add(m_messageLabel);
     }
 
     bool Client::checkIfWhitespace(const std::string& message)
