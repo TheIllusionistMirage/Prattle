@@ -8,10 +8,20 @@ namespace chat
         m_width(800),
         m_height(600),
         m_bpp(32),
-        m_window(sf::VideoMode(800, 600, 32), "Prattle - v 0.1 [Written by texus, amhndu & TheIllusionistMirage]", sf::Style::Close)
+        m_window(sf::VideoMode(800, 600, 32), "Prattle - v 0.1 [Written by texus, amhndu & TheIllusionistMirage]")
     {
+        /** The following for setting minimum window size is applicable only for X based window systems **/
         /* Setting the minimum window size for the X window system */
-
+        auto win = m_window.getSystemHandle();
+        Display* display = XOpenDisplay(NULL);
+        XSizeHints* win_size_hints = XAllocSizeHints();
+        win_size_hints->flags = PMinSize;
+        win_size_hints->min_width = 800;
+        win_size_hints->min_height = 600;
+        XSetWMNormalHints(display, win, win_size_hints);
+        XFree(win_size_hints);
+        XFlush(display);
+        XCloseDisplay(display);
 
         /* Initializing the GUI */
 
@@ -216,6 +226,15 @@ namespace chat
 
         m_screenState = chat::ScreenState::LoginScreen;
         changeScreenState(m_screenState);
+
+        m_messageWindow = tgui::ChildWindow::create();
+        m_gui.add(m_messageWindow, "message_window");
+        m_messageWindow->hide();
+        m_messageWindow->keepInParent(true);
+        m_messageLabel = tgui::Label::create();
+        m_messageWindow->add(m_messageLabel);
+        //m_messageWindow->connect("closed", m_messageWindow->hide);
+        m_messageWindow->connect("Closed", std::bind(&tgui::ChildWindow::hide, m_messageWindow));
     }
 
     bool Client::checkIfWhitespace(const std::string& message)
@@ -259,7 +278,7 @@ namespace chat
             case chat::ScreenState::LoginScreen:
                 {
                     logout();
-                    std::cout << "ASASD" << std::endl;
+
                     if (!m_rememberMeCheckbox->isChecked())
                     {
                         m_usernameField->setText("");
@@ -297,38 +316,9 @@ namespace chat
                 if (event.type == sf::Event::Closed)
                     m_window.close();
 
-                /*sf::View lastWindowView = m_window.getView();
-                sf::Vector2u lastWindowSize = m_window.getSize();
-
                 if (event.type == sf::Event::Resized)
                 {
-                    if (event.size.width >= 800 && event.size.height >= 600)
-                    {
-                        m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-                        m_gui.setView(m_window.getView());
-                    }
-                    else
-                    {
-                        m_window.setSize(sf::Vector2u(lastWindowSize.x, lastWindowSize.y));
-                        m_window.setView(sf::View(sf::FloatRect(0, 0, lastWindowSize.x, lastWindowSize.y)));
-                        m_gui.setView(lastWindowView);
-                    }
-                }*/
-
-                if (event.type == sf::Event::Resized)
-                {
-                    if (event.size.width >= 800 && event.size.height >= 600)
-                        m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-                    else
-                    {
-                        unsigned int width = std::max(event.size.width, 800u);
-                        unsigned int height = std::max(event.size.height, 600u);
-
-                        sf::sleep(sf::milliseconds(100));
-                        m_window.setSize(sf::Vector2u{800, 600});
-                        m_window.setView(sf::View(sf::FloatRect(0, 0, 800, 600)));
-                    }
-
+                    m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
                     m_gui.setView(m_window.getView());
                 }
 
@@ -358,7 +348,7 @@ namespace chat
                 receive();
             }
 
-            m_window.clear(sf::Color::Black);
+            m_window.clear(sf::Color(255, 158, 54));
             m_gui.draw();
             m_window.display();
         }
@@ -438,15 +428,6 @@ namespace chat
         {
             std::string info = "existing_user";
 
-            /*std::cout << "Enter your username : ";
-            std::getline(std::cin, m_userName);
-            std::cout << "Enter your password : ";
-            std::getline(std::cin, m_password);*/
-
-            //sf::Packet msgPacket;
-            //msgPacket << m_userName << m_password << info;
-
-
             if (m_usernameField->getText() != "" && m_passwordField->getText() != "")
             {
                 m_userName = m_usernameField->getText();
@@ -468,40 +449,35 @@ namespace chat
                             if (serverReply == "registered")
                             {
                                 m_loginStatus = true;
-                                //std::cout << "Login Successful!" << std::endl;
-                                m_userNameLabel->setText( m_userNameLabel->getText() + m_userName);
-                                //m_userNameLabel->setText(std::basic_string<sf::Uint32>{0x1F601});
+                                m_userNameLabel->setText( "Logged in as : " + m_userName);
 
                                 m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - m_userName.length() * 10, 40);
 
                                 std::cout << "Enter the name of the person you want to chat with : ";
                                 std::string name;
                                 std::getline(std::cin, name);
+                                m_friends.empty();
                                 m_friends.push_back(name);
-                                //m_onlineStatus = Client::Status::Online;
+                                m_friendsOnline->removeAllItems();
                                 m_friendsOnline->addItem(name, "frnd1");
                                 m_friendChatTabs->add(name);
                                 m_friendChatTabs->select(0);
                                 m_client.setBlocking(false);
                                 changeScreenState(ScreenState::ChatScreen);
-
-
                             }
+
                             else if(serverReply == "unregistered")
                             {
-                                /*std::cout << "You are not registered with us! Please register to start chatting!" << std::endl;
-                                */
-                                tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
-                                errorWindow->setSize(400, 60);
-                                errorWindow->setTitle("Error!");
-                                errorWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - errorWindow->getSize().y);
-                                m_gui.add(errorWindow);
+                                m_messageWindow->setSize(400, 60);
+                                m_messageWindow->setTitle("Error!");
+                                m_messageWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - m_messageLabel->getSize().y);
+                                m_messageLabel->setText("Can't recognize the username-password combination!\nIf you're not registered with us, please consider signing up.");
+                                m_messageLabel->setTextSize(12);
+                                m_messageLabel->setPosition(20, 10);
 
-                                tgui::Label::Ptr errorLabel = tgui::Label::create();
-                                errorLabel->setText("Can't recognize the username-password combination!\nIf you're not registered with us, please consider signing up.");
-                                errorLabel->setTextSize(12);
-                                errorLabel->setPosition(20, 10);
-                                errorWindow->add(errorLabel);
+                                //if (!m_messageWindow->isVisible())
+                                if (!m_messageWindow->isVisible())
+                                    m_messageWindow->show();
                             }
                             else
                             {
@@ -515,19 +491,22 @@ namespace chat
             }
             else
             {
-                tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
-                errorWindow->setSize(400, 60);
-                errorWindow->setTitle("Error!");
-                errorWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - errorWindow->getSize().y);
-                m_gui.add(errorWindow);
-                errorWindow->keepInParent(true);
-                errorWindow->focusWidget(errorWindow);
+                //tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
+                m_messageWindow->setSize(400, 60);
+                m_messageWindow->setTitle("Error!");
+                m_messageWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - m_messageWindow->getSize().y);
+                //m_gui.add(errorWindow);
+                //errorWindow->keepInParent(true);
+                //errorWindow->focusWidget(errorWindow);
 
-                tgui::Label::Ptr errorLabel = tgui::Label::create();
-                errorLabel->setText("You can't leave either of the fields blank!");
-                errorLabel->setTextSize(12);
-                errorLabel->setPosition(20, 10);
-                errorWindow->add(errorLabel);
+                //tgui::Label::Ptr errorLabel = tgui::Label::create();
+                m_messageLabel->setText("You can't leave either of the fields blank!");
+                m_messageLabel->setTextSize(12);
+                m_messageLabel->setPosition(20, 10);
+                //errorWindow->add(errorLabel);
+
+                if (!m_messageWindow->isVisible())
+                    m_messageWindow->show();
             }
 
         }
@@ -604,6 +583,7 @@ namespace chat
     bool Client::logout()
     {
         m_client.disconnect();
+        m_client.setBlocking(true);
         m_loginStatus = false;
     }
 }

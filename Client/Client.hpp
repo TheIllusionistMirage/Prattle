@@ -13,8 +13,10 @@ The client side application for chatting.
 #include <SFML/Network.hpp>
 #include <TGUI/TGUI.hpp>
 #include "System.hpp"
-//#include <X11/Xlib.h>
-//#include <X11/Xutil.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#undef None
+#undef Status
 
 namespace chat
 {
@@ -60,13 +62,8 @@ namespace chat
             bool m_loginStatus;
             std::string m_userName;
             std::string m_password;
-            //std::vector<std::string> m_friendList;
             std::vector<std::string> m_friends;
-            enum class Status{
-                Online  ,
-                Busy    ,
-                Offline
-            } m_onlineStatus;
+            Status m_onlineStatus;
             ScreenState m_screenState;
 
             /* GUI related members*/
@@ -122,6 +119,11 @@ namespace chat
             tgui::ListBox::Ptr m_friendsOnline;
             tgui::TextBox::Ptr m_chatBox;
             tgui::TextBox::Ptr m_inputTextBox;
+
+            // Message box
+            tgui::ChildWindow::Ptr m_messageWindow;
+            tgui::Label::Ptr m_messageLabel;
+            tgui::Picture::Ptr m_messageClipArt;
 
             //for test purposes
             const std::string frnd1 = "raptor";
