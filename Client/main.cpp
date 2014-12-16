@@ -7,6 +7,7 @@ int main()
     try
     {
         chat::Client client;
+        client.init();
         client.run();
         /*client.loginPrompt();
 

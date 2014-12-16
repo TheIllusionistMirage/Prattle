@@ -53,6 +53,8 @@ namespace chat
 
             bool  logout();
 
+            void init();
+
         protected:
 
         private:
