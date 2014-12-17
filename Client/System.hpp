@@ -1,3 +1,12 @@
+/**
+
+    Prattle/Client/System.hpp
+
+    Holds various constants, enumerations for use by the Client side application.
+
+*/
+
+
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 

@@ -7,32 +7,7 @@ int main()
     try
     {
         prattle::Client client;
-        client.init();
-        client.run();
-        /*client.loginPrompt();
-
-        std::cout << "[ Press ENTER to update chat console ]" << std::endl;
-
-        while (client.isLoggedIn())
-        {
-            std::string message;
-
-            client.receive();
-
-            std::cout << "Me : ";
-            std::getline(std::cin, message, '\n');
-
-            sf::Packet msgPacket;
-
-            msgPacket << client.getUserName() << client.getFriendName() << message;
-
-            if (client.send(msgPacket) == sf::Socket::Error)
-                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
-
-            sf::sleep(sf::milliseconds(1));
-        }
-
-        client.logout();*/
+        //client.run();
 
         return 0;
     }
