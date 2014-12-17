@@ -6,7 +6,7 @@ int main()
 {
     try
     {
-        chat::Client client;
+        prattle::Client client;
         client.init();
         client.run();
         /*client.loginPrompt();

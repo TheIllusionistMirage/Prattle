@@ -13,12 +13,15 @@ The client side application for chatting.
 #include <SFML/Network.hpp>
 #include <TGUI/TGUI.hpp>
 #include "System.hpp"
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#undef None
-#undef Status
 
-namespace chat
+#if defined(SFML_SYSTEM_LINUX) || defined(SFML_SYSTEM_FREEBSD)
+    #include <X11/Xlib.h>
+    #include <X11/Xutil.h>
+    #undef None
+    #undef Status
+#endif
+
+namespace prattle
 {
     class Client
     {

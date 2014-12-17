@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-namespace chat
+namespace prattle
 {
     Client::Client()
     {
@@ -108,11 +108,12 @@ namespace chat
         m_chatPanel->hide();
 
         m_loginButton->connect("pressed", &Client::login, this);
-        m_signUpButton->connect("pressed", &Client::changeScreenState, this, ScreenState::SignupScreen);
+        //m_signUpButton->connect("pressed", &sf::TcpSocket::send, packet);
+        m_signUpButton->connect("pressed", &Client::signup, this);
         m_backButton->connect("pressed", &Client::changeScreenState, this, ScreenState::LoginScreen);
-        m_logoutButton->connect("pressed", &Client::changeScreenState, this, ScreenState::LoginScreen);
+        m_logoutButton->connect("pressed", &Client::logout, this);
 
-        m_screenState = chat::ScreenState::LoginScreen;
+        m_screenState = ScreenState::LoginScreen;
         changeScreenState(m_screenState);
 
         m_messageWindow = tgui::ChildWindow::create();
@@ -241,8 +242,10 @@ namespace chat
         m_friendListVisibilityButton->setSize(120, 30);
         m_friendListVisibilityButton->setPosition(40, tgui::bindHeight(m_logoutButton) + 20);
 
+        m_friendsOnline->removeAllItems();
         m_friendsOnline->setPosition(10, 10);
 
+        m_friendChatTabs->removeAll();
         m_friendChatTabs->setSize(200, 50);
         m_friendChatTabs->setTextSize(12);
         m_friendChatTabs->setTabHeight(20);
@@ -250,17 +253,20 @@ namespace chat
 
         m_chatBox->setSize(tgui::bindWidth(m_window) - 80, 320);
         m_chatBox->setTextSize(15);
+        m_chatBox->setText("");
         m_chatBox->setPosition(40, tgui::bindHeight(m_gui) / 5.2);
         m_chatBox->setReadOnly(true);
 
         m_inputTextBox->setSize(tgui::bindWidth(m_window) - 80, 110);
         m_inputTextBox->setTextSize(15);
+        m_chatBox->setText("");
         m_inputTextBox->setPosition(40, tgui::bindHeight(m_window) / 1.35);
 
         m_friendlistPanel->setSize(tgui::bindWidth(m_friendsOnline) + 20, tgui::bindHeight(m_friendsOnline) + 20);
         m_friendlistPanel->setPosition(40, tgui::bindHeight(m_friendListVisibilityButton) + 45);
         m_friendlistPanel->add(m_friendsOnline);
         m_friendlistPanel->hide();
+
         m_friendListVisibilityButton->connect("pressed", &Client::changePanelVisibility, this, panelVisibility, m_friendlistPanel);
     }
 
@@ -294,7 +300,6 @@ namespace chat
     void Client::changeScreenState(const ScreenState& screenState)
     {
         m_screenState = screenState;
-
         selectScreenForRendering();
     }
 
@@ -302,28 +307,21 @@ namespace chat
     {
         switch (m_screenState)
         {
-            case chat::ScreenState::LoginScreen:
+            case ScreenState::LoginScreen:
                 {
-                    logout();
-
-                    if (!m_rememberMeCheckbox->isChecked())
-                    {
-                        m_usernameField->setText("");
-                        m_passwordField->setText("");
-                    }
                     m_loginPanel->show();
                     m_registerPanel->hide();
                     m_chatPanel->hide();
                 } break;
 
-            case chat::ScreenState::SignupScreen:
+            case ScreenState::SignupScreen:
                 {
                     m_loginPanel->hide();
                     m_registerPanel->show();
                     m_chatPanel->hide();
                 } break;
 
-            case chat::ScreenState::ChatScreen:
+            case ScreenState::ChatScreen:
                 {
                     m_loginPanel->hide();
                     m_registerPanel->hide();
@@ -358,11 +356,11 @@ namespace chat
                             m_chatBox->addText(m_userName + " : " + message);
                             m_inputTextBox->setText("");
 
-                            sf::Packet msgPacket;
-                            msgPacket << m_userName << m_friends.back() << message;
+                            sf::Packet packet;
+                            packet << m_userName << m_friends.back() << message;
 
                             //if (sf::Event::KeyReleased)
-                                if (send(msgPacket) == sf::Socket::Error)
+                                if (send(packet) == sf::Socket::Error)
                                     std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
                         }
                 }
@@ -385,7 +383,7 @@ namespace chat
     {
         changeScreenState(ScreenState::SignupScreen);
 
-        sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
+        sf::Socket::Status connectionSuccess = m_client.connect(SERVER_IP_ADDRESS, OPEN_PORT);
 
         if (connectionSuccess == sf::Socket::Done)
         {
@@ -400,18 +398,18 @@ namespace chat
             m_userName = m_newUsernameField->getText();
             m_password = m_passwordField->getText();
 
-            sf::Packet msgPacket;
-            msgPacket << m_userName << m_password << info;
+            sf::Packet packet;
+            packet << m_userName << m_password << info;
 
-            if (m_client.send(msgPacket) == sf::Socket::Done)
+            if (m_client.send(packet) == sf::Socket::Done)
             {
-                sf::Socket::Status status = m_client.receive(msgPacket);
+                sf::Socket::Status status = m_client.receive(packet);
 
                 if (status == sf::Socket::Done)
                 {
                     std::string serverReply;
 
-                    if (msgPacket >> serverReply)
+                    if (packet >> serverReply)
                     {
                         if (serverReply == "registered")
                         {
@@ -427,29 +425,26 @@ namespace chat
                     }
                 }
             }
-            else if (m_client.send(msgPacket) == sf::Socket::Error)
+            else if (m_client.send(packet) == sf::Socket::Error)
                 std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in registration! Please try again" << std::endl;
         }
-        /*else
+        else
         {
-            tgui::ChildWindow::Ptr errorWindow = tgui::ChildWindow::create();
-            errorWindow->setSize(200, 50);
-            errorWindow->setTitle("Error!");
-            m_gui.add(errorWindow);
+            m_messageWindow->setSize(400, 60);
+            m_messageWindow->setTitle("Error!");
+            m_messageWindow->setPosition(tgui::bindWidth(m_gui) / 2 - 200, tgui::bindHeight(m_gui) / 2 - m_messageLabel->getSize().y);
+            m_messageLabel->setText("Unable to connect to server! Please make sure that the\n     server is up and you're connected to the internet.");
+            m_messageLabel->setTextSize(12);
+            m_messageLabel->setPosition(20, 10);
 
-            tgui::Label::Ptr errorLabel = tgui::Label::create();
-            errorLabel->setText("Unable to connect to server! Please make sure that the server is up and you're connected to the internet.");
-            errorLabel->setTextSize(12);
-            errorLabel->setPosition(20, 10);
-            errorWindow->add(errorLabel);
-        }*/
+            if (!m_messageWindow->isVisible())
+                m_messageWindow->show();
+        }
     }
 
     bool Client::login()
     {
-        logout();
-
-        sf::Socket::Status connectionSuccess = m_client.connect(chat::SERVER_IP_ADDRESS, chat::OPEN_PORT);
+        sf::Socket::Status connectionSuccess = m_client.connect(prattle::SERVER_IP_ADDRESS, prattle::OPEN_PORT);
 
         if (connectionSuccess == sf::Socket::Done)
         {
@@ -460,18 +455,18 @@ namespace chat
                 m_userName = m_usernameField->getText();
                 m_password = m_passwordField->getText();
 
-                sf::Packet msgPacket;
-                msgPacket << m_userName << m_password << info;
+                sf::Packet packet;
+                packet << m_userName << m_password << info;
 
-                if (m_client.send(msgPacket) == sf::Socket::Done)
+                if (m_client.send(packet) == sf::Socket::Done)
                 {
-                    sf::Socket::Status status = m_client.receive(msgPacket);
+                    sf::Socket::Status status = m_client.receive(packet);
 
                     if (status == sf::Socket::Done)
                     {
                         std::string serverReply;
 
-                        if (msgPacket >> serverReply)
+                        if (packet >> serverReply)
                         {
                             if (serverReply == "registered")
                             {
@@ -514,7 +509,7 @@ namespace chat
                         }
                     }
                 }
-                else if (m_client.send(msgPacket) == sf::Socket::Error)
+                else if (m_client.send(packet) == sf::Socket::Error)
                     std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in logging in! Please try again" << std::endl;
             }
             else
@@ -599,5 +594,8 @@ namespace chat
         m_client.disconnect();
         m_client.setBlocking(true);
         init();
+
+        changeScreenState(ScreenState::LoginScreen);
+        m_passwordField->setText("");
     }
 }

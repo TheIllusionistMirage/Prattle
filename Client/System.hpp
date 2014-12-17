@@ -4,7 +4,7 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
-namespace chat
+namespace prattle
 {
     const int OPEN_PORT = 20000;
     const std::string SERVER_IP_ADDRESS = "127.0.0.1";
