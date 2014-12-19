@@ -12,7 +12,6 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include <SFML/Graphics.hpp>
 #include "NetworkManager.hpp"
 #include "UI.hpp"
 
@@ -23,12 +22,26 @@ namespace prattle
         public:
             Client();
 
+            bool checkIfWhitespace(const std::string& message);
+            bool isLoggedIn();
+            std::string const& getUserName() const;
+            std::string const& getFriendsName() const;
+            bool logout();
+            bool login(const std::string& username, const std::string& password);
+            void signup(const std::string& username, const std::string& password);
+
             void reset();
             void run();
 
         protected:
 
         private:
+            bool m_loginStatus;
+            std::string m_username;
+            std::string m_password;
+            std::string m_friend;
+            Status m_onlineStatus;
+
             NetworkManager m_networkManager;
             UI m_ui;
 

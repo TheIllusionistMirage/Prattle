@@ -20,13 +20,13 @@ namespace prattle
         // Initialize the panels which serve as the login screen, the signup
         // screen and the chat screen. Add them to TGUI
         m_loginPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        m_gui.add(m_loginPanel);
+        m_gui.add(m_loginPanel, "login_panel");
 
         m_registerPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        m_gui.add(m_registerPanel);
+        m_gui.add(m_registerPanel, "register_panel");
 
         m_chatPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        m_gui.add(m_chatPanel);
+        m_gui.add(m_chatPanel, "chat_panel");
 
         // The background image of the application
         m_background = tgui::Picture::create(CHAT_BACKGROUND);
@@ -48,12 +48,12 @@ namespace prattle
 
         // Add all these widgets to the login panel so that they get
         // displayed in the login screen
-        m_loginPanel->add(m_background);
+        m_loginPanel->add(m_background, "background_tgui_picture");
         m_loginPanel->add(m_logo);
         m_loginPanel->add(m_caption);
         m_loginPanel->add(m_loginMsg);
-        m_loginPanel->add(m_usernameField);
-        m_loginPanel->add(m_passwordField);
+        m_loginPanel->add(m_usernameField, "username_field");
+        m_loginPanel->add(m_passwordField, "password_field");
         m_loginPanel->add(m_loginButton);
         m_loginPanel->add(m_rememberMeCheckbox);
         m_loginPanel->add(m_registerMsg);
@@ -89,7 +89,7 @@ namespace prattle
         m_inputTextBox = tgui::TextBox::create();
         m_friendlistPanel = tgui::Panel::create(sf::Vector2f(200, m_window.getSize().y));
 
-        m_friendListVisibilityButton->connect("pressed", &UI::changePanelVisibility, this, panelVisibility, m_friendlistPanel);
+        m_friendListVisibilityButton->connect("pressed", &UI::changePanelVisibility, this, m_friendlistPanel, friendsPanelVisibility);
 
         // Add these widgets to the chat panel
         m_chatPanel->add(m_background);
@@ -98,12 +98,16 @@ namespace prattle
         m_chatPanel->add(m_friendChatTabs);
         m_chatPanel->add(m_friendListVisibilityButton);
         m_chatPanel->add(m_chatBox);
-        m_chatPanel->add(m_inputTextBox);
+        m_chatPanel->add(m_inputTextBox, "input_textbox");
         m_chatPanel->add(m_friendlistPanel);
 
         m_loginPanel->hide();
         m_registerPanel->hide();
         m_chatPanel->hide();
+
+        //m_signUpButton->connect("pressed", &UI::signup this, std::string, std::string);
+        //m_backButton->connect("pressed", &UI::changeScreenState, this, ScreenState::LoginScreen);
+        //m_logoutButton->connect("pressed", &UI::logout, this);
 
         //m_loginButton->connect("pressed", &Client::login, this, std::string, std::string);
         //m_signUpButton->connect("pressed", &sf::TcpSocket::send, packet);
@@ -266,27 +270,27 @@ namespace prattle
         m_friendlistPanel->hide();
     }
 
-    sf::RenderWindow& UI::getRenderWindow()
+    sf::RenderWindow* UI::getRenderWindow()
     {
-        return m_window;
+        return &m_window;
     }
 
-    tgui::Gui& UI::getGui()
+    tgui::Gui* UI::getGui()
     {
-        return m_gui;
+        return &m_gui;
     }
 
-    void UI::changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel)
+    void UI::changePanelVisibility(tgui::Panel::Ptr panel, bool visibility)
     {
         if (visibility)
         {
             panel->show();
-            visibility = false;
+            friendsPanelVisibility = false;
         }
         else
         {
             panel->hide();
-            visibility = true;
+            friendsPanelVisibility= true;
         }
     }
 
@@ -323,13 +327,28 @@ namespace prattle
         }
     }
 
+    std::string const& UI::getInputText() const
+    {
+        return m_inputTextBox->getText();
+    }
+
+    void UI::addTextToChatBox(const std::string& user, const std::string& message)
+    {
+        m_chatBox->addText(user + " : " + message);
+    }
+
+    void UI::clearInputTextBox()
+    {
+        m_inputTextBox->setText("");
+    }
+
     /*void UI::update()
     {
         if (m_window.isOpen())
         {
             sf::Event event;
 
-            if (m_window.pollEvent())
+            if (m_window.pollEvent(event))
             {
                 if (event.type == sf::Event::Closed)
                     m_window.close();
@@ -350,12 +369,12 @@ namespace prattle
                 render();
             }
         }
-    }*/
+    }
 
     void UI::render()
     {
         m_window.clear(sf::Color::Black);
         m_gui.draw();
         m_window.display();
-    }
+    }*/
 }

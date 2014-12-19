@@ -11,29 +11,16 @@ namespace prattle
     {
         public:
             NetworkManager();
-
-            void run();
-            bool checkIfWhitespace(const std::string& message);
-            bool isLoggedIn();
-            std::string const& getUserName() const;
-            std::vector<std::string> const& getFriendsName() const;
-            //bool  receive();
-            std::string receive();
-            sf::Socket::Status send(sf::Packet& packet);
-            bool logout();
-            bool login(const std::string& username, const std::string& password);
-            void signup(const std::string& username, const std::string& password);
+            bool receive(std::string& message);
+            bool receive(std::string& sender, std::string& message);
+            bool send(const std::string& sender, const std::string& receiver, const std::string& message);
             void reset();
+            bool connectToServer(const int port, const std::string serverIP);
 
         protected:
 
         private:
             sf::TcpSocket m_clientSocket;
-            bool m_loginStatus;
-            std::string m_userName;
-            std::string m_password;
-            std::vector<std::string> m_friends;
-            Status m_onlineStatus;
     };
 }
 

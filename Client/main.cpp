@@ -1,5 +1,4 @@
 #include <exception>
-#include <cctype>
 #include "Client.hpp"
 
 int main()
@@ -7,7 +6,7 @@ int main()
     try
     {
         prattle::Client client;
-        //client.run();
+        client.run();
 
         return 0;
     }

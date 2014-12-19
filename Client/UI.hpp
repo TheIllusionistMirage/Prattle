@@ -11,6 +11,8 @@
 
 namespace prattle
 {
+    //class NetworkManager;
+
     class UI
     {
         public:
@@ -18,14 +20,22 @@ namespace prattle
 
             //void render();
             //void update();
+            void addTextToChatBox(const std::string& user, const std::string& message);
+            void clearInputTextBox();
+            std::string const& getInputText() const;
             void selectScreenForRendering();
-            void changePanelVisibility(bool &visibility, tgui::Panel::Ptr panel);
             void changeScreenState(const ScreenState& screenState);
-            tgui::Gui& getGui();
-            sf::RenderWindow& getRenderWindow();
+            tgui::Gui* getGui();
+            sf::RenderWindow* getRenderWindow();
             void reset();
 
+            friend bool logout();
+            friend bool login(const std::string& username, const std::string& password);
+            friend void signup(const std::string& username, const std::string& password);
+
         protected:
+            void changePanelVisibility(tgui::Panel::Ptr panel, bool visibility);
+
         private:
             // Window related SFML objects
 
@@ -75,7 +85,7 @@ namespace prattle
             tgui::Tab::Ptr m_friendChatTabs;
             tgui::Button::Ptr m_friendListVisibilityButton;
             tgui::Panel::Ptr m_friendlistPanel;
-            bool panelVisibility;
+            bool friendsPanelVisibility;
             tgui::ListBox::Ptr m_friendsOnline;
             tgui::TextBox::Ptr m_chatBox;
             tgui::TextBox::Ptr m_inputTextBox;

@@ -4,17 +4,27 @@ namespace prattle
 {
     NetworkManager::NetworkManager() : m_clientSocket{}
     {
-        m_loginStatus = false;
-        m_onlineStatus = Status::Offline;
+
     }
 
     void NetworkManager::reset()
     {
-        m_loginStatus = false;
-        m_onlineStatus = Status::Offline;
+
+        m_clientSocket.disconnect();
+        m_clientSocket.setBlocking(true);
     }
 
-    bool NetworkManager::checkIfWhitespace(const std::string& message)
+    bool NetworkManager::connectToServer(const int port, const std::string serverIP)
+    {
+        sf::Socket::Status status = m_clientSocket.connect(prattle::SERVER_IP_ADDRESS, prattle::OPEN_PORT);
+
+        if (status == sf::Socket::Done)
+            return true;
+
+        return false;
+    }
+
+    /*bool NetworkManager::checkIfWhitespace(const std::string& message)
     {
         for (auto itr = message.begin(); itr != message.end(); itr++)
         {
@@ -24,11 +34,11 @@ namespace prattle
             }
         }
         return true;
-    }
+    }*/
 
     //void CoreEngine::run(const sf::RenderWindow* sf_window)
 
-    void NetworkManager::signup(const std::string& username, const std::string& password)
+    /*void NetworkManager::signup(const std::string& username, const std::string& password)
     {
         sf::Socket::Status connectionSuccess = m_clientSocket.connect(SERVER_IP_ADDRESS, OPEN_PORT);
 
@@ -70,9 +80,9 @@ namespace prattle
         {
             std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: An error occurred in establishing connection with the server! Please try again." << std::endl;
         }
-    }
+    }*/
 
-    bool NetworkManager::login(const std::string& username, const std::string& password)
+    /*bool NetworkManager::login(const std::string& username, const std::string& password)
     {
         sf::Socket::Status connectionSuccess = m_clientSocket.connect(prattle::SERVER_IP_ADDRESS, prattle::OPEN_PORT);
 
@@ -103,8 +113,9 @@ namespace prattle
                                 std::cout << "Enter the name of the person you want to chat with : ";
                                 std::string name;
                                 std::getline(std::cin, name);
-                                m_friends.empty();
-                                m_friends.push_back(name);
+                                //m_friends.empty();
+                                //m_friends.push_back(name);
+                                m_friend = name;
                             }
 
                             else if(serverReply == "unregistered")
@@ -134,60 +145,105 @@ namespace prattle
         {
             std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Can't connect to server! Please try again" << std::endl;
         }
-    }
+    }*/
 
-    bool NetworkManager::isLoggedIn()
+    /*bool NetworkManager::isLoggedIn()
     {
         return m_loginStatus;
-    }
+    }*/
 
-    sf::Socket::Status NetworkManager::send(sf::Packet& packet)
+    //sf::Socket::Status NetworkManager::send(sf::Packet& packet)
+    bool NetworkManager::send(const std::string& sender, const std::string& receiver, const std::string& message)
     {
-        return m_clientSocket.send(packet);
+        sf::Packet packet;
+        packet << sender << receiver << message;
+
+        sf::Socket::Status status = m_clientSocket.send(packet);
+
+        if (status == sf::Socket::Status::Done)
+            return true;
+
+        return false;
     }
 
-    std::string NetworkManager::receive()
+    bool NetworkManager::receive(std::string& message)
     {
         sf::Packet packet;
         sf::Socket::Status status = m_clientSocket.receive(packet);
 
-        while(status == sf::Socket::Done)
+        std::string _sender; // Not sure what identifier to use here
+        std::string data;
+
+        if (status == sf::Socket::NotReady)
+            return false;
+
+        if (status == sf::Socket::Done)
         {
-            std::string sender;
-            std::string data;
-
-            if (packet >> sender >> data)
+            if (packet >> _sender >> data)
             {
-                if (data != "")
-                    return data;
-            }
+                message = data;
 
-            status = m_clientSocket.receive(packet);
+                return true;
+            }
         }
 
-        if (status == sf::Socket::Error)
+        else if (status == sf::Socket::Error)
         {
             std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unable to receive data from remote peer!" <<  std::endl;
-            return "";
         }
 
-        return "";
+        return false;
     }
 
-    std::string const& NetworkManager::getUserName() const
+    bool NetworkManager::receive(std::string& sender, std::string& message)
     {
-        return m_userName;
+        sf::Packet packet;
+        sf::Socket::Status status = m_clientSocket.receive(packet);
+
+        std::string _sender; // Not sure what identifier to use here
+        std::string data;
+
+        if (status == sf::Socket::NotReady)
+            return false;
+
+        if (status == sf::Socket::Done)
+        {
+            if (packet >> _sender >> data)
+            {
+                sender = _sender;
+                message = data;
+
+                return true;
+            }
+        }
+
+        else if (status == sf::Socket::Error)
+        {
+            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unable to receive data from remote peer!" <<  std::endl;
+        }
+
+        return false;
     }
 
-    std::vector<std::string> const& NetworkManager::getFriendsName() const
-    {
-        return m_friends;
-    }
+    //std::string const& NetworkManager::getUserName() const
+    //{
+    //    return m_userName;
+    //}
 
-    bool NetworkManager::logout()
+    //std::vector<std::string> const& NetworkManager::getFriendsName() const
+    //{
+    //    return m_friends;
+    //}
+
+    //std::string const& NetworkManager::getFriendsName() const
+    //{
+    //    return m_friend;
+    //}
+
+    /*bool NetworkManager::logout()
     {
         m_clientSocket.disconnect();
         m_clientSocket.setBlocking(true);
         reset();
-    }
+    }*/
 }
