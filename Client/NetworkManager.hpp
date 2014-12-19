@@ -15,7 +15,8 @@ namespace prattle
             bool receive(std::string& sender, std::string& message);
             bool send(const std::string& sender, const std::string& receiver, const std::string& message);
             void reset();
-            bool connectToServer(const int port, const std::string serverIP);
+            void setSocketBlocking(bool blocking);
+            bool connectToServer(const std::string serverIP, const int port);
 
         protected:
 

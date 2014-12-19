@@ -109,7 +109,7 @@ namespace prattle
         //m_backButton->connect("pressed", &UI::changeScreenState, this, ScreenState::LoginScreen);
         //m_logoutButton->connect("pressed", &UI::logout, this);
 
-        //m_loginButton->connect("pressed", &Client::login, this, std::string, std::string);
+        //m_loginButton->connect("pressed", std::bind(&Client::login, this, std::string, std::string);
         //m_signUpButton->connect("pressed", &sf::TcpSocket::send, packet);
         //m_signUpButton->connect("pressed", &Client::signup, this, std::string, std::string);
         //m_backButton->connect("pressed", &Client::changeScreenState, this, ScreenState::LoginScreen);

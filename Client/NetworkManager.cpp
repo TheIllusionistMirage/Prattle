@@ -14,14 +14,19 @@ namespace prattle
         m_clientSocket.setBlocking(true);
     }
 
-    bool NetworkManager::connectToServer(const int port, const std::string serverIP)
+    bool NetworkManager::connectToServer(const std::string serverIP, const int port)
     {
-        sf::Socket::Status status = m_clientSocket.connect(prattle::SERVER_IP_ADDRESS, prattle::OPEN_PORT);
+        sf::Socket::Status status = m_clientSocket.connect(serverIP, port);
 
         if (status == sf::Socket::Done)
             return true;
 
         return false;
+    }
+
+    void NetworkManager::setSocketBlocking(bool blocking)
+    {
+        m_clientSocket.setBlocking(blocking);
     }
 
     /*bool NetworkManager::checkIfWhitespace(const std::string& message)

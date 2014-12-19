@@ -12,6 +12,7 @@ namespace prattle
         m_windowPtr = m_ui.getRenderWindow();
         m_guiPtr = m_ui.getGui();
         m_ui.reset();
+        m_ui.m_loginButton->connect("pressed", &Client::login, this, m_username, m_password);
     }
 
     void Client::reset()
@@ -142,7 +143,7 @@ namespace prattle
             std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Can't connect to server! Please try again" << std::endl;
         }*/
 
-        if (m_networkManager.connectToServer(OPEN_PORT, SERVER_IP_ADDRESS))
+        if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
         {
             if (m_username != "" && m_password != "")
             {
@@ -170,6 +171,7 @@ namespace prattle
                             //m_friends.empty();
                             //m_friends.push_back(name);
                             m_friend = name;
+                            m_networkManager.setSocketBlocking(false);
                         }
 
                         else if (serverReply == "unregistered")

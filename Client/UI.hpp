@@ -11,7 +11,7 @@
 
 namespace prattle
 {
-    //class NetworkManager;
+    class Client;
 
     class UI
     {
@@ -32,6 +32,8 @@ namespace prattle
             friend bool logout();
             friend bool login(const std::string& username, const std::string& password);
             friend void signup(const std::string& username, const std::string& password);
+
+            tgui::Button::Ptr m_loginButton;
 
         protected:
             void changePanelVisibility(tgui::Panel::Ptr panel, bool visibility);
@@ -64,7 +66,7 @@ namespace prattle
             tgui::Label::Ptr m_loginMsg;
             tgui::EditBox::Ptr m_usernameField;
             tgui::EditBox::Ptr m_passwordField;
-            tgui::Button::Ptr m_loginButton;
+            //tgui::Button::Ptr m_loginButton;
             tgui::Checkbox::Ptr m_rememberMeCheckbox;
             tgui::Label::Ptr m_registerMsg;
             tgui::Button::Ptr m_signUpButton;
