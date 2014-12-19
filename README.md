@@ -1,9 +1,12 @@
 Prattle
 ===========
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/TheIllusionistMirage/Prattle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Prattle is a simple chat program written in C++, using SFML.
 
 Currently, console chat is possible and a secure user database exists. A GUI, file transfer facility, multiple friendlist and online statuses with a range of other stuff will be added soon.
+
+**P.S. Active development is being done in the test branch**
 
 
 Authors
