@@ -327,7 +327,17 @@ namespace prattle
         }
     }
 
-    std::string const& UI::getInputText() const
+    std::string UI::getUsernameFieldText()
+    {
+        return m_usernameField->getText();
+    }
+
+    std::string UI::getPasswordFieldText()
+    {
+        return m_passwordField->getText();
+    }
+
+    std::string UI::getInputText()
     {
         return m_inputTextBox->getText();
     }
@@ -340,6 +350,13 @@ namespace prattle
     void UI::clearInputTextBox()
     {
         m_inputTextBox->setText("");
+    }
+
+    void UI::insertNewFriendTab(const std::string& friendName)
+    {
+        m_friendsOnline->addItem(friendName, "frnd1");
+        m_friendChatTabs->add(friendName);
+        m_friendChatTabs->select(0);
     }
 
     /*void UI::update()

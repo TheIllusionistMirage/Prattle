@@ -11,8 +11,10 @@ namespace prattle
     {
         m_windowPtr = m_ui.getRenderWindow();
         m_guiPtr = m_ui.getGui();
+        m_networkManager.reset();
         m_ui.reset();
-        m_ui.m_loginButton->connect("pressed", &Client::login, this, m_username, m_password);
+        //m_ui.m_loginButton->connect("pressed", &Client::login, this, m_username, m_password);
+        m_ui.m_loginButton->connect("pressed", &Client::login, this);
     }
 
     void Client::reset()
@@ -50,23 +52,36 @@ namespace prattle
                         {
                             std::string message = m_ui.getInputText();
 
-                            /*if (!m_networkManager.send(message, m_networkManager.getFriendsName()))
+                            if (!m_networkManager.send(m_username, m_friend, message))
                             {
                                 std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
                             }
 
                             else
                             {
-                                m_ui.addTextToChatBox(m_networkManager.getUserName(), message);
-                            }*/
-
-                            std::string packetContent ;//=
+                                m_ui.addTextToChatBox(m_username, message);
+                                m_ui.clearInputTextBox();
+                            }
                         }
                     }
                 }
 
                 m_guiPtr->handleEvent(event);
             }
+
+            if (isLoggedIn())
+            {
+                std::string sender;
+                std::string message;
+
+                while (m_networkManager.receive(sender, message))
+                {
+                    m_ui.addTextToChatBox(sender, message);
+                }
+            }
+
+            m_username = m_ui.getUsernameFieldText();
+            m_password = m_ui.getPasswordFieldText();
 
             m_windowPtr->clear(sf::Color::Black);
             m_guiPtr->draw();
@@ -79,22 +94,23 @@ namespace prattle
         return m_loginStatus;
     }
 
-    bool Client::login(const std::string& username, const std::string& password)
+    //bool Client::login(const std::string& username, const std::string& password)
+    bool Client::login()
     {
-        /*sf::Socket::Status connectionSuccess = m_clientSocket.connect(prattle::SERVER_IP_ADDRESS, prattle::OPEN_PORT);
+        /*sf::Socket::Status connectionSuccess = m_networkManager.m_clientSocket.connect(prattle::SERVER_IP_ADDRESS, prattle::OPEN_PORT);
 
         if (connectionSuccess == sf::Socket::Done)
         {
             std::string info = "existing_user";
 
-            if (username != "" && password != "")
+            if (m_username != "" && m_password != "")
             {
                 sf::Packet packet;
-                packet << username << password << info;
+                packet << m_username << m_password << info;
 
-                if (m_clientSocket.send(packet) == sf::Socket::Done)
+                if (m_networkManager.m_clientSocket.send(packet) == sf::Socket::Done)
                 {
-                    sf::Socket::Status status = m_clientSocket.receive(packet);
+                    sf::Socket::Status status = m_networkManager.m_clientSocket.receive(packet);
 
                     if (status == sf::Socket::Done)
                     {
@@ -113,6 +129,9 @@ namespace prattle
                                 //m_friends.empty();
                                 //m_friends.push_back(name);
                                 m_friend = name;
+                                m_networkManager.setSocketBlocking(false);
+                                m_ui.insertNewFriendTab(name);
+                                m_ui.changeScreenState(ScreenState::ChatScreen);
                             }
 
                             else if(serverReply == "unregistered")
@@ -128,28 +147,30 @@ namespace prattle
                     }
                 }
 
-                else if (m_clientSocket.send(packet) == sf::Socket::Error)
+                else if (m_networkManager.m_clientSocket.send(packet) == sf::Socket::Error)
+                {
                     std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in logging in! Please try again" << std::endl;
+                    m_networkManager.reset();
+                }
             }
 
             else
             {
                 std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Either username or password field is blank!" << std::endl;
+                m_networkManager.reset();
             }
         }
 
         else
         {
             std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Can't connect to server! Please try again" << std::endl;
+            m_networkManager.reset();
         }*/
 
         if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
         {
             if (m_username != "" && m_password != "")
             {
-                //std::string packetContent = m_username + ":" + m_password + ":" + "existing_user";
-
-                //if (m_networkManager.send(packetContent))
                 if (m_networkManager.send(m_username, m_password, "existing_user"))
                 {
                     std::string serverReply;
@@ -168,15 +189,17 @@ namespace prattle
                             std::cout << "Enter the name of the person you want to chat with : ";
                             std::string name;
                             std::getline(std::cin, name);
-                            //m_friends.empty();
-                            //m_friends.push_back(name);
                             m_friend = name;
                             m_networkManager.setSocketBlocking(false);
+                            m_ui.insertNewFriendTab(name);
+                            m_ui.changeScreenState(ScreenState::ChatScreen);
                         }
 
                         else if (serverReply == "unregistered")
                         {
                             std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: You are not registered with us! Please register before logging in!" << std::endl;
+                            m_networkManager.reset();
+
                             return false;
                         }
                     }
@@ -185,6 +208,8 @@ namespace prattle
                 else
                 {
                     std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to send login info to server!" << std::endl;
+                    m_networkManager.reset();
+
                     return false;
                 }
             }
@@ -193,6 +218,8 @@ namespace prattle
         else
         {
             std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Can't connect to server! Please try again" << std::endl;
+            m_networkManager.reset();
+
             return false;
         }
     }

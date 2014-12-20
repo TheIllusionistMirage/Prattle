@@ -27,7 +27,8 @@ namespace prattle
             std::string const& getUserName() const;
             std::string const& getFriendsName() const;
             bool logout();
-            bool login(const std::string& username, const std::string& password);
+            //bool login(const std::string& username, const std::string& password);
+            bool login();
             void signup(const std::string& username, const std::string& password);
 
             void reset();

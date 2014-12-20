@@ -16,10 +16,21 @@ namespace prattle
 
     bool NetworkManager::connectToServer(const std::string serverIP, const int port)
     {
+        if (m_clientSocket.isBlocking())
+            std::cout << "Blocking" << std::endl;
+        else
+            std::cout << "Non-Blocking" << std::endl;
+
         sf::Socket::Status status = m_clientSocket.connect(serverIP, port);
 
         if (status == sf::Socket::Done)
             return true;
+
+        else if(status == sf::Socket::NotReady)
+            std::cerr << "Socket not ready to receive!" << std::endl;
+
+        else if(status == sf::Socket::Error)
+            std::cerr << "Error in connecting socket" << std::endl;
 
         return false;
     }
@@ -171,20 +182,24 @@ namespace prattle
         return false;
     }
 
+    /*
+        TO DO: Make receiving packets more efficient and refraining from using the '>>' and '<<' operators
+    */
     bool NetworkManager::receive(std::string& message)
     {
         sf::Packet packet;
         sf::Socket::Status status = m_clientSocket.receive(packet);
 
-        std::string _sender; // Not sure what identifier to use here
         std::string data;
 
         if (status == sf::Socket::NotReady)
-            return false;
-
-        if (status == sf::Socket::Done)
         {
-            if (packet >> _sender >> data)
+            return false;
+        }
+
+        else if (status == sf::Socket::Done)
+        {
+            if (packet >> data)
             {
                 message = data;
 
@@ -200,6 +215,9 @@ namespace prattle
         return false;
     }
 
+    /*
+        TO DO: Make receiving packets more efficient and refraining from using the '>>' and '<<' operators
+    */
     bool NetworkManager::receive(std::string& sender, std::string& message)
     {
         sf::Packet packet;

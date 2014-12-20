@@ -20,9 +20,12 @@ namespace prattle
 
             //void render();
             //void update();
+            void insertNewFriendTab(const std::string& friendName);
             void addTextToChatBox(const std::string& user, const std::string& message);
             void clearInputTextBox();
-            std::string const& getInputText() const;
+            std::string getInputText();
+            std::string getUsernameFieldText();
+            std::string getPasswordFieldText();
             void selectScreenForRendering();
             void changeScreenState(const ScreenState& screenState);
             tgui::Gui* getGui();
