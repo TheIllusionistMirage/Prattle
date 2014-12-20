@@ -16,21 +16,10 @@ namespace prattle
 
     bool NetworkManager::connectToServer(const std::string serverIP, const int port)
     {
-        if (m_clientSocket.isBlocking())
-            std::cout << "Blocking" << std::endl;
-        else
-            std::cout << "Non-Blocking" << std::endl;
-
         sf::Socket::Status status = m_clientSocket.connect(serverIP, port);
 
         if (status == sf::Socket::Done)
             return true;
-
-        else if(status == sf::Socket::NotReady)
-            std::cerr << "Socket not ready to receive!" << std::endl;
-
-        else if(status == sf::Socket::Error)
-            std::cerr << "Error in connecting socket" << std::endl;
 
         return false;
     }
