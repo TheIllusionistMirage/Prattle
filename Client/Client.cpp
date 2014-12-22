@@ -198,14 +198,15 @@ namespace prattle
             std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: An error occurred in establishing connection with the server! Please try again." << std::endl;
         }*/
 
-        //if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
-        auto status = m_networkManager.m_clientSocket.connect(SERVER_IP_ADDRESS, OPEN_PORT);
+        m_networkManager.reset();
 
-        if (status == sf::Socket::Done)
+        if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
+        //auto status = m_networkManager.m_clientSocket.connect(SERVER_IP_ADDRESS, OPEN_PORT);
+        //if (status == sf::Socket::Done)
         {
             if (m_username != "" && m_password != "")
             {
-                if (m_networkManager.send(m_username, m_password, "new_user"))
+                if (m_networkManager.send(m_username, m_password, "existing_user"))
                 {
                     std::string serverReply;
                     m_networkManager.receive(serverReply);
@@ -254,6 +255,7 @@ namespace prattle
                     return false;
                 }
             }
+            std::cout << "Something bad happened here" << std::endl;
         }
 
         else

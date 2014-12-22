@@ -81,8 +81,8 @@ namespace prattle
 
             tgui::Label::Ptr m_signUpMsg;
             tgui::EditBox::Ptr m_fullNameField;
-            tgui::EditBox::Ptr m_newUsernameField;
-            tgui::EditBox::Ptr m_newPasswordField;
+            //tgui::EditBox::Ptr m_newUsernameField;
+            //tgui::EditBox::Ptr m_newPasswordField;
             //tgui::Button::Ptr m_submitButton;
             tgui::Button::Ptr m_backButton;
 

@@ -62,8 +62,8 @@ namespace prattle
         // Widgets for signup screen
         m_signUpMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
         m_fullNameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
-        m_newUsernameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
-        m_newPasswordField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
+        //m_newUsernameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
+        //m_newPasswordField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_submitButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_backButton = tgui::Button::create(DEFAULT_TGUI_THEME);
 
@@ -74,8 +74,8 @@ namespace prattle
         m_registerPanel->add(m_caption);
         m_registerPanel->add(m_signUpMsg);
         m_registerPanel->add(m_fullNameField);
-        m_registerPanel->add(m_newUsernameField);
-        m_registerPanel->add(m_newPasswordField);
+        //m_registerPanel->add(m_newUsernameField);
+        //m_registerPanel->add(m_newPasswordField);
         m_registerPanel->add(m_submitButton);
         m_registerPanel->add(m_backButton);
 
@@ -212,24 +212,24 @@ namespace prattle
         m_fullNameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
         m_fullNameField->setDefaultText("Your full name");
 
-        m_newUsernameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
-        m_newUsernameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
-        m_newUsernameField->setDefaultText("Pick a username");
+        //m_newUsernameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
+        //m_newUsernameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
+        //m_newUsernameField->setDefaultText("Pick a username");
 
-        m_newPasswordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
-        m_newPasswordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
-        m_newPasswordField->setDefaultText("Choose a password");
-        m_newPasswordField->setPasswordCharacter('*');
+        //m_newPasswordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
+        //m_newPasswordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
+        //m_newPasswordField->setDefaultText("Choose a password");
+        //m_newPasswordField->setPasswordCharacter('*');
 
         m_submitButton->setText("Sign Up");
         m_submitButton->setTextSize(15);
         m_submitButton->setSize(tgui::bindWidth(m_passwordField), tgui::bindHeight(m_passwordField) + 10);
-        m_submitButton->setPosition(tgui::bindWidth(m_newPasswordField), tgui::bindHeight(m_gui) / 1.3 - 3);
+        m_submitButton->setPosition(tgui::bindWidth(m_passwordField), tgui::bindHeight(m_gui) / 1.3 - 3);
 
         m_backButton->setText("Back");
         m_backButton->setTextSize(15);
         m_backButton->setSize(100, 30);
-        m_backButton->setPosition(tgui::bindWidth(m_newPasswordField) + 80, tgui::bindHeight(m_gui) / 1.15);
+        m_backButton->setPosition(tgui::bindWidth(m_passwordField) + 80, tgui::bindHeight(m_gui) / 1.15);
 
         m_userNameLabel->setText("Logged in as : ");// + m_userName);
         m_userNameLabel->setTextSize(15);
@@ -309,6 +309,7 @@ namespace prattle
         {
             case ScreenState::LoginScreen:
                 {
+                    m_loginButton->
                     m_loginPanel->show();
                     m_registerPanel->hide();
                     m_chatPanel->hide();
