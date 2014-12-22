@@ -309,7 +309,12 @@ namespace prattle
         {
             case ScreenState::LoginScreen:
                 {
-                    m_loginButton->
+                    m_gui.remove(m_usernameField);
+                    m_gui.remove(m_passwordField);
+
+                    m_loginPanel->add(m_usernameField);
+                    m_loginPanel->add(m_passwordField);
+
                     m_loginPanel->show();
                     m_registerPanel->hide();
                     m_chatPanel->hide();
@@ -317,6 +322,12 @@ namespace prattle
 
             case ScreenState::SignupScreen:
                 {
+                    m_gui.remove(m_usernameField);
+                    m_gui.remove(m_passwordField);
+
+                    m_registerPanel->add(m_usernameField);
+                    m_registerPanel->add(m_passwordField);
+
                     m_loginPanel->hide();
                     m_registerPanel->show();
                     m_chatPanel->hide();

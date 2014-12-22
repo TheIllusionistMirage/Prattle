@@ -206,10 +206,12 @@ namespace prattle
         {
             if (m_username != "" && m_password != "")
             {
-                if (m_networkManager.send(m_username, m_password, "existing_user"))
+                if (m_networkManager.send(m_username, m_password, "new_user"))
                 {
                     std::string serverReply;
                     m_networkManager.receive(serverReply);
+
+                    std::cout << serverReply << std::endl;
 
                     if (!serverReply.empty())
                     {
