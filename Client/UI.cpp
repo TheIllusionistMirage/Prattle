@@ -115,6 +115,9 @@ namespace prattle
         //m_backButton->connect("pressed", &Client::changeScreenState, this, ScreenState::LoginScreen);
         //m_logoutButton->connect("pressed", &Client::logout, this);
 
+        m_signUpButton->connect("pressed", &UI::changeScreenState, this, ScreenState::SignupScreen);
+        m_backButton->connect("pressed", &UI::changeScreenState, this, ScreenState::LoginScreen);
+
         // Create the message window for displaying pop-up messages to the user
         m_messageWindow = tgui::ChildWindow::create();
         m_gui.add(m_messageWindow, "message_window");
@@ -216,7 +219,7 @@ namespace prattle
         m_newPasswordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
         m_newPasswordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
         m_newPasswordField->setDefaultText("Choose a password");
-        m_newPasswordField->setPasswordCharacter('?');
+        m_newPasswordField->setPasswordCharacter('*');
 
         m_submitButton->setText("Sign Up");
         m_submitButton->setTextSize(15);
@@ -356,7 +359,7 @@ namespace prattle
     {
         m_friendsOnline->addItem(friendName, "frnd1");
         m_friendChatTabs->add(friendName);
-        m_friendChatTabs->select(0);
+        //m_friendChatTabs->select(0);
     }
 
     /*void UI::update()

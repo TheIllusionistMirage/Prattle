@@ -29,7 +29,8 @@ namespace prattle
             bool logout();
             //bool login(const std::string& username, const std::string& password);
             bool login();
-            void signup(const std::string& username, const std::string& password);
+            //void signup(const std::string& username, const std::string& password);
+            bool signup();
 
             void reset();
             void run();
@@ -41,6 +42,8 @@ namespace prattle
             std::string m_username;
             std::string m_password;
             std::string m_friend;
+            std::vector<std::string> m_friends;
+            std::vector<std::string> m_friendsOnline;
             Status m_onlineStatus;
 
             NetworkManager m_networkManager;

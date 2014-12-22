@@ -37,6 +37,9 @@ namespace prattle
             friend void signup(const std::string& username, const std::string& password);
 
             tgui::Button::Ptr m_loginButton;
+            //tgui::Button::Ptr m_signUpButton;
+            tgui::Button::Ptr m_submitButton;
+            //tgui::Button::Ptr m_backButton;
 
         protected:
             void changePanelVisibility(tgui::Panel::Ptr panel, bool visibility);
@@ -80,7 +83,7 @@ namespace prattle
             tgui::EditBox::Ptr m_fullNameField;
             tgui::EditBox::Ptr m_newUsernameField;
             tgui::EditBox::Ptr m_newPasswordField;
-            tgui::Button::Ptr m_submitButton;
+            //tgui::Button::Ptr m_submitButton;
             tgui::Button::Ptr m_backButton;
 
             // Chat screen related widgets

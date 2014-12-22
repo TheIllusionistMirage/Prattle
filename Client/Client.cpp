@@ -13,8 +13,8 @@ namespace prattle
         m_guiPtr = m_ui.getGui();
         m_networkManager.reset();
         m_ui.reset();
-        //m_ui.m_loginButton->connect("pressed", &Client::login, this, m_username, m_password);
         m_ui.m_loginButton->connect("pressed", &Client::login, this);
+        m_ui.m_submitButton->connect("pressed", &Client::signup, this);
     }
 
     void Client::reset()
@@ -97,76 +97,6 @@ namespace prattle
     //bool Client::login(const std::string& username, const std::string& password)
     bool Client::login()
     {
-        /*sf::Socket::Status connectionSuccess = m_networkManager.m_clientSocket.connect(prattle::SERVER_IP_ADDRESS, prattle::OPEN_PORT);
-
-        if (connectionSuccess == sf::Socket::Done)
-        {
-            std::string info = "existing_user";
-
-            if (m_username != "" && m_password != "")
-            {
-                sf::Packet packet;
-                packet << m_username << m_password << info;
-
-                if (m_networkManager.m_clientSocket.send(packet) == sf::Socket::Done)
-                {
-                    sf::Socket::Status status = m_networkManager.m_clientSocket.receive(packet);
-
-                    if (status == sf::Socket::Done)
-                    {
-                        std::string serverReply;
-
-                        if (packet >> serverReply)
-                        {
-                            if (serverReply == "registered")
-                            {
-                                m_loginStatus = true;
-                                m_onlineStatus = Status::Online;
-
-                                std::cout << "Enter the name of the person you want to chat with : ";
-                                std::string name;
-                                std::getline(std::cin, name);
-                                //m_friends.empty();
-                                //m_friends.push_back(name);
-                                m_friend = name;
-                                m_networkManager.setSocketBlocking(false);
-                                m_ui.insertNewFriendTab(name);
-                                m_ui.changeScreenState(ScreenState::ChatScreen);
-                            }
-
-                            else if(serverReply == "unregistered")
-                            {
-                                std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unknown username/password combination!" << std::endl;
-                            }
-
-                            else
-                            {
-                                std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unknown reply from the server" << std::endl;
-                            }
-                        }
-                    }
-                }
-
-                else if (m_networkManager.m_clientSocket.send(packet) == sf::Socket::Error)
-                {
-                    std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: An error occured in logging in! Please try again" << std::endl;
-                    m_networkManager.reset();
-                }
-            }
-
-            else
-            {
-                std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Either username or password field is blank!" << std::endl;
-                m_networkManager.reset();
-            }
-        }
-
-        else
-        {
-            std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Can't connect to server! Please try again" << std::endl;
-            m_networkManager.reset();
-        }*/
-
         if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
         {
             if (m_username != "" && m_password != "")
@@ -224,7 +154,8 @@ namespace prattle
         }
     }
 
-    void Client::signup(const std::string& username, const std::string& password)
+    //void Client::signup(const std::string& username, const std::string& password)
+    bool Client::signup()
     {
         /*sf::Socket::Status connectionSuccess = m_clientSocket.connect(SERVER_IP_ADDRESS, OPEN_PORT);
 
@@ -266,6 +197,72 @@ namespace prattle
         {
             std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: An error occurred in establishing connection with the server! Please try again." << std::endl;
         }*/
+
+        //if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
+        auto status = m_networkManager.m_clientSocket.connect(SERVER_IP_ADDRESS, OPEN_PORT);
+
+        if (status == sf::Socket::Done)
+        {
+            if (m_username != "" && m_password != "")
+            {
+                if (m_networkManager.send(m_username, m_password, "new_user"))
+                {
+                    std::string serverReply;
+                    m_networkManager.receive(serverReply);
+
+                    if (!serverReply.empty())
+                    {
+                        // In this case, the client socket receives only
+                        // one string "registered" as the reply. Any other
+                        // reply would be counted as error.
+
+                        if (serverReply == "registered")
+                        {
+                            /*m_loginStatus = true;
+                            m_onlineStatus = Status::Online;
+
+                            std::cout << "Enter the name of the person you want to chat with : ";
+                            std::string name;
+                            std::getline(std::cin, name);
+                            m_friend = name;
+                            m_networkManager.setSocketBlocking(false);
+                            m_ui.insertNewFriendTab(name);
+                            m_ui.changeScreenState(ScreenState::ChatScreen);*/
+
+                            std::cout << "Registration successful! Now login to start prattling!" << std::endl;
+                            reset();
+                            m_ui.changeScreenState(ScreenState::LoginScreen);
+
+                            return true;
+                        }
+
+                        else
+                        {
+                            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Registration was not successful! Please try again." << std::endl;
+                            m_networkManager.reset();
+
+                            return false;
+                        }
+                    }
+                }
+
+                else
+                {
+                    std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to send login info to server!" << std::endl;
+                    m_networkManager.reset();
+
+                    return false;
+                }
+            }
+        }
+
+        else
+        {
+            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Can't connect to server! Please try again" << std::endl;
+            m_networkManager.reset();
+
+            return false;
+        }
     }
 
     bool Client::checkIfWhitespace(const std::string& message)
