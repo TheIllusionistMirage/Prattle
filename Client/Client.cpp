@@ -15,6 +15,7 @@ namespace prattle
         m_ui.reset();
         m_ui.m_loginButton->connect("pressed", &Client::login, this);
         m_ui.m_submitButton->connect("pressed", &Client::signup, this);
+        m_ui.m_logoutButton->connect("pressed", &Client::logout, this);
     }
 
     void Client::reset()

@@ -40,6 +40,8 @@ namespace prattle
             //tgui::Button::Ptr m_signUpButton;
             tgui::Button::Ptr m_submitButton;
             //tgui::Button::Ptr m_backButton;
+            tgui::Button::Ptr m_logoutButton;
+
 
         protected:
             void changePanelVisibility(tgui::Panel::Ptr panel, bool visibility);
@@ -89,7 +91,7 @@ namespace prattle
             // Chat screen related widgets
 
             tgui::Label::Ptr m_userNameLabel;
-            tgui::Button::Ptr m_logoutButton;
+            //tgui::Button::Ptr m_logoutButton;
             tgui::Tab::Ptr m_friendChatTabs;
             tgui::Button::Ptr m_friendListVisibilityButton;
             tgui::Panel::Ptr m_friendlistPanel;

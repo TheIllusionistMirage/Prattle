@@ -271,6 +271,9 @@ namespace prattle
         m_friendlistPanel->setPosition(40, tgui::bindHeight(m_friendListVisibilityButton) + 45);
         m_friendlistPanel->add(m_friendsOnline);
         m_friendlistPanel->hide();
+
+        m_screenState = ScreenState::LoginScreen;
+        changeScreenState(m_screenState);
     }
 
     sf::RenderWindow* UI::getRenderWindow()
