@@ -1,6 +1,12 @@
+/**
+
+    See Prattle/Client/System.hpp for info.
+
+*/
+
 #include "System.hpp"
 
-namespace chat
+namespace prattle
 {
     const std::string getCurrentTimeAndDate()
     {

@@ -1,58 +1,56 @@
-/*
+/**
 
-The client side application for chatting.
+    Prattle/Client/Client.hpp
+
+    The client side application for chatting.
+
+    Client contains two instances of Prattle/Client/NetworkManager and Prattle/Client/GUI each.
+    NetworkManager handles the networking part while GUI is responsible for the graphics.
 
 */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <SFML/Network.hpp>
-#include "System.hpp"
+#include "NetworkManager.hpp"
+#include "UI.hpp"
 
-namespace chat
+namespace prattle
 {
     class Client
     {
         public:
             Client();
 
-            void loginPrompt();
-
-            void signup();
-
-            bool login();
-
+            bool checkIfWhitespace(const std::string& message);
             bool isLoggedIn();
-
-            sf::Socket::Status send(sf::Packet& packet);
-
-            bool receive();
-
-            const std::string& getUserName();
-
-            const std::string& getFriendName();
-
+            std::string const& getUserName() const;
+            std::string const& getFriendsName() const;
             bool logout();
+            //bool login(const std::string& username, const std::string& password);
+            bool login();
+            //void signup(const std::string& username, const std::string& password);
+            bool signup();
+
+            void reset();
+            void run();
 
         protected:
 
         private:
-            sf::TcpSocket m_client;
             bool m_loginStatus;
-            std::string m_userName;
+            std::string m_username;
             std::string m_password;
-            //std::vector<std::string> m_friendList;
             std::string m_friend;
-            enum class status{
-                Available  ,
-                Busy       ,
-                Unavailable,
-                Offline
-            } m_onlineStatus;
+            std::vector<std::string> m_friends;
+            std::vector<std::string> m_friendsOnline;
+            Status m_onlineStatus;
+
+            NetworkManager m_networkManager;
+            UI m_ui;
+
+            sf::RenderWindow* m_windowPtr;
+            tgui::Gui* m_guiPtr;
     };
 }
 

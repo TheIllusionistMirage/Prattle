@@ -13,9 +13,9 @@ namespace chat
         m_selector.add(m_listener);
         m_running = true;
 
-        std::cout << "          ==========================" << std::endl;
-        std::cout << "          |  CHAT PROGRAM - v 0.1  |" << std::endl;
-        std::cout << "          ==========================" << std::endl << std::endl;
+        std::cout << "          ===========================" << std::endl;
+        std::cout << "          |     Prattle - v 0.1     |" << std::endl;
+        std::cout << "          ===========================" << std::endl << std::endl;
 
         std::cout << "By texus, amhndu & TheIllusionistMirage" << std::endl << std::endl;
 
@@ -47,99 +47,6 @@ namespace chat
             m_selector.add(*newClient);
             newClient->setBlocking(false);
             newConnections.push_back(std::move(newClient));
-
-///TO KC : Feel free to delete the following commented lines
-//            sf::Packet loginPacket;
-//            std::string userName;
-//            std::string password;
-//            std::string info;
-//
-//            auto status = newClient->receive(loginPacket);
-//
-//            if (status == sf::Socket::Done)
-//            {
-//                if (loginPacket >> userName >> password >> info)
-//                {
-//                    if (isUserRegistered(userName, password) && info == "existing_user")
-//                    {
-//                        std::string msg = "registered";
-//                        sf::Packet msgPacket;
-//                        msgPacket << msg;
-//
-//                        if (newClient->send(msgPacket) != sf::Socket::Done)
-//                        {
-//                            std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
-//                            m_selector.remove(*newClient);
-//
-//                            return false;
-//                        }
-//
-//                        std::cout << "[" + userName + "] joined chat" << std::endl;
-//
-//                        auto itr_end = m_messages.upper_bound(userName);
-//                        for(auto itr = m_messages.lower_bound(userName) ; itr != itr_end ; ++itr)
-//                        {
-//                            if (newClient->send(itr->second.second) != sf::Socket::Done)
-//                            {
-//                                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< itr->first << " to " << userName << std::endl;
-//                            }
-//                        }
-//
-//                        m_messages.erase(userName);
-//                        m_clients.insert(std::make_pair(userName, std::move(newClient)));
-//
-//                        return true;
-//                    }
-//
-//                    if (info == "new_user")
-//                    {
-//                        if (addNewUser(userName, password))
-//                        {
-//                            std::string msg = "registered";
-//                            sf::Packet msgPacket;
-//                            msgPacket << msg;
-//
-//                            if (newClient->send(msgPacket) != sf::Socket::Done)
-//                            {
-//                                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
-//                                m_selector.remove(*newClient);
-//
-//                                return false;
-//                            }
-//
-//                            m_selector.remove(*newClient);
-//                        }
-//
-//                        else
-//                            std::cout << "Couldn't register new user!" << std::endl;
-//                    }
-//
-//                    if (!isUserRegistered(userName, password))
-//                    {
-//                        std::string msg = "unregistered";
-//                        sf::Packet msgPacket;
-//                        msgPacket << msg;
-//
-//                        if (newClient->send(msgPacket) != sf::Socket::Done)
-//                        {
-//                            std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
-//                        }
-//
-//                        m_selector.remove(*newClient);
-//
-//                        return false;
-//                    }
-//                }
-//            }
-//            else if(status == sf::Socket::NotReady)
-//            {
-//                newConnections.push_back(std::move(newClient));
-//            }
-//            else
-//            {
-//                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
-//                return false;
-//            }
         }
     }
 
@@ -203,7 +110,8 @@ namespace chat
 
             itr++;
         }
-        for(auto i = newConnections.begin() ; i != newConnections.end() ; )
+
+        for(auto i = newConnections.begin() ; i != newConnections.end(); )//i++)
         {
             if(m_selector.isReady(**i))
             {
@@ -268,7 +176,7 @@ namespace chat
                                 std::cout << "Couldn't register new user!" << std::endl;
                         }
 
-                        if (! db.isValidPassword(userName, password))
+                        if (! db.isValidPassword(userName, password) && info == "existing_user")
                         {
                             std::string msg = "unregistered";
                             sf::Packet msgPacket;
@@ -292,10 +200,13 @@ namespace chat
                 else
                 {
                     std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
-                    ++i;
+
+                    m_selector.remove(**i);
+                    i = newConnections.erase(i);
                 }
             }
-            else    ++i;
+            else
+                ++i;
         }
     }
 
