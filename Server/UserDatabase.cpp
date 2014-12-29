@@ -1,9 +1,9 @@
 #include "UserDatabase.hpp"
 
-namespace chat
+namespace prattle
 {
     UserDatabase::UserDatabase() :
-        dbFile(chat::USER_LIST,std::ios::in | std::ios::out),
+        dbFile(USER_LIST,std::ios::in | std::ios::out),
         records()
     {
         if (!dbFile.good())
@@ -44,7 +44,7 @@ namespace chat
         dbFile.seekp(0,std::ios::end);
         if(!(dbFile << name << ':' << newRecord.hashed_pwd << ':' << newRecord.salt << ':' << std::endl))
         {
-            throw std::runtime_error("Error while writing new record to " + chat::USER_LIST);
+            throw std::runtime_error("Error while writing new record to " + USER_LIST);
         }
         return true;
     }
@@ -71,7 +71,7 @@ namespace chat
                || second_colon-first_colon-1 < 2 //size of password
                )
             {
-                std::cerr << "Invalid record at " << chat::USER_LIST << ":" << line_num << "Error raised in " << __FILE__ << ":" << __LINE__ << std::endl;
+                std::cerr << "Invalid record at " << USER_LIST << ":" << line_num << "Error raised in " << __FILE__ << ":" << __LINE__ << std::endl;
                 continue;
             }
             username = line.substr(0,first_colon);

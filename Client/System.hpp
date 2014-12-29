@@ -20,7 +20,7 @@ namespace prattle
     const std::string USER_LIST = "members.dat";
     const std::string getCurrentTimeAndDate();
     enum class ScreenState{
-                LoginScreen,
+                LoginScreen ,
                 SignupScreen,
                 ChatScreen
             };
@@ -31,10 +31,7 @@ namespace prattle
             };
 
     //sf::Color DEFAULT_BG_COLOR = sf::Color::Black;
-    //sf::Color DEFAULT_FG_COLOR = sf::Color::White;
-
     const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
-    //const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/AndBasR.ttf";
     const std::string DEFAULT_BACKGROUND = "resources/images/background.png";
     const std::string CHAT_BACKGROUND = "resources/images/background-chat.png";
     const std::string DEFAULT_LOGO = "resources/images/logo.png";

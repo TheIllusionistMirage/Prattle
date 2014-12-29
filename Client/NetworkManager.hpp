@@ -17,7 +17,6 @@ namespace prattle
             void reset();
             void setSocketBlocking(bool blocking);
             bool connectToServer(const std::string serverIP, const int port);
-            //sf::TcpSocket m_clientSocket;
 
         protected:
 

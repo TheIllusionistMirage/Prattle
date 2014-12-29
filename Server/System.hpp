@@ -2,8 +2,10 @@
 #define SYSTEM_HPP
 
 #include <string>
+#include <random>
+#include "SHA256/SHA256.h"
 
-namespace chat
+namespace prattle
 {
     const int OPEN_PORT = 19999;
     const std::string SERVER_IP_ADDRESS = "127.0.0.1";

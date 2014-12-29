@@ -5,7 +5,7 @@ int main()
 {
     try
     {
-        chat::Server server;
+        prattle::Server server;
 
         while (server.isRunning())
         {

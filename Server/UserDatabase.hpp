@@ -1,18 +1,19 @@
 #ifndef USERDATABASE_H
 #define USERDATABASE_H
+
 #include <fstream>
 #include <map>
 #include <iostream>
 #include "System.hpp"
 
-struct Record
+namespace prattle
 {
-    std::string hashed_pwd;
-    std::string salt;
-};
+    struct Record
+    {
+        std::string hashed_pwd;
+        std::string salt;
+    };
 
-namespace chat
-{
     class UserDatabase
     {
         public:
@@ -28,4 +29,5 @@ namespace chat
             std::map<std::string,Record> records;
     };
 }
+
 #endif // USERDATABASE_H

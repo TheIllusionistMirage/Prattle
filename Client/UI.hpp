@@ -20,14 +20,18 @@ namespace prattle
 
             //void render();
             //void update();
+            void updateWidgets();
+            void setChatUsername(const std::string& username);
             void insertNewFriendTab(const std::string& friendName);
             void addTextToChatBox(const std::string& user, const std::string& message);
             void clearInputTextBox();
+            std::string getSearchBoxText();
             std::string getInputText();
             std::string getUsernameFieldText();
             std::string getPasswordFieldText();
             void selectScreenForRendering();
             void changeScreenState(const ScreenState& screenState);
+            void changePanelVisibility(tgui::Panel::Ptr panel, bool& visibility);
             tgui::Gui* getGui();
             sf::RenderWindow* getRenderWindow();
             void reset();
@@ -41,10 +45,15 @@ namespace prattle
             tgui::Button::Ptr m_submitButton;
             //tgui::Button::Ptr m_backButton;
             tgui::Button::Ptr m_logoutButton;
-
+            tgui::ChildWindow::Ptr m_messageWindow;
+            tgui::Label::Ptr m_messageLabel;
+            tgui::ListBox::Ptr m_searchResults;
+            tgui::Button::Ptr m_searchButton;
+            //tgui::EditBox::Ptr m_searchBox;
+            tgui::Label::Ptr m_searchMsg;
 
         protected:
-            void changePanelVisibility(tgui::Panel::Ptr panel, bool visibility);
+            //void changePanelVisibility(tgui::Panel::Ptr panel, bool& visibility);
 
         private:
             // Window related SFML objects
@@ -95,14 +104,23 @@ namespace prattle
             tgui::Tab::Ptr m_friendChatTabs;
             tgui::Button::Ptr m_friendListVisibilityButton;
             tgui::Panel::Ptr m_friendlistPanel;
+            tgui::ListBox::Ptr m_friendList;
+            tgui::Label::Ptr m_infoLabel;
             bool friendsPanelVisibility;
-            tgui::ListBox::Ptr m_friendsOnline;
+            tgui::EditBox::Ptr m_searchBox;
+            //tgui::Button::Ptr m_searchButton;
+            //tgui::ListBox::Ptr m_searchResults;
+            //tgui::Label::Ptr m_searchMsg;
+            tgui::Panel::Ptr m_searchPanel;
+            tgui::Button::Ptr m_searchWindowVisibilityButton;
+            bool searchPanelVisibility;
             tgui::TextBox::Ptr m_chatBox;
             tgui::TextBox::Ptr m_inputTextBox;
+            tgui::Label::Ptr m_initialMsg;
 
             // Message box
-            tgui::ChildWindow::Ptr m_messageWindow;
-            tgui::Label::Ptr m_messageLabel;
+            //tgui::ChildWindow::Ptr m_messageWindow;
+            //tgui::Label::Ptr m_messageLabel;
             tgui::Picture::Ptr m_messageClipArt;
     };
 }

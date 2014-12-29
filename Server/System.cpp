@@ -1,8 +1,8 @@
 #include "System.hpp"
-#include "SHA256/SHA256.h"
-#include <random>
+//#include "SHA256/SHA256.h"
+//#include <random>
 
-namespace chat
+namespace prattle
 {
     std::string getCurrentTimeAndDate()
     {
@@ -15,6 +15,7 @@ namespace chat
 
         return buf;
     }
+
     std::string generate_salt(int length)
     {
         std::random_device rand_dev;
@@ -27,6 +28,7 @@ namespace chat
         }
         return salt;
     }
+
     std::string pwd_hash(const std::string& str,const std::string& salt)
     {
         return sha256(str+salt);

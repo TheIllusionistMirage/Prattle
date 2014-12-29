@@ -1,26 +1,31 @@
 #include "Server.hpp"
-#include <iostream>
-namespace chat
+
+namespace prattle
 {
     Server::Server() :
         timeOut(sf::seconds(60))
     {
-        auto status = m_listener.listen(chat::OPEN_PORT);
+        auto status = m_listener.listen(OPEN_PORT);
         if(status != sf::Socket::Done)
         {
-            throw std::runtime_error("Fatal error : Error binding the listener at "+std::to_string(chat::OPEN_PORT));
+            throw std::runtime_error("Fatal error : Error binding the listener at "+std::to_string(OPEN_PORT));
         }
         m_selector.add(m_listener);
         m_running = true;
 
-        std::cout << "          ===========================" << std::endl;
-        std::cout << "          |     Prattle - v 0.1     |" << std::endl;
-        std::cout << "          ===========================" << std::endl << std::endl;
+        std::cout << "============================" << std::endl;
+        std::cout << "|      Prattle - v 0.1     |" << std::endl;
+        std::cout << "|     ( Always be near )   |" << std::endl;
+        std::cout << "============================" << std::endl;
+        std::cout << "|                          |" << std::endl;
+        std::cout << "|          SERVER          |" << std::endl;
+        std::cout << "============================" << std::endl << std::endl;
 
         std::cout << "By texus, amhndu & TheIllusionistMirage" << std::endl << std::endl;
 
-        std::cout << "--- Server went up at " << chat::getCurrentTimeAndDate() << " ---" << std::endl;
-        std::cout << "--- Listening to incoming connections at port " << chat::OPEN_PORT << " ---" << std::endl;
+        std::cout << "--- Server went up at " << getCurrentTimeAndDate() << " ---" << std::endl;
+        std::cout << "--- Listening to incoming connections at port " << OPEN_PORT << " ---" << std::endl << std::endl;
+        std::cout << "--- SERVER LOG ---" << std::endl << std::endl;
     }
 
     bool Server::isRunning()
@@ -90,17 +95,30 @@ namespace chat
                 {
                     if (dataPacket >> sender >> receiver >> msg)
                     {
-                        sf::Packet msgPacket;
-                        msgPacket << sender << msg;
+                        // beware hacky, dirty code here
+                        if (receiver == "server")
+                        {
+                            searchDatabase(msg, sender);
+                        }
 
-                        if (!send(sender, receiver, msgPacket))
-                            std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Error in sending message to user!" << std::endl;
+                        else
+                        {
+                            sf::Packet msgPacket;
+                            msgPacket << sender << msg;
+
+                            if (!send(sender, receiver, msgPacket))
+                                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Error in sending message to user!" << std::endl;
+                        }
+                    }
+                    else
+                    {
+                        std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Improper packet!" << std::endl;
                     }
                 }
 
                 else if (status == sf::Socket::Disconnected)
                 {
-                    std::cout << "[" + itr->first + "] left chat" << std::endl;
+                    std::cout << " x [" + itr->first + "] left chat " << getCurrentTimeAndDate() << std::endl;
                     m_selector.remove(*itr->second);
                     itr = m_clients.erase(itr);
 
@@ -140,7 +158,7 @@ namespace chat
                                 continue;
                             }
 
-                            std::cout << "[" + userName + "] joined chat" << std::endl;
+                            std::cout << "o [" + userName + "] joined chat at " << getCurrentTimeAndDate() << std::endl;
 
                             auto itr_end = m_messages.upper_bound(userName);
                             for(auto itr = m_messages.lower_bound(userName) ; itr != itr_end ; ++itr)
@@ -213,5 +231,19 @@ namespace chat
     void Server::shutdown()
     {
         m_listener.close();
+    }
+
+    void Server::searchDatabase(const std::string& username, const std::string& resultReceiver)
+    {
+        if (db.isUserRegistered(username))
+        {
+            sf::Packet result;
+            result << "legal_result";
+
+            if (!send("server", resultReceiver, result))
+            {
+                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to send search results to " << resultReceiver << std::endl;
+            }
+        }
     }
 }

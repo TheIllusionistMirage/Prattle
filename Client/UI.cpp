@@ -8,7 +8,7 @@ namespace prattle
                m_title{"Prattle - Always be Near [version 0.1]"},
                m_gui{}
     {
-        m_window.create(sf::VideoMode(m_width, m_height, m_bpp), m_title);
+        m_window.create(sf::VideoMode(m_width, m_height, m_bpp), m_title);//, sf::Style::Close);
 
         /* Initializing the GUI */
 
@@ -82,24 +82,37 @@ namespace prattle
         // Chat screen related widgets
         m_userNameLabel = tgui::Label::create();
         m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
+        m_friendlistPanel = tgui::Panel::create(sf::Vector2f(270, 300));
         m_friendListVisibilityButton = tgui::Button::create(DEFAULT_TGUI_THEME);
-        m_friendsOnline = tgui::ListBox::create(DEFAULT_TGUI_THEME);
+        m_friendList = tgui::ListBox::create(DEFAULT_TGUI_THEME);
         m_friendChatTabs = tgui::Tab::create();
+        m_infoLabel = tgui::Label::create();
+        friendsPanelVisibility = true;
+
+        m_searchBox = tgui::EditBox::create();//DEFAULT_TGUI_THEME);
+        m_searchButton = tgui::Button::create(DEFAULT_TGUI_THEME);
+        m_searchResults = tgui::ListBox::create(DEFAULT_TGUI_THEME);
+        m_searchMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
+        m_searchPanel = tgui::Panel::create(sf::Vector2f(0, 0));
+        m_searchWindowVisibilityButton = tgui::Button::create(DEFAULT_TGUI_THEME);
+        searchPanelVisibility = true;
+
         m_chatBox = tgui::TextBox::create();
         m_inputTextBox = tgui::TextBox::create();
-        m_friendlistPanel = tgui::Panel::create(sf::Vector2f(200, m_window.getSize().y));
-
-        m_friendListVisibilityButton->connect("pressed", &UI::changePanelVisibility, this, m_friendlistPanel, friendsPanelVisibility);
+        m_initialMsg = tgui::Label::create();
 
         // Add these widgets to the chat panel
         m_chatPanel->add(m_background);
         m_chatPanel->add(m_userNameLabel);
         m_chatPanel->add(m_logoutButton);
+        m_chatPanel->add(m_friendlistPanel);
         m_chatPanel->add(m_friendChatTabs);
         m_chatPanel->add(m_friendListVisibilityButton);
+        m_chatPanel->add(m_searchPanel);
+        m_chatPanel->add(m_searchWindowVisibilityButton);
         m_chatPanel->add(m_chatBox);
         m_chatPanel->add(m_inputTextBox, "input_textbox");
-        m_chatPanel->add(m_friendlistPanel);
+        m_chatPanel->add(m_initialMsg);
 
         m_loginPanel->hide();
         m_registerPanel->hide();
@@ -163,11 +176,13 @@ namespace prattle
         m_usernameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
         m_usernameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
         m_usernameField->setDefaultText("Username");
+        m_usernameField->setText("");
 
         m_passwordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
         m_passwordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
         m_passwordField->setDefaultText("Password");
         m_passwordField->setPasswordCharacter('*');
+        m_passwordField->setText("");
 
         m_loginButton->setText("Login");
         m_loginButton->setSize(tgui::bindWidth(m_passwordField) - 100, tgui::bindHeight(m_passwordField) - 10);
@@ -242,37 +257,100 @@ namespace prattle
         m_logoutButton->setSize(100, 25);
         m_logoutButton->setPosition(tgui::bindWidth(m_gui) - 150, m_userNameLabel->getPosition().y - 6);
 
+        friendsPanelVisibility = true;
+
+        //m_friendlistPanel->setSize(tgui::bindWidth(m_friendList) + 20, tgui::bindHeight(m_friendList) + 20);
+        m_friendlistPanel->setPosition(tgui::bindLeft(m_friendListVisibilityButton),
+                                        tgui::bindBottom(m_friendListVisibilityButton) + 5);
+        m_friendlistPanel->add(m_friendList);
+        m_friendlistPanel->add(m_infoLabel);
+        m_friendlistPanel->hide();
+
         m_friendListVisibilityButton->setText("My Buddies");
         m_friendListVisibilityButton->setTextSize(12);
         m_friendListVisibilityButton->setSize(120, 30);
         m_friendListVisibilityButton->setPosition(40, tgui::bindHeight(m_logoutButton) + 20);
+        m_friendListVisibilityButton->connect("pressed", &UI::changePanelVisibility, this, m_friendlistPanel, friendsPanelVisibility);
 
-        m_friendsOnline->removeAllItems();
-        m_friendsOnline->setPosition(10, 10);
+        m_friendList->setSize(250, 80);
+        m_friendList->removeAllItems();
+        m_friendList->setPosition(10, 50);
 
         m_friendChatTabs->removeAll();
         m_friendChatTabs->setSize(200, 50);
         m_friendChatTabs->setTextSize(12);
         m_friendChatTabs->setTabHeight(20);
-        m_friendChatTabs->setPosition(tgui::bindLeft(m_friendListVisibilityButton), tgui::bindTop(m_friendListVisibilityButton) + m_friendListVisibilityButton->getSize().y + 18);
+        m_friendChatTabs->setPosition(tgui::bindLeft(m_friendListVisibilityButton),
+                                        tgui::bindTop(m_friendListVisibilityButton) +
+                                            m_friendListVisibilityButton->getSize().y + 18);
+        m_friendChatTabs->hide();
+
+        m_infoLabel->setText("All buddies:");
+        m_infoLabel->setTextSize(14);
+        m_infoLabel->setPosition(10, 20);
+
+        searchPanelVisibility = true;
+
+        //m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getSize().y + m_searchButton->getSize().y + 20);
+        /*m_searchPanel->setPosition(tgui::bindLeft(m_searchWindowVisibilityButton), tgui::bindBottom(m_searchWindowVisibilityButton) + 5);
+        m_searchPanel->add(m_searchBox);
+        m_searchPanel->add(m_searchButton);
+        m_searchPanel->add(m_searchResults);
+        m_searchPanel->hide();*/
+
+        m_searchWindowVisibilityButton->setText("Search Prattlers");
+        m_searchWindowVisibilityButton->setTextSize(12);
+        m_searchWindowVisibilityButton->setSize(120, 30);
+        m_searchWindowVisibilityButton->setPosition(tgui::bindRight(m_friendListVisibilityButton) + 20, tgui::bindTop(m_friendListVisibilityButton));
+        m_searchWindowVisibilityButton->connect("pressed", &UI::changePanelVisibility, this, m_searchPanel, searchPanelVisibility);
+
+        m_searchBox->setDefaultText("Search username");
+        m_searchBox->setTextSize(20);
+        m_searchBox->setSize(250, 25);
+        m_searchBox->setPosition(20, 30);
+
+        m_searchButton->setText("Search");
+        m_searchButton->setTextSize(14);
+        m_searchButton->setSize(100, 30);
+        m_searchButton->setPosition(tgui::bindRight(m_searchBox) - 100, tgui::bindBottom(m_searchBox) + 10);
+
+        m_searchResults->setSize(260, 0);
+        m_searchResults->setPosition(tgui::bindLeft(m_searchBox), tgui::bindBottom(m_searchButton) + 20);
+        //std::cout << m_searchBox->getSize().y << " " << m_searchResults->getSize().y << " " << m_searchButton->getSize().y << std::endl;
+
+        m_searchMsg->setTextSize(14);
+        m_searchMsg->setPosition(tgui::bindLeft(m_searchBox), tgui::bindBottom(m_searchButton) + 20);
+
+        m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getSize().y + m_searchButton->getSize().y + 100);
+        m_searchPanel->setPosition(tgui::bindLeft(m_searchWindowVisibilityButton), tgui::bindBottom(m_searchWindowVisibilityButton) + 5);
+        m_searchPanel->add(m_searchBox);
+        m_searchPanel->add(m_searchButton);
+        m_searchPanel->add(m_searchResults);
+        m_searchPanel->add(m_searchMsg);
+        m_searchPanel->hide();
+
+        //std::cout << m_searchPanel->getSize().y << std::endl;
 
         m_chatBox->setSize(tgui::bindWidth(m_window) - 80, 320);
         m_chatBox->setTextSize(15);
         m_chatBox->setText("");
         m_chatBox->setPosition(40, tgui::bindHeight(m_gui) / 5.2);
         m_chatBox->setReadOnly(true);
+        m_chatBox->hide();
 
         m_inputTextBox->setSize(tgui::bindWidth(m_window) - 80, 110);
         m_inputTextBox->setTextSize(15);
-        m_chatBox->setText("");
+        m_inputTextBox->setText("");
         m_inputTextBox->setPosition(40, tgui::bindHeight(m_window) / 1.35);
+        m_inputTextBox->hide();
 
-        m_friendlistPanel->setSize(tgui::bindWidth(m_friendsOnline) + 20, tgui::bindHeight(m_friendsOnline) + 20);
-        m_friendlistPanel->setPosition(40, tgui::bindHeight(m_friendListVisibilityButton) + 45);
-        m_friendlistPanel->add(m_friendsOnline);
-        m_friendlistPanel->hide();
+        m_initialMsg->setText("Welcome Prattler! Please select a prattler to chat with from the\n  Buddy list or click the 'Gobal chat' button to join open chat.");
+        m_initialMsg->setTextSize(15);
+        m_initialMsg->setTextColor(sf::Color::White);
+        m_initialMsg->setPosition(tgui::bindWidth(m_gui) / 2 - m_initialMsg->getSize().x / 2, tgui::bindHeight(m_gui) / 2 - 20);
 
         m_screenState = ScreenState::LoginScreen;
+        //m_screenState = ScreenState::ChatScreen;
         changeScreenState(m_screenState);
     }
 
@@ -286,17 +364,17 @@ namespace prattle
         return &m_gui;
     }
 
-    void UI::changePanelVisibility(tgui::Panel::Ptr panel, bool visibility)
+    void UI::changePanelVisibility(tgui::Panel::Ptr panel, bool& visibility)
     {
         if (visibility)
         {
             panel->show();
-            friendsPanelVisibility = false;
+            visibility = false;
         }
         else
         {
             panel->hide();
-            friendsPanelVisibility= true;
+            visibility= true;
         }
     }
 
@@ -318,6 +396,8 @@ namespace prattle
                     m_loginPanel->add(m_usernameField);
                     m_loginPanel->add(m_passwordField);
 
+                    //m_usernameField->setText("");
+
                     m_loginPanel->show();
                     m_registerPanel->hide();
                     m_chatPanel->hide();
@@ -330,6 +410,8 @@ namespace prattle
 
                     m_registerPanel->add(m_usernameField);
                     m_registerPanel->add(m_passwordField);
+
+                    //m_usernameField->setText("");
 
                     m_loginPanel->hide();
                     m_registerPanel->show();
@@ -360,6 +442,11 @@ namespace prattle
         return m_inputTextBox->getText();
     }
 
+    std::string UI::getSearchBoxText()
+    {
+        return m_searchBox->getText();
+    }
+
     void UI::addTextToChatBox(const std::string& user, const std::string& message)
     {
         m_chatBox->addText(user + " : " + message);
@@ -372,44 +459,35 @@ namespace prattle
 
     void UI::insertNewFriendTab(const std::string& friendName)
     {
-        m_friendsOnline->addItem(friendName, "frnd1");
+        m_friendList->addItem(friendName);//, "frnd1");
         m_friendChatTabs->add(friendName);
         //m_friendChatTabs->select(0);
     }
 
-    /*void UI::update()
+    void UI::setChatUsername(const std::string& username)
     {
-        if (m_window.isOpen())
-        {
-            sf::Event event;
-
-            if (m_window.pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed)
-                    m_window.close();
-
-                if (event.type == sf::Event::Resized)
-                {
-                    m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-                    m_gui.setView(m_window.getView());
-                }
-
-                if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
-                {
-                    //
-
-                    m_gui.handleEvent(event);
-                }
-
-                render();
-            }
-        }
+        m_userNameLabel->setText(m_userNameLabel->getText() + username);
+        m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - username.length() * 10, 40);
     }
 
-    void UI::render()
+    void UI::updateWidgets()
     {
-        m_window.clear(sf::Color::Black);
-        m_gui.draw();
-        m_window.display();
-    }*/
+        if (m_friendChatTabs->getSelected() == "")
+        {
+            m_friendChatTabs->hide();
+            m_friendList->hide();
+            m_infoLabel->setText("You don't have any buddies (yet)! :)");
+            m_initialMsg->show();
+        }
+
+        else
+        {
+            m_friendChatTabs->show();
+            m_initialMsg->hide();
+            m_infoLabel->setText("All buddies :");
+        }
+
+        m_friendlistPanel->setSize(m_friendlistPanel->getSize().x, 50);
+        m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getSize().y + m_searchButton->getSize().y + 100);
+    }
 }

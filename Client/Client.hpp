@@ -22,14 +22,14 @@ namespace prattle
         public:
             Client();
 
+            //void searchUsername(const std::string& username);
+            void searchUsername();
             bool checkIfWhitespace(const std::string& message);
             bool isLoggedIn();
             std::string const& getUserName() const;
             std::string const& getFriendsName() const;
             bool logout();
-            //bool login(const std::string& username, const std::string& password);
             bool login();
-            //void signup(const std::string& username, const std::string& password);
             bool signup();
 
             void reset();

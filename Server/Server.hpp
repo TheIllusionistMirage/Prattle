@@ -23,7 +23,8 @@ For clients to start chatting, they need to connect to the server.
 #include "System.hpp"
 #include "UserDatabase.hpp"
 
-namespace chat
+
+namespace prattle
 {
     class Server
     {
@@ -45,6 +46,8 @@ namespace chat
             void receive();
 
             void shutdown();
+
+            void searchDatabase(const std::string& username, const std::string& resultReceiver);
 
         private:
             sf::TcpListener m_listener;
