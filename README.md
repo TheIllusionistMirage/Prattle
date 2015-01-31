@@ -1,6 +1,5 @@
 Prattle
 ===========
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/TheIllusionistMirage/Prattle?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Prattle is a simple chat program written in C++, using SFML's networking module and TGUI for the GUI.
 
