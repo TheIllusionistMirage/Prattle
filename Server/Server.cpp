@@ -1,43 +1,62 @@
-/**
-
-    Prattle/Server/Server.cpp
-    =========================
-
-    Contains implementation of class Server declared in Prattle/Server/Server.hpp
-
-*/
-
-
 #include "Server.hpp"
 
 namespace prattle
 {
-    Server::Server() :
+    Server::Server():
         timeOut(sf::seconds(60))
     {
         auto status = m_listener.listen(OPEN_PORT);
+        LOG("sf::TcpListener object now listening to port " + std::to_string(OPEN_PORT));
+
         if(status != sf::Socket::Done)
         {
+            LOG("FATAL ERROR : Error binding the listener at " + std::to_string(OPEN_PORT));
             throw std::runtime_error("Fatal error : Error binding the listener at " + std::to_string(OPEN_PORT));
         }
+
         m_selector.add(m_listener);
+        LOG("sf::SocketSelector object now ready to interact with multiple sf::TcpSockets");
+
         m_running = true;
+        LOG("Server now up & running");
 
-        std::cout << "============================" << std::endl;
-        std::cout << "|      Prattle - v 0.1     |" << std::endl;
-        std::cout << "|     ( Always be near )   |" << std::endl;
-        std::cout << "============================" << std::endl;
-        std::cout << "|                          |" << std::endl;
-        std::cout << "|          SERVER          |" << std::endl;
-        std::cout << "============================" << std::endl << std::endl;
+        std::cout << "=============================" << std::endl;
+        std::cout << "|      Prattle - v 0.1      |" << std::endl;
+        std::cout << "|     ( Always be near )    |" << std::endl;
+        std::cout << "=============================" << std::endl;
+        std::cout << "|                           |" << std::endl;
+        std::cout << "|          SERVER           |" << std::endl;
+        std::cout << "=============================" << std::endl << std::endl;
 
-        std::cout << "By texus, amhndu & TheIllusionistMirage" << std::endl << std::endl;
+        std::cout << "By team Prattle" << std::endl << std::endl;
 
         std::cout << "--- Server went up at " << getCurrentTimeAndDate() << " ---" << std::endl;
         std::cout << "--- Listening to incoming connections at port " << OPEN_PORT << " ---" << std::endl << std::endl;
         std::cout << "--- SERVER LOG ---" << std::endl << std::endl;
 
-        logger.addNewLogOutput("Server went up at " + getCurrentTimeAndDate());
+        LOG("Server went up at : " + getCurrentTimeAndDate());
+    }
+
+    void Server::run()
+    {
+        while (isRunning())
+        {
+            if (wait())
+            {
+                if (newConnectionRequest())
+                {
+                    addNewClient();
+                }
+                else
+                {
+                    receive();
+                }
+            }
+
+            sf::sleep(sf::milliseconds(1));
+        }
+
+        shutdown();
     }
 
     bool Server::isRunning()
@@ -67,65 +86,85 @@ namespace prattle
         }
     }
 
-    bool Server::send(const std::string &senderUserName, const std::string &receiverUserName, const sf::Packet& dataPacket)
+    bool Server::send(const sf::Packet& packet)
     {
-        auto itr = m_clients.find(receiverUserName);
-        bool result = true;
+        sf::Packet packetCopy{packet};
 
-        if (itr == m_clients.end())
+        std::string protocol;
+
+        if (packetCopy >> protocol)
         {
-            m_messages.insert(std::make_pair(receiverUserName,std::make_pair(senderUserName, dataPacket)));
+            if ( protocol == LOGIN_SUCCESS       ||
+                  protocol == LOGIN_FAILURE       ||
+                   protocol == SIGNUP_SUCCESS      ||
+                    protocol == SIGNUP_FAILURE      ||
+                     protocol == SEND_MSG            ||
+                      protocol == SEND_MSG_SUCCESS    ||
+                       protocol == SEND_MSG_FAILURE    ||
+                        protocol == SEARCH_USER_RESULTS ||
+                         protocol == ADD_FRIEND_SUCCESS  ||
+                          protocol == ADD_FRIEND_FAILURE   )
+            {
+                std::string sender, username;
+
+                if (packetCopy >> sender >> username)       // NOTE : the sender in this case is ALWAYS the server.
+                {
+                    auto itr = m_clients.find(username);
+                    bool result = true;
+
+                    if (itr == m_clients.end())
+                    {
+                        // NOTE : the sender in this case is ALWAYS the server.
+                        m_messages.insert(std::make_pair(username, std::make_pair(sender, packetCopy)));
+                    }
+
+                    else
+                    {
+                        if (itr->second->send(packetCopy) != sf::Socket::Done)
+                        {
+                            LOG("ERROR :: Error in sending packet from " + sender + " to " + username + ".");
+                            result = false;
+                        }
+                    }
+
+                    return result;
+                }
+
+                else
+                {
+                    LOG("ERROR :: A damaged packet is being tried to be sent by the server.");
+                    return false;
+                }
+            }
+
+            else
+            {
+                LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried to be executed by the server.");
+                return false;
+            }
         }
 
         else
         {
-            sf::Packet msgPacket{dataPacket};
-
-            if (itr->second->send(msgPacket) != sf::Socket::Done)
-            {
-                //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< senderUserName << " to " << receiverUserName << std::endl;
-                logger.addNewLogOutput("ERROR :: Error in sending msgPacket from " + senderUserName + " to " + receiverUserName);
-                result = false;
-            }
+            LOG("ERROR :: A damaged packet is being tried to be sent by the server.");
+            return false;
         }
-        return result;
-
-        /*bool result = true;
-
-        // The receiver ain't online. Hence his message gets stored in the server until they comes online.
-        if (itr == m_clients.end())
-            m_messages.insert(std::make_pair(receiverUserName,std::make_pair(senderUserName, dataPacket)));
-
-        else
-        {
-            sf::Packet msgPacket {dataPacket};
-
-            if (itr->second->send(msgPacket) != sf::Socket::Done)
-            {
-                std::cerr << __FILE__ << " : " << __LINE__ << "  ERROR :: An error occured in sending message from "<< senderUserName << " to " << receiverUserName << std::endl;
-                result = false;
-            }
-        }
-
-        return result;*/
     }
 
     void Server::receive()
     {
-        /*for (auto itr = m_clients.begin(); itr != m_clients.end(); )
+        for (auto itr = m_clients.begin(); itr != m_clients.end(); )
         {
             if (m_selector.isReady(*itr->second))
             {
-                sf::Packet dataPacket;
-                std::string sender;
-                std::string receiver;
-                std::string msg;
+                sf::Packet packet;
+                //std::string sender, receiver, msg;
 
-                auto status = (itr->second)->receive(dataPacket);
+                auto status = (itr->second)->receive(packet);
 
                 if (status == sf::Socket::Done)
                 {
-                    if (dataPacket >> sender >> receiver >> msg)
+                    /*if (dataPacket >> sender >> receiver >> msg)
                     {
                         // beware hacky, dirty code here
                         if (receiver == "server")
@@ -145,162 +184,173 @@ namespace prattle
                     else
                     {
                         std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Improper packet!" << std::endl;
-                    }
-                }
+                    }*/
+                    std::string protocol;
 
-                else if (status == sf::Socket::Disconnected)
-                {
-                    std::cout << " x [" + itr->first + "] left chat " << getCurrentTimeAndDate() << std::endl;
-                    m_selector.remove(*itr->second);
-                    itr = m_clients.erase(itr);
-
-                    continue;
-                }
-            }
-
-            itr++;
-        }
-
-        for(auto i = newConnections.begin() ; i != newConnections.end(); )//i++)
-        {
-            if(m_selector.isReady(**i))
-            {
-                sf::Packet loginPacket;
-                std::string userName;
-                std::string password;
-                std::string info;
-
-                auto status = (*i)->receive(loginPacket);
-
-                if (status == sf::Socket::Done)
-                {
-                    if (loginPacket >> userName >> password >> info)
+                    if (packet >> protocol)
                     {
-                        if (db.isValidPassword(userName, password) && info == "existing_user")
+                        if ( //protocol == LOGIN       ||
+                              //protocol == SIGNUP      ||
+                               protocol == SEND_MSG)//    ||
+                                //protocol == SEARCH_USER ||
+                                 //protocol == ADD_FRIEND    )
                         {
-                            std::string msg = "registered";
-                            sf::Packet msgPacket;
-                            msgPacket << msg;
+                            std::string sender, receiver, data;
 
-                            if ((*i)->send(msgPacket) != sf::Socket::Done)
+                            if (packet >> sender >> receiver >> data)
                             {
-                                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
-                                m_selector.remove(**i);
-                                i = newConnections.erase(i);
-                                continue;
-                            }
-
-                            std::cout << "o [" + userName + "] joined chat at " << getCurrentTimeAndDate() << std::endl;
-
-                            auto itr_end = m_messages.upper_bound(userName);
-                            for(auto itr = m_messages.lower_bound(userName) ; itr != itr_end ; ++itr)
-                            {
-                                if ((*i)->send(itr->second.second) != sf::Socket::Done)
+                                /*if (receiver == SERVER)
                                 {
-                                    std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< itr->first << " to " << userName << std::endl;
-                                }
-                            }
+                                    //
+                                }*/
 
-                            m_messages.erase(userName);
-                            m_clients.insert(std::make_pair(userName, std::move(*i)));
-                            i = newConnections.erase(i);
-                        }
-
-                        if (info == "new_user")
-                        {
-                            if (db.addNewUser(userName, password))
-                            {
-                                std::string msg = "registered";
-                                sf::Packet msgPacket;
-                                msgPacket << msg;
-
-                                if ((*i)->send(msgPacket) != sf::Socket::Done)
+                                //else
                                 {
-                                    std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
+                                    sf::Packet newPacket;
+                                    newPacket << SEND_MSG << SERVER << sender << receiver << data;
+
+                                    if (!send(newPacket))
+                                    {
+                                        LOG("ERROR :: Packet from \'" + sender + "\' was not sent to \'" + receiver + "\'.");
+
+                                        sf::Packet replyPacket;
+                                        std::string details = "ERROR :: Packet from \'" + sender + "\' was not sent to \'" + receiver + "\'.";
+                                        replyPacket << SEND_MSG_FAILURE << SERVER << sender << details;
+
+                                        if (!send(replyPacket))
+                                        {
+                                            LOG("ERROR :: Error in notifying \'" + sender + "\' about message transmission's failure.");
+                                        }
+                                    }
+
+                                    else
+                                    {
+                                        sf::Packet replyPacket;
+                                        replyPacket << SEND_MSG_SUCCESS << SERVER << sender;
+
+                                        if (!send(replyPacket))
+                                        {
+                                            LOG("ERROR :: Error in notifying \'" + sender + "\' about message transmission's success.");
+                                        }
+                                    }
                                 }
-                                m_selector.remove(**i);
-                                i = newConnections.erase(i);
                             }
 
                             else
-                                std::cout << "Couldn't register new user!" << std::endl;
+                            {
+                                LOG("ERROR :: A damaged packet was received by the server from \'" + itr->first + "\'.");
+                            }
                         }
 
-                        if (! db.isValidPassword(userName, password) && info == "existing_user")
+                        else if ( //protocol == LOGIN       ||
+                              //protocol == SIGNUP      ||
+                               //protocol == SEND_MSG)   ||
+                                protocol == SEARCH_USER )//||
+                                 //protocol == ADD_FRIEND    )
                         {
-                            std::string msg = "unregistered";
-                            sf::Packet msgPacket;
-                            msgPacket << msg;
+                            std::string sender, receiver, query;
 
-                            if ((*i)->send(msgPacket) != sf::Socket::Done)
+                            if (packet >> sender >> receiver >> query)
                             {
-                                std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouldn't Send msgPacket to User " << userName << std::endl;
+                                if (receiver == SERVER)
+                                {
+                                    //searchDatabase(query);
+                                    // This part is a WIP. For now only the exact match for query
+                                    // gets sent to sender. Later on matching results feature will get added.
+                                    if (db.isUserRegistered(query))
+                                    {
+                                        sf::Packet searchResult;
+                                        searchResult << SEARCH_USER_RESULTS << SERVER << sender << query;
+
+                                        if (!send(searchResult))
+                                        {
+                                            LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+                                        }
+                                    }
+
+                                    else
+                                    {
+                                        sf::Packet searchResult;
+                                        searchResult << SEARCH_USER_RESULTS << SERVER << sender << "";
+
+                                        if (!send(searchResult))
+                                        {
+                                            LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+                                        }
+                                    }
+                                }
+
+                                else
+                                {
+                                    LOG("ERROR :: A damaged packet was received by the server from \'" + itr->first + "\'.");
+                                }
                             }
 
-                            m_selector.remove(**i);
-                            i = newConnections.erase(i);
+                            else
+                            {
+                                LOG("ERROR :: A damaged packet was received by the server from \'" + itr->first + "\'.");
+                            }
                         }
-                    }
-                    else
-                    {
-                        std::cerr << __FILE__ << ":" << __LINE__ << "ERROR :: \nLogin packet invalid" << std::endl;
-                        ++i;
-                    }
-                }
-                else
-                {
-                    std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
 
-                    m_selector.remove(**i);
-                    i = newConnections.erase(i);
-                }
-            }
-            else
-                ++i;
-        }*/
-
-        for (auto itr = m_clients.begin(); itr != m_clients.end(); )
-        {
-            if (m_selector.isReady(*itr->second))
-            {
-                sf::Packet dataPacket;
-                std::string sender;
-                std::string receiver;
-                std::string msg;
-
-                auto status = (itr->second)->receive(dataPacket);
-
-                if (status == sf::Socket::Done)
-                {
-                    if (dataPacket >> sender >> receiver >> msg)
-                    {
-                        // beware hacky, dirty code here
-                        if (receiver == "server")
+                        else if ( //protocol == LOGIN       ||
+                              //protocol == SIGNUP      ||
+                               //protocol == SEND_MSG)   ||
+                                //protocol == SEARCH_USER )||
+                                 protocol == ADD_FRIEND    )
                         {
-                            searchDatabase(msg, sender);
+                            std::string sender, receiver, user;
+
+                            if (packet >> sender >> receiver >> user)
+                            {
+                                if (receiver == SERVER)
+                                {
+                                    if (db.isUserRegistered(user))
+                                    {
+                                        sf::Packet result;
+                                        result << ADD_FRIEND_SUCCESS << SERVER << sender;
+
+                                        if (!send(result))
+                                        {
+                                            LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+                                        }
+                                    }
+
+                                    else
+                                    {
+                                        sf::Packet result;
+                                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
+                                        result << ADD_FRIEND_FAILURE << SERVER << sender << details;
+
+                                        if (!send(result))
+                                        {
+                                            LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
+                                        }
+                                    }
+                                }
+                            }
+
+                            else
+                            {
+                                LOG("ERROR :: A damaged packet was received by the server from \'" + itr->first + "\'.");
+                            }
                         }
 
                         else
                         {
-                            sf::Packet msgPacket;
-                            msgPacket << sender << msg;
-
-                            if (!send(sender, receiver, msgPacket))
-                                //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Error in sending message to user!" << std::endl;
-                                logger.addNewLogOutput("ERRO :: Error in sending msgPacket from " + sender + " to " + receiver);
+                            LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried be executed by the server.");
                         }
                     }
+
                     else
                     {
-                        //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Improper packet!" << std::endl;
-                        logger.addNewLogOutput("ERROR :: dataPacket of unknown or damaged format");
+                        LOG("ERROR :: A damaged packet was received by the server from \'" + itr->first + "\'.");
                     }
                 }
 
                 else if (status == sf::Socket::Disconnected)
                 {
                     std::cout << " x [" + itr->first + "] left chat " << getCurrentTimeAndDate() << std::endl;
-                    logger.addNewLogOutput("[" + itr->first + "] left chat on " + getCurrentTimeAndDate());
+                    LOG("[" + itr->first + "] left chat on " + getCurrentTimeAndDate());
                     m_selector.remove(*itr->second);
                     itr = m_clients.erase(itr);
 
@@ -311,129 +361,176 @@ namespace prattle
             itr++;
         }
 
-        for(auto i = newConnections.begin() ; i != newConnections.end(); )//i++)
+        for(auto itr = newConnections.begin() ; itr != newConnections.end(); )//i++)
         {
-            if(m_selector.isReady(**i))
+            if (m_selector.isReady(**itr))
             {
-                sf::Packet loginPacket;
-                std::string userName;
-                std::string password;
-                std::string info;
+                sf::Packet packet;
 
-                auto status = (*i)->receive(loginPacket);
+                auto status = (*itr)->receive(packet);
 
                 if (status == sf::Socket::Done)
                 {
-                    if (loginPacket >> userName >> password >> info)
+                    std::string protocol;
+
+                    if (packet >> protocol)
                     {
-                        if (db.isValidPassword(userName, password) && info == "existing_user")
+                        if (protocol == LOGIN) //||
+                             //protocol == SIGNUP)
                         {
-                            std::string msg = "registered";
-                            sf::Packet msgPacket;
-                            msgPacket << msg;
+                            std::string sender, receiver, plainPassword;
 
-                            if ((*i)->send(msgPacket) != sf::Socket::Done)
+                            if (packet >> sender >> receiver >> plainPassword)
                             {
-                                //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
-                                logger.addNewLogOutput("ERROR :: Error in sending msgpacket from SERVER " + to " + userName);
-                                m_selector.remove(**i);
-                                i = newConnections.erase(i);
-                                continue;
-                            }
-
-                            std::cout << "o [" + userName + "] joined chat at " << getCurrentTimeAndDate() << std::endl;
-                            logger.addNewLogOutput("[" + userName + "] joined chat on " + getCurrentTimeAndDate());
-
-                            auto itr_end = m_messages.upper_bound(userName);
-                            for(auto itr = m_messages.lower_bound(userName) ; itr != itr_end ; ++itr)
-                            {
-                                if ((*i)->send(itr->second.second) != sf::Socket::Done)
+                                if (receiver == SERVER)
                                 {
-                                    //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR ::An error occured in sending message from "<< itr->first << " to " << userName << std::endl;
-                                    logger.addNewLogOutput("EROR :: Error in sending message from " + itr->first + " to " + userName);
+                                    if (db.isValidPassword(sender, plainPassword))
+                                    {
+                                        sf::Packet loginResult;
+                                        loginResult << LOGIN_SUCCESS << SERVER << sender << db.getRecord(sender).friends.size();
+
+                                        for (auto& friendName : db.getRecord(sender).friends)
+                                        {
+                                            loginResult << friendName;
+                                        }
+
+                                        if ((*itr)->send(loginResult) != sf::Socket::Done)
+                                        {
+                                            LOG("ERROR :: Error in sending login acknowledgment to \'" + sender + "\' from the server");
+
+                                            m_selector.remove(**itr);
+                                            itr = newConnections.erase(itr);
+                                            continue;
+                                        }
+
+                                        std::cout << "o [" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
+                                        LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
+
+                                        auto itr_end = m_messages.upper_bound(sender);
+
+                                        for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
+                                        {
+                                            if ((*itr)->send(itr_2->second.second) != sf::Socket::Done)
+                                            {
+                                                LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + sender + ".");
+                                            }
+                                        }
+
+                                        m_messages.erase(sender);
+                                        m_clients.insert(std::make_pair(sender, std::move(*itr)));
+                                        itr = newConnections.erase(itr);
+                                    }
+
+                                    else
+                                    {
+                                        sf::Packet loginResult;
+                                        std::string details = "ERROR :: The username-password combination is not recognized.";
+                                        loginResult << LOGIN_FAILURE << SERVER << sender << details;
+
+                                        if (!send(loginResult))
+                                        {
+                                            LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
+                                        }
+                                    }
                                 }
-                            }
 
-                            m_messages.erase(userName);
-                            m_clients.insert(std::make_pair(userName, std::move(*i)));
-                            i = newConnections.erase(i);
-                        }
-
-                        if (info == "new_user")
-                        {
-                            if (db.addNewUser(userName, password))
-                            {
-                                std::string msg = "registered";
-                                sf::Packet msgPacket;
-                                msgPacket << msg;
-
-                                if ((*i)->send(msgPacket) != sf::Socket::Done)
+                                else
                                 {
-                                    //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouln't Send msgPacket to User " << userName << std::endl;
-                                    logger.addNewLogOutput("ERROR :: Could not send packet to " + userName);
+                                    LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
                                 }
-                                m_selector.remove(**i);
-                                i = newConnections.erase(i);
                             }
 
                             else
-                                //std::cout << "Couldn't register new user!" << std::endl;
-                                logger.addNewLogOutput("ERROR :: Could not register new user!");
+                            {
+                                LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                            }
                         }
 
-                        if (! db.isValidPassword(userName, password) && info == "existing_user")
+                        else if (protocol == SIGNUP)
                         {
-                            std::string msg = "unregistered";
-                            sf::Packet msgPacket;
-                            msgPacket << msg;
+                            std::string sender, receiver, plainPassword;
 
-                            if ((*i)->send(msgPacket) != sf::Socket::Done)
+                            if (packet >> sender >> receiver >> plainPassword)
                             {
-                                //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: \nCouldn't Send msgPacket to User " << userName << std::endl;
-                                logger.addNewLogOutput("ERROR :: Could not send packet to " + userName");
+                                if (receiver == SERVER)
+                                {
+                                    if (db.addNewUser(sender, plainPassword))
+                                    {
+                                        sf::Packet signupResult;
+                                        signupResult << SIGNUP_SUCCESS << SERVER << sender;
+
+                                        if ((*itr)->send(signupResult) != sf::Socket::Done)
+                                        {
+                                            LOG("ERROR :: Could not send signup acknowledgment to \'" + sender + "\'.");
+                                        }
+
+                                        m_selector.remove(**itr);
+                                        itr = newConnections.erase(itr);
+                                    }
+
+                                    else
+                                    {
+                                        sf::Packet signupResult;
+                                        std::string details = "ERROR :: The username \'" + sender + "\' exists.";
+                                        signupResult << SIGNUP_FAILURE << SERVER << sender << details;
+
+                                        if (!send(signupResult))
+                                        {
+                                            LOG("ERROR :: Unable to notify \'" + sender + "\' about unsuccessful attempt to sign up");
+                                        }
+                                    }
+                                }
+
+                                else
+                                {
+                                    LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                                }
                             }
 
-                            m_selector.remove(**i);
-                            i = newConnections.erase(i);
+                            else
+                            {
+                                LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                            }
+                        }
+
+                        else
+                        {
+                            LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried be executed by the server.");
                         }
                     }
+
                     else
                     {
-                        //std::cerr << __FILE__ << ":" << __LINE__ << "ERROR :: \nLogin packet invalid" << std::endl;
-                        logger.addNewLogOutput("ERROR :: Login packet of unknown format or damaged");
-                        ++i;
+                        LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
                     }
                 }
-                else
-                {
-                    //std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to receive data from client!" << std::endl;
-                    logger.addNewLogOutput("ERROR :: ")
 
-                    m_selector.remove(**i);
-                    i = newConnections.erase(i);
+                else if (status == sf::Socket::Disconnected || status == sf::Socket::Error)
+                {
+                    m_selector.remove(**itr);
+                    itr = newConnections.erase(itr);
                 }
             }
-            else
-                ++i;
         }
     }
 
-    void Server::shutdown()
-    {
-        m_listener.close();
-    }
-
-    void Server::searchDatabase(const std::string& username, const std::string& resultReceiver)
+    /*void Server::searchDatabase(const std::string& username)
     {
         if (db.isUserRegistered(username))
         {
             sf::Packet result;
-            result << "legal_result";
+            result << SEARCH_USER_RESULTS << SERVER << ;
 
             if (!send("server", resultReceiver, result))
             {
                 std::cerr << __FILE__ << ":" << __LINE__ << "  ERROR :: Unable to send search results to " << resultReceiver << std::endl;
             }
         }
+    }*/
+
+    void Server::shutdown()
+    {
+        m_listener.close();
+        LOG("Server successfully shutdown at " + getCurrentTimeAndDate() + " .");
     }
 }

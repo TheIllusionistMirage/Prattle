@@ -18,8 +18,6 @@ namespace prattle
         public:
             UI();
 
-            //void render();
-            //void update();
             void updateWidgets();
             void setChatUsername(const std::string& username);
             void insertNewFriendTab(const std::string& friendName);
@@ -31,7 +29,6 @@ namespace prattle
             std::string getPasswordFieldText();
             void selectScreenForRendering();
             void changeScreenState(const ScreenState& screenState);
-            //void changePanelVisibility(tgui::Panel::Ptr panel, bool& visibility);
             void togglePanelVisibility(tgui::Panel::Ptr panel);
             tgui::Gui* getGui();
             sf::RenderWindow* getRenderWindow();
@@ -42,15 +39,12 @@ namespace prattle
             friend void signup(const std::string& username, const std::string& password);
 
             tgui::Button::Ptr m_loginButton;
-            //tgui::Button::Ptr m_signUpButton;
             tgui::Button::Ptr m_submitButton;
-            //tgui::Button::Ptr m_backButton;
             tgui::Button::Ptr m_logoutButton;
             tgui::ChildWindow::Ptr m_messageWindow;
             tgui::Label::Ptr m_messageLabel;
             tgui::ListBox::Ptr m_searchResults;
             tgui::Button::Ptr m_searchButton;
-            //tgui::EditBox::Ptr m_searchBox;
             tgui::Label::Ptr m_searchMsg;
 
         protected:
@@ -84,7 +78,6 @@ namespace prattle
             tgui::Label::Ptr m_loginMsg;
             tgui::EditBox::Ptr m_usernameField;
             tgui::EditBox::Ptr m_passwordField;
-            //tgui::Button::Ptr m_loginButton;
             tgui::Checkbox::Ptr m_rememberMeCheckbox;
             tgui::Label::Ptr m_registerMsg;
             tgui::Button::Ptr m_signUpButton;
@@ -93,15 +86,11 @@ namespace prattle
 
             tgui::Label::Ptr m_signUpMsg;
             tgui::EditBox::Ptr m_fullNameField;
-            //tgui::EditBox::Ptr m_newUsernameField;
-            //tgui::EditBox::Ptr m_newPasswordField;
-            //tgui::Button::Ptr m_submitButton;
             tgui::Button::Ptr m_backButton;
 
             // Chat screen related widgets
 
             tgui::Label::Ptr m_userNameLabel;
-            //tgui::Button::Ptr m_logoutButton;
             tgui::Tab::Ptr m_friendChatTabs;
             tgui::Button::Ptr m_friendListVisibilityButton;
             tgui::Panel::Ptr m_friendlistPanel;
@@ -109,9 +98,6 @@ namespace prattle
             tgui::Label::Ptr m_infoLabel;
             bool friendsPanelVisibility;
             tgui::EditBox::Ptr m_searchBox;
-            //tgui::Button::Ptr m_searchButton;
-            //tgui::ListBox::Ptr m_searchResults;
-            //tgui::Label::Ptr m_searchMsg;
             tgui::Button::Ptr m_addFriendButton;
             tgui::Panel::Ptr m_searchPanel;
             tgui::Button::Ptr m_searchWindowVisibilityButton;
@@ -123,7 +109,7 @@ namespace prattle
             // Message box
             //tgui::ChildWindow::Ptr m_messageWindow;
             //tgui::Label::Ptr m_messageLabel;
-            tgui::Picture::Ptr m_messageClipArt;
+            //tgui::Picture::Ptr m_messageClipArt;
     };
 }
 

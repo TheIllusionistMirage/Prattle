@@ -11,19 +11,20 @@
 #define SYSTEM_HPP
 
 #include <string>
-#include <SFML/Graphics.hpp>
+#include "../include/ErrorLog.hpp"
 
 namespace prattle
 {
     const int OPEN_PORT = 19999;
     const std::string SERVER_IP_ADDRESS = "127.0.0.1";
-    const std::string USER_LIST = "members.dat";
     const std::string getCurrentTimeAndDate();
+
     enum class ScreenState{
                 LoginScreen ,
                 SignupScreen,
                 ChatScreen
             };
+
     enum class Status{
                 Online  ,
                 Busy    ,

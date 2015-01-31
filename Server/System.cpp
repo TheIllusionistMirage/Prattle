@@ -9,6 +9,8 @@
 
 #include "System.hpp"
 
+//#define LOG(stream, string) prattle::ErrorLog::Logger()->log(stream, string, __FILE__, __LINE__)
+
 namespace prattle
 {
     std::string getCurrentTimeAndDate()
@@ -17,9 +19,7 @@ namespace prattle
         struct tm tstruct;
         char buf[80];
         tstruct = *localtime(&now);
-
         strftime(buf, sizeof(buf), "%r, %a %d %b %Y", &tstruct);
-
         return buf;
     }
 

@@ -35,10 +35,10 @@ namespace prattle
         //m_ui.m_logoutButton->disconnectAll();
         //m_ui.m_searchButton->disconnectAll();
 
-        /*m_ui.m_loginButton->connect("pressed", &Client::login, this);
-        m_ui.m_submitButton->connect("pressed", &Client::signup, this);
-        m_ui.m_logoutButton->connect("pressed", &Client::logout, this);
-        m_ui.m_searchButton->connect("pressed", &Client::searchUsername, this);*/
+        //m_ui.m_loginButton->connect("pressed", &Client::login, this);
+        //m_ui.m_submitButton->connect("pressed", &Client::signup, this);
+        //m_ui.m_logoutButton->connect("pressed", &Client::logout, this);
+        //m_ui.m_searchButton->connect("pressed", &Client::searchUsername, this);
     }
 
     void Client::run()
@@ -65,7 +65,10 @@ namespace prattle
                         {
                             std::string message = m_ui.getInputText();
 
-                            if (!m_networkManager.send(m_username, m_friend, message))
+                            sf::Packet packet;
+                            packet << SEND_MSG << m_username << m_friend << message;
+
+                            if (!m_networkManager.send(packet))
                             {
                                 std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
                             }
@@ -84,11 +87,12 @@ namespace prattle
 
             if (isLoggedIn())
             {
-                std::string sender;
-                std::string message;
+                std::string protocol, sender, source, receiver, message;
 
-                while (m_networkManager.receive(sender, message))
+                sf::Packet packet;
+                while (m_networkManager.receive(packet))
                 {
+                    packet >> protocol >> source >> sender >> receiver >> message;
                     m_ui.addTextToChatBox(sender, message);
                 }
             }
@@ -121,12 +125,35 @@ namespace prattle
             //if (m_username != "" || m_password != "")
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
             {
-                if (m_networkManager.send(m_username, m_password, "existing_user"))
-                {
-                    std::string serverReply;
-                    m_networkManager.receive(serverReply);
+                sf::Packet packet;
+                packet << LOGIN << m_username << SERVER << m_password ;
+                std::cout << m_username << SERVER << m_password << std::endl;
 
-                    if (!serverReply.empty())
+                if (m_networkManager.send(packet))
+                {
+                    sf::Packet replyPacket;
+
+                    std::string protocol, sender, user, frnd;
+                    unsigned short friendCount;
+                    std::vector<std::string> friends;
+
+                    m_networkManager.receive(replyPacket);
+
+                    if (replyPacket >> protocol >> sender >> user >> friendCount)
+                    {
+                        if (protocol == LOGIN_SUCCESS)
+                        {
+                            for (auto i = 1; i <= friendCount; ++i)
+                            {
+                                packet >> frnd;
+                                friends.push_back(frnd);
+                            }
+
+                            m_friends = friends;
+                        }
+                    }
+
+                    /*if (!serverReply.empty())
                     {
                         // In this case, the client socket receives only
                         // one string "registered" or "unregistered" as the reply.
@@ -183,7 +210,7 @@ namespace prattle
 
                             return false;
                         }
-                    }
+                    }*/
                 }
 
                 else
@@ -246,7 +273,7 @@ namespace prattle
 
     bool Client::signup()
     {
-        if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
+        /*if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
         {
             //if (m_username != "" && m_password != "")
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
@@ -360,7 +387,7 @@ namespace prattle
             m_networkManager.reset();
 
             return false;
-        }
+        }*/
     }
 
     bool Client::checkIfWhitespace(const std::string& message)
@@ -393,7 +420,7 @@ namespace prattle
     //void Client::searchUsername(const std::string& username)
     void Client::searchUsername()
     {
-        m_networkManager.setSocketBlocking(true);
+        /*m_networkManager.setSocketBlocking(true);
 
         std::string searchQuery = m_ui.getSearchBoxText();
 
@@ -453,6 +480,6 @@ namespace prattle
             m_networkManager.reset();
         }
 
-        m_networkManager.setSocketBlocking(false);
+        m_networkManager.setSocketBlocking(false);*/
     }
 }

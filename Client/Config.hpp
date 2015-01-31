@@ -23,4 +23,4 @@
 
 // If needed, any other OS's code will go here
 
-#endif // CONFIG_HPP_INCLUDED
+#endif // CONFIG_HPP
