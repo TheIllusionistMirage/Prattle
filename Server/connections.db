@@ -1,4 +1,0 @@
-# Contains the friendlist of the users of Prattle
-#
-# Entries are of the form:
-# USERNAME:FRIEND_1,FRIEND_2,FRIEND_3,...,FRIEND_N:
