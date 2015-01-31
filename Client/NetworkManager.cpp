@@ -53,27 +53,19 @@ namespace prattle
         std::string data;
 
         if (status == sf::Socket::NotReady)
-        {
-            std::cout << "X" << std::endl;
             return false;
-        }
 
         else if (status == sf::Socket::Done)
         {
             if (packet >> data)
             {
                 message = data;
-
-                std::cout << "X" + data +"X" << std::endl;
-
                 return true;
             }
         }
 
         else if (status == sf::Socket::Error)
-        {
             std::cerr << __FILE__ << ':' << __LINE__ << "  ERROR :: Unable to receive data from remote peer!" <<  std::endl;
-        }
 
         return false;
     }

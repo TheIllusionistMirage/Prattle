@@ -3,7 +3,7 @@
 namespace prattle
 {
     UserDatabase::UserDatabase() :
-        dbFile(USER_LIST,std::ios::in | std::ios::out),
+        dbFile(USER_LIST, std::ios::in | std::ios::out),
         records()
     {
         if (!dbFile.good())

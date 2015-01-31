@@ -13,6 +13,7 @@ namespace prattle
         m_guiPtr = m_ui.getGui();
         m_networkManager.reset();
         m_ui.reset();
+
         m_ui.m_loginButton->connect("pressed", &Client::login, this);
         m_ui.m_submitButton->connect("pressed", &Client::signup, this);
         m_ui.m_logoutButton->connect("pressed", &Client::logout, this);
@@ -28,6 +29,16 @@ namespace prattle
 
         m_networkManager.reset();
         m_ui.reset();
+
+        //m_ui.m_loginButton->disconnectAll();
+        //m_ui.m_submitButton->disconnectAll();
+        //m_ui.m_logoutButton->disconnectAll();
+        //m_ui.m_searchButton->disconnectAll();
+
+        /*m_ui.m_loginButton->connect("pressed", &Client::login, this);
+        m_ui.m_submitButton->connect("pressed", &Client::signup, this);
+        m_ui.m_logoutButton->connect("pressed", &Client::logout, this);
+        m_ui.m_searchButton->connect("pressed", &Client::searchUsername, this);*/
     }
 
     void Client::run()
@@ -83,6 +94,9 @@ namespace prattle
             }
 
             m_ui.updateWidgets();
+
+            //std::string a = m_ui.m_searchResults->getSelectedItem().toAnsiString();
+            //std::cout << a << std::endl;
 
             m_username = m_ui.getUsernameFieldText();
             m_password = m_ui.getPasswordFieldText();
@@ -395,7 +409,7 @@ namespace prattle
 
                 if (serverReply == "legal_result")
                 {
-                    m_ui.m_searchResults->setSize(m_ui.m_searchResults->getSize().x, m_ui.m_searchResults->getSize().y + 50);
+                    m_ui.m_searchResults->setSize(m_ui.m_searchResults->getSize().x, m_ui.m_searchResults->getSize().y + 20);
                     m_ui.m_searchResults->addItem(searchQuery);
                 }
 

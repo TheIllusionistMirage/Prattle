@@ -1,6 +1,13 @@
+/**
+
+    Prattle/Server/System.cpp
+    =========================
+
+    Contains implementations of functions declared in Prattle/server/System.hpp
+
+*/
+
 #include "System.hpp"
-//#include "SHA256/SHA256.h"
-//#include <random>
 
 namespace prattle
 {

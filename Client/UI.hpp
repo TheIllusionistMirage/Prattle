@@ -31,7 +31,8 @@ namespace prattle
             std::string getPasswordFieldText();
             void selectScreenForRendering();
             void changeScreenState(const ScreenState& screenState);
-            void changePanelVisibility(tgui::Panel::Ptr panel, bool& visibility);
+            //void changePanelVisibility(tgui::Panel::Ptr panel, bool& visibility);
+            void togglePanelVisibility(tgui::Panel::Ptr panel);
             tgui::Gui* getGui();
             sf::RenderWindow* getRenderWindow();
             void reset();
@@ -111,6 +112,7 @@ namespace prattle
             //tgui::Button::Ptr m_searchButton;
             //tgui::ListBox::Ptr m_searchResults;
             //tgui::Label::Ptr m_searchMsg;
+            tgui::Button::Ptr m_addFriendButton;
             tgui::Panel::Ptr m_searchPanel;
             tgui::Button::Ptr m_searchWindowVisibilityButton;
             bool searchPanelVisibility;

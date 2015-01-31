@@ -6,8 +6,8 @@
 
 */
 
-#ifndef CONFIG_HPP_INCLUDED
-#define CONFIG_HPP_INCLUDED
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
 
 #if defined(SFML_SYSTEM_LINUX) || defined(SFML_SYSTEM_FREEBSD)
     #include <X11/Xlib.h>
@@ -21,6 +21,6 @@
  // add WIN API code here
 #endif
 
-// If possible, any other OS's code will go here
+// If needed, any other OS's code will go here
 
 #endif // CONFIG_HPP_INCLUDED
