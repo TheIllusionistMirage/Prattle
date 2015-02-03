@@ -28,6 +28,7 @@ namespace prattle
             LOG("FATAL ERROR :: Invalid record exists in database!");
             throw std::runtime_error("FATAL ERROR :: Invalid record exists in database!");
         }
+        //std::cout << itr->second.friends.size() << std::endl;
         return itr->second;
     }
 
@@ -120,7 +121,8 @@ namespace prattle
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 
-        std::ofstream tempDbFile("temp_db.dat");
+        //std::ofstream tempDbFile("temp_db.dat");
+        std::vector<std::string> tempDBRecordPlaceholder;
 
         //
         std::string line;
@@ -142,29 +144,42 @@ namespace prattle
             if(first_colon != std::string::npos && line.substr(0, first_colon) == username)
             {
                 //std::cout << line << std::endl;
-                tempDbFile << username << ':' << record.hashed_pwd << ':' << record.salt << ':';
+                //tempDbFile << username << ':' << record.hashed_pwd << ':' << record.salt << ':';
+                tempDBRecordPlaceholder.push_back(username + ':' + record.hashed_pwd + ':' + record.salt + ':');
+
                 if (record.friends.size() > 0)
                 {
                     for (auto &itr : record.friends)
                     {
-                        tempDbFile << itr << ',';
+                        //tempDbFile << itr << ',';
+                        tempDBRecordPlaceholder.push_back(itr + ",");
                     }
-                    tempDbFile << ':' << std::endl;
+                    //tempDbFile << ':' << std::endl;
+                    tempDBRecordPlaceholder.push_back(":\n");
                 }
             }
 
             else
             {
-                tempDbFile << line << std::endl;
+                //tempDbFile << line << std::endl;
+                tempDBRecordPlaceholder.push_back(line + '\n');
             }
         }
         //
 
-        tempDbFile.close();
+        //tempDbFile.close();
         dbFile.close();
-        std::remove(USER_LIST.c_str());
-        std::rename("temp_db.dat", USER_LIST.c_str());
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
+        //std::remove(USER_LIST.c_str());
+        //std::rename("temp_db.dat", USER_LIST.c_str());
+        //dbFile.open(USER_LIST, std::ios::in | std::ios::out);
+        dbFile.open(USER_LIST, std::ios::in | std::ios::out | std::ios::trunc);
+        for (auto& itr : tempDBRecordPlaceholder)
+        {
+            //if (itr != tempDBRecordPlaceholder.end())
+            {
+                dbFile << itr;
+            }
+        }
     }
 
     void UserDatabase::parse_file()

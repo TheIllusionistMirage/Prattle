@@ -26,7 +26,7 @@ namespace prattle
     #define STREAM "file"   // <==== Change this as and when required to change the output streams
                             // - STDOUT- for std output and FILE for file
 
-    const std::string LOG_FILE = "server_log.txt";    // Error log file
+    const std::string LOG_FILE = "client_log.txt";    // Error log file
 
     class ErrorLog
     {

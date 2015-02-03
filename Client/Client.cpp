@@ -127,7 +127,6 @@ namespace prattle
             {
                 sf::Packet packet;
                 packet << LOGIN << m_username << SERVER << m_password ;
-                std::cout << m_username << SERVER << m_password << std::endl;
 
                 if (m_networkManager.send(packet))
                 {
@@ -138,8 +137,36 @@ namespace prattle
                     std::vector<std::string> friends;
 
                     m_networkManager.receive(replyPacket);
+                    //std::cout << replyPacket.getDataSize() << std::endl;
+                    sf::Packet cpy{replyPacket};
+                    std::string s;
+                    cpy >> s;
+                    std::cout << "+" << s << "+" << std::endl;
 
-                    if (replyPacket >> protocol >> sender >> user >> friendCount)
+                    if (replyPacket >> protocol)
+                    {
+                        std::cout << "1 " + protocol + " 1" << std::endl;
+                        if (replyPacket >> sender)
+                        {
+                            std::cout << "2 " + sender + " 2" << std::endl;
+                            if (replyPacket >> user)
+                            {
+                                std::cout << "3 " + user + " 3" << std::endl;
+                                if (replyPacket >> friendCount)
+                                {
+                                    std::cout << "4 " << friendCount << " 4" << std::endl;
+                                    //
+                                }
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        std::cout << "ASADSDASD"<< std::endl;
+                    }
+
+                    /*if (replyPacket >> protocol >> sender >> user >> friendCount)
                     {
                         if (protocol == LOGIN_SUCCESS)
                         {
@@ -150,8 +177,58 @@ namespace prattle
                             }
 
                             m_friends = friends;
+
+                            m_loginStatus = true;
+                            m_onlineStatus = Status::Online;
+
+                            //std::cout << "Enter the name of the person you want to chat with : ";
+                            //std::string name;
+                            //std::getline(std::cin, name);
+                            //m_friend = name;
+                            m_networkManager.setSocketBlocking(false);
+                            //m_ui.insertNewFriendTab(name);
+                            m_ui.setChatUsername(m_username);
+                            m_ui.changeScreenState(ScreenState::ChatScreen);
+                        }
+
+                        else if (protocol == LOGIN_FAILURE)
+                        {
+                            m_ui.m_messageWindow->setSize(400, 60);
+                            m_ui.m_messageWindow->setTitle("Error!");
+                            if (!m_ui.m_messageWindow->isVisible())
+                                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                            m_ui.m_messageLabel->setText("Can't recognize the username-password combination!\nIf you're not registered with us, please consider signing up.");
+                            m_ui.m_messageLabel->setTextSize(12);
+                            m_ui.m_messageLabel->setPosition(20, 10);
+
+                            if (!m_ui.m_messageWindow->isVisible())
+                                m_ui.m_messageWindow->show();
+
+                            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: You are not registered with us! Please register before logging in!" << std::endl;
+                            m_networkManager.reset();
+
+                            return false;
                         }
                     }
+
+                    else
+                    {
+                        m_ui.m_messageWindow->setSize(400, 60);
+                        m_ui.m_messageWindow->setTitle("Error!");
+                        if (!m_ui.m_messageWindow->isVisible())
+                            m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                        m_ui.m_messageLabel->setText("Unkown reply from server. Please try again later");
+                        m_ui.m_messageLabel->setTextSize(12);
+                        m_ui.m_messageLabel->setPosition(20, 10);
+
+                        if (!m_ui.m_messageWindow->isVisible())
+                            m_ui.m_messageWindow->show();
+
+                        std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: You are not registered with us! Please register before logging in!" << std::endl;
+                        m_networkManager.reset();
+
+                        return false;
+                    }*/
 
                     /*if (!serverReply.empty())
                     {

@@ -20,13 +20,13 @@ namespace prattle
         // Initialize the panels which serve as the login screen, the signup
         // screen and the chat screen. Add them to TGUI
         m_loginPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        m_gui.add(m_loginPanel, "login_panel");
+        m_gui.add(m_loginPanel);//, "login_panel");
 
         m_registerPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        m_gui.add(m_registerPanel, "register_panel");
+        m_gui.add(m_registerPanel);//, "register_panel");
 
         m_chatPanel = tgui::Panel::create(sf::Vector2f(m_window.getSize().x, m_window.getSize().y));
-        m_gui.add(m_chatPanel, "chat_panel");
+        m_gui.add(m_chatPanel);//, "chat_panel");
 
         // The background image of the application
         m_background = tgui::Picture::create(CHAT_BACKGROUND);
@@ -87,7 +87,7 @@ namespace prattle
         m_friendList = tgui::ListBox::create(DEFAULT_TGUI_THEME);
         m_friendChatTabs = tgui::Tab::create();
         m_infoLabel = tgui::Label::create();
-        friendsPanelVisibility = true;
+        m_friendsPanelVisibility = true;
 
         m_searchBox = tgui::EditBox::create();//DEFAULT_TGUI_THEME);
         m_searchButton = tgui::Button::create(DEFAULT_TGUI_THEME);
@@ -96,7 +96,7 @@ namespace prattle
         m_addFriendButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_searchPanel = tgui::Panel::create(sf::Vector2f(0, 0));
         m_searchWindowVisibilityButton = tgui::Button::create(DEFAULT_TGUI_THEME);
-        searchPanelVisibility = true;
+        m_searchPanelVisibility = true;
         /*m_searchPanel->add(m_searchBox);
         m_searchPanel->add(m_searchButton);
         m_searchPanel->add(m_searchResults);
@@ -277,7 +277,7 @@ namespace prattle
         m_logoutButton->setSize(100, 25);
         m_logoutButton->setPosition(tgui::bindWidth(m_gui) - 150, m_userNameLabel->getPosition().y - 6);
 
-        friendsPanelVisibility = true;
+        m_friendsPanelVisibility = true;
 
         m_friendlistPanel->setSize(tgui::bindWidth(m_friendList) + 20, tgui::bindHeight(m_friendList) + 20);
         m_friendlistPanel->setPosition(tgui::bindLeft(m_friendListVisibilityButton),
@@ -311,7 +311,7 @@ namespace prattle
         m_infoLabel->setTextSize(14);
         m_infoLabel->setPosition(10, 20);
 
-        searchPanelVisibility = true;
+        m_searchPanelVisibility = true;
 
         //m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getSize().y + m_searchButton->getSize().y + 20);
         /*m_searchPanel->setPosition(tgui::bindLeft(m_searchWindowVisibilityButton), tgui::bindBottom(m_searchWindowVisibilityButton) + 5);
@@ -415,26 +415,26 @@ namespace prattle
             panel->hide();
             visibility= true;
         }*/
-        if (friendsPanelVisibility)
+        if (m_friendsPanelVisibility)
         {
             panel->show();
-            friendsPanelVisibility = false;
+            m_friendsPanelVisibility = false;
         }
         else
         {
             panel->hide();
-            friendsPanelVisibility = true;
+            m_friendsPanelVisibility = true;
         }
 
-        if (searchPanelVisibility)
+        if (m_searchPanelVisibility)
         {
             panel->show();
-            searchPanelVisibility = false;
+            m_searchPanelVisibility = false;
         }
         else
         {
             panel->hide();
-            searchPanelVisibility = true;
+            m_searchPanelVisibility = true;
         }
     }
 

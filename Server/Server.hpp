@@ -106,26 +106,41 @@ namespace prattle
 {
     /* Protocols */
 
-    #define SERVER               "server"
+    const std::string SERVER = "server";
+    //#define SERVER               "server"
 
-    #define LOGIN                "login"
-    #define LOGIN_SUCCESS        "login_success"
-    #define LOGIN_FAILURE        "login_failure"
+    const std::string LOGIN = "login";
+    //#define LOGIN                "login"
+    const std::string LOGIN_SUCCESS = "login_success";
+    //#define LOGIN_SUCCESS        "login_success"
+    const std::string LOGIN_FAILURE = "login_failure";
+    //#define LOGIN_FAILURE        "login_failure"
 
-    #define SIGNUP               "signup"
-    #define SIGNUP_SUCCESS       "signup_success"
-    #define SIGNUP_FAILURE       "signup_failure"
+    const std::string SIGNUP = "signup";
+    //#define SIGNUP               "signup"
+    const std::string SIGNUP_SUCCESS = "signup_success";
+    //#define SIGNUP_SUCCESS       "signup_success"
+    const std::string SIGNUP_FAILURE = "signup_failure";
+    //#define SIGNUP_FAILURE       "signup_failure"
 
-    #define SEND_MSG             "send_msg"
-    #define SEND_MSG_SUCCESS     "send_msg_success"
-    #define SEND_MSG_FAILURE     "send_msg_failure"
+    const std::string SEND_MSG = "send_msg";
+    //#define SEND_MSG             "send_msg"
+    const std::string SEND_MSG_SUCCESS = "send_msg_success";
+    //#define SEND_MSG_SUCCESS     "send_msg_success"
+    const std::string SEND_MSG_FAILURE = "send_msg_failure";
+    //#define SEND_MSG_FAILURE     "send_msg_failure"
 
-    #define SEARCH_USER          "search_user"
-    #define SEARCH_USER_RESULTS  "search_user_results"
+    const std::string SEARCH_USER = "search_user";
+    //#define SEARCH_USER          "search_user"
+    const std::string SEARCH_USER_RESULTS = "search_user_results";
+    //#define SEARCH_USER_RESULTS  "search_user_results"
 
-    #define ADD_FRIEND           "add_friend"
-    #define ADD_FRIEND_SUCCESS   "add_friend_success"
-    #define ADD_FRIEND_FAILURE   "add_friend_failure"
+    const std::string ADD_FRIEND = "add_friend";
+    //#define ADD_FRIEND           "add_friend"
+    const std::string ADD_FRIEND_SUCCESS = "add_friend_success";
+    //#define ADD_FRIEND_SUCCESS   "add_friend_success"
+    const std::string ADD_FRIEND_FAILURE = "add_friend_failure";
+    //#define ADD_FRIEND_FAILURE   "add_friend_failure"
 
     class Server
     {

@@ -4,12 +4,10 @@ namespace prattle
 {
     NetworkManager::NetworkManager() : m_clientSocket{}
     {
-
     }
 
     void NetworkManager::reset()
     {
-
         m_clientSocket.disconnect();
         m_clientSocket.setBlocking(true);
     }
@@ -34,22 +32,15 @@ namespace prattle
         sf::Packet packetCopy{packet};
         std::string protocol;
 
-        std::cout <<"AAAA 11111";
-
-        if (packetCopy >> protocol)
+        /*if (packetCopy >> protocol)
         {
-            //std::cout <<"AAAA 22222";
-            std::cout << "asd" + protocol + "asd" << std::endl;
-
             if ( protocol == LOGIN       ||
                   protocol == SIGNUP      ||
                    protocol == SEND_MSG    ||
                     protocol == SEARCH_USER ||
-                     protocol == ADD_FRIEND   )
+                     protocol == ADD_FRIEND   )*/
             {
                 sf::Socket::Status status = m_clientSocket.send(packetCopy);
-
-                std::cout <<"AAAA";
 
                 if (status == sf::Socket::Status::Done)
                     return true;
@@ -57,7 +48,7 @@ namespace prattle
                 return false;
             }
 
-            else
+            /*else
             {
                 LOG("ERROR :: A damaged packet is being tried to be sent by the client.");
                 return false;
@@ -68,7 +59,7 @@ namespace prattle
         {
             LOG("ERROR :: A damaged packet is being tried to be sent by the client.");
             return false;
-        }
+        }*/
     }
 
     bool NetworkManager::receive(sf::Packet& packet)
@@ -87,12 +78,14 @@ namespace prattle
             {
                 if (protocol == LOGIN_SUCCESS)
                 {
+                    std::cout << "**" + protocol + "**" << std::endl;
                     std::string sender, user, frnd;
                     unsigned short friendCount;
                     std::vector<std::string> friends;
 
                     if (packet >> sender >> user >> friendCount)
                     {
+                        std::cout << "*" << std::endl;
                         if (sender == SERVER)
                         {
                             for (auto i = 1; i <= friendCount; ++i)
@@ -100,6 +93,7 @@ namespace prattle
                                 packet >> frnd;
                                 friends.push_back(frnd);
                             }
+                            std::cout << "**" << std::endl;
 
                             LOG("Client \'" + user + "\' successfully logged in.");
                             return true;

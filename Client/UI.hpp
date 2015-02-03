@@ -1,3 +1,15 @@
+/**
+
+    Prattle/Client/UI
+    =================
+
+    Manages the nice and visually appeasing UI of Prattle,
+    with the help of TGUI (https://tgui.eu).
+
+
+*/
+
+
 #ifndef UI_HPP
 #define UI_HPP
 
@@ -51,60 +63,60 @@ namespace prattle
             //void changePanelVisibility(tgui::Panel::Ptr panel, bool& visibility);
 
         private:
-            // Window related SFML objects
 
+            // Window related SFML objects
             sf::RenderWindow m_window;
-            int m_width;
-            int m_height;
-            int m_bpp;
-            std::string m_title;
+            unsigned int     m_width;
+            unsigned int     m_height;
+            unsigned int     m_bpp;
+            std::string      m_title;
             ScreenState m_screenState;
 
-            // Widgets related members
 
-            tgui::Gui m_gui;
+            // Widgets related members
+            tgui::Gui          m_gui;
             tgui::Picture::Ptr m_background;
             tgui::Picture::Ptr m_logo;
-            tgui::Label::Ptr m_caption;
+            tgui::Label::Ptr   m_caption;
+
 
             // Screen panels
-
             tgui::Panel::Ptr m_loginPanel;
             tgui::Panel::Ptr m_registerPanel;
             tgui::Panel::Ptr m_chatPanel;
 
-            // Login screen related widgets
 
-            tgui::Label::Ptr m_loginMsg;
-            tgui::EditBox::Ptr m_usernameField;
-            tgui::EditBox::Ptr m_passwordField;
+            // Login screen related widgets
+            tgui::Label::Ptr    m_loginMsg;
+            tgui::EditBox::Ptr  m_usernameField;
+            tgui::EditBox::Ptr  m_passwordField;
             tgui::Checkbox::Ptr m_rememberMeCheckbox;
-            tgui::Label::Ptr m_registerMsg;
-            tgui::Button::Ptr m_signUpButton;
+            tgui::Label::Ptr    m_registerMsg;
+            tgui::Button::Ptr   m_signUpButton;
+
 
             // Registration screen related widgets
-
-            tgui::Label::Ptr m_signUpMsg;
+            tgui::Label::Ptr   m_signUpMsg;
             tgui::EditBox::Ptr m_fullNameField;
-            tgui::Button::Ptr m_backButton;
+            tgui::Button::Ptr  m_backButton;
+
 
             // Chat screen related widgets
-
-            tgui::Label::Ptr m_userNameLabel;
-            tgui::Tab::Ptr m_friendChatTabs;
-            tgui::Button::Ptr m_friendListVisibilityButton;
-            tgui::Panel::Ptr m_friendlistPanel;
+            tgui::Label::Ptr   m_userNameLabel;
+            tgui::Tab::Ptr     m_friendChatTabs;
+            tgui::Button::Ptr  m_friendListVisibilityButton;
+            tgui::Panel::Ptr   m_friendlistPanel;
             tgui::ListBox::Ptr m_friendList;
-            tgui::Label::Ptr m_infoLabel;
-            bool friendsPanelVisibility;
+            tgui::Label::Ptr   m_infoLabel;
+            bool               m_friendsPanelVisibility;
             tgui::EditBox::Ptr m_searchBox;
-            tgui::Button::Ptr m_addFriendButton;
-            tgui::Panel::Ptr m_searchPanel;
-            tgui::Button::Ptr m_searchWindowVisibilityButton;
-            bool searchPanelVisibility;
+            tgui::Button::Ptr  m_addFriendButton;
+            tgui::Panel::Ptr   m_searchPanel;
+            tgui::Button::Ptr  m_searchWindowVisibilityButton;
+            bool               m_searchPanelVisibility;
             tgui::TextBox::Ptr m_chatBox;
             tgui::TextBox::Ptr m_inputTextBox;
-            tgui::Label::Ptr m_initialMsg;
+            tgui::Label::Ptr   m_initialMsg;
 
             // Message box
             //tgui::ChildWindow::Ptr m_messageWindow;

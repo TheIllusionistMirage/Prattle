@@ -388,6 +388,8 @@ namespace prattle
                                     {
                                         sf::Packet loginResult;
                                         loginResult << LOGIN_SUCCESS << SERVER << sender << db.getRecord(sender).friends.size();
+                                        std::cout << "9 " << db.getRecord(sender).friends.size() << " 9" << std::endl;
+                                        //std::cout << "9 " << loginResult.getDataSize() << " 9" << std::endl;
 
                                         for (auto& friendName : db.getRecord(sender).friends)
                                         {
