@@ -41,6 +41,9 @@ namespace prattle
     {
         while (isRunning())
         {
+            //db.reloadAllRecords();
+
+            LOG(std::to_string(m_messages.size()));
             if (wait())
             {
                 if (newConnectionRequest())
@@ -52,6 +55,8 @@ namespace prattle
                     receive();
                 }
             }
+
+            //std::cout << db.getRecord("raptor").friends.back() << std::endl;
 
             sf::sleep(sf::milliseconds(1));
         }
@@ -94,6 +99,7 @@ namespace prattle
 
         if (packetCopy >> protocol)
         {
+            std::cout << "Protocol : " + protocol;
             if ( protocol == LOGIN_SUCCESS       ||
                   protocol == LOGIN_FAILURE       ||
                    protocol == SIGNUP_SUCCESS      ||
@@ -109,6 +115,7 @@ namespace prattle
 
                 if (packetCopy >> sender >> username)       // NOTE : the sender in this case is ALWAYS the server.
                 {
+                    std::cout << "Mesg being sent to " + username << std::endl;
                     auto itr = m_clients.find(username);
                     bool result = true;
 
@@ -116,10 +123,12 @@ namespace prattle
                     {
                         // NOTE : the sender in this case is ALWAYS the server.
                         m_messages.insert(std::make_pair(username, std::make_pair(sender, packetCopy)));
+                        LOG("Msg for offline user " + username + "Stored in server");
                     }
 
                     else
                     {
+                        LOG("Msg for online user " + username + "sent");
                         if (itr->second->send(packetCopy) != sf::Socket::Done)
                         {
                             LOG("ERROR :: Error in sending packet from " + sender + " to " + username + ".");
@@ -197,6 +206,7 @@ namespace prattle
                         {
                             std::string sender, receiver, data;
 
+                            //std::cout << protocol << std::endl;
                             if (packet >> sender >> receiver >> data)
                             {
                                 /*if (receiver == SERVER)
@@ -204,10 +214,12 @@ namespace prattle
                                     //
                                 }*/
 
+                                std::cout << protocol << receiver << sender << data<< std::endl;
                                 //else
                                 {
                                     sf::Packet newPacket;
-                                    newPacket << SEND_MSG << SERVER << sender << receiver << data;
+                                    newPacket << SEND_MSG << SERVER << receiver << sender << data;
+                                    LOG(SEND_MSG + SERVER + sender + receiver + data);
 
                                     if (!send(newPacket))
                                     {
@@ -231,6 +243,10 @@ namespace prattle
                                         if (!send(replyPacket))
                                         {
                                             LOG("ERROR :: Error in notifying \'" + sender + "\' about message transmission's success.");
+                                        }
+                                        else
+                                        {
+                                            LOG("Notified \'" + sender + "\' about message transmission's success.");
                                         }
                                     }
                                 }
@@ -306,6 +322,9 @@ namespace prattle
                                 {
                                     if (db.isUserRegistered(user))
                                     {
+                                        std::cout << "adding friend : " + user << std::endl;
+                                        db.addNewFriend(sender, user);
+
                                         sf::Packet result;
                                         result << ADD_FRIEND_SUCCESS << SERVER << sender;
 
@@ -382,10 +401,13 @@ namespace prattle
 
                             if (packet >> sender >> receiver >> plainPassword)
                             {
+                                std::cout << protocol + " " + sender+" "+ receiver +" "+ plainPassword << std::endl;
                                 if (receiver == SERVER)
                                 {
+                                    std::cout << "x" << std::endl;
                                     if (db.isValidPassword(sender, plainPassword))
                                     {
+                                        std::cout << "xx" << std::endl;
                                         sf::Packet loginResult;
                                         loginResult << LOGIN_SUCCESS << SERVER << sender << db.getRecord(sender).friends.size();
                                         std::cout << "9 " << db.getRecord(sender).friends.size() << " 9" << std::endl;
@@ -394,7 +416,30 @@ namespace prattle
                                         for (auto& friendName : db.getRecord(sender).friends)
                                         {
                                             loginResult << friendName;
+                                            //std::cout << friendName << std::endl;
                                         }
+                                        //std::cout << "9 " << loginResult.getDataSize() << " 9" << std::endl;
+
+                                        //
+                                        /*sf::Packet p{loginResult};
+
+                                        std::string pro, sen, us, fri;
+                                        unsigned int friCnt;
+
+                                        if (p >> pro >> sen >> us  >> friCnt)
+                                        {
+                                            if (pro == LOGIN_SUCCESS)
+                                            {
+                                                std::cout << pro << " " << sen << " " << us << " " << friCnt;
+                                                for (auto i = 1; i <= friCnt; ++i)
+                                                {
+                                                    p >> fri;
+                                                    std::cout << " " << fri;
+                                                    //friends.push_back(frnd);
+                                                }
+                                            }
+                                        }*/
+                                        //
 
                                         if ((*itr)->send(loginResult) != sf::Socket::Done)
                                         {
@@ -412,6 +457,7 @@ namespace prattle
 
                                         for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
                                         {
+                                            LOG("Message not sent as user is online ........");
                                             if ((*itr)->send(itr_2->second.second) != sf::Socket::Done)
                                             {
                                                 LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + sender + ".");
@@ -425,14 +471,20 @@ namespace prattle
 
                                     else
                                     {
+                                        std::cout << "failed" << std::endl;
                                         sf::Packet loginResult;
                                         std::string details = "ERROR :: The username-password combination is not recognized.";
                                         loginResult << LOGIN_FAILURE << SERVER << sender << details;
 
-                                        if (!send(loginResult))
+                                        //if (!send(loginResult))
+                                        if (!(*itr)->send(loginResult))
                                         {
+                                            std::cout << "failed ** " << std::endl;
                                             LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
                                         }
+
+                                        //else
+                                        //    LOG("ERROR :: Notified \'" + sender + "\' about invalid username-password combination they used to login.");
                                     }
                                 }
 

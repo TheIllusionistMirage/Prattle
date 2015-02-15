@@ -32,14 +32,17 @@ namespace prattle
         sf::Packet packetCopy{packet};
         std::string protocol;
 
-        /*if (packetCopy >> protocol)
+        if (packetCopy >> protocol)
         {
             if ( protocol == LOGIN       ||
                   protocol == SIGNUP      ||
                    protocol == SEND_MSG    ||
                     protocol == SEARCH_USER ||
-                     protocol == ADD_FRIEND   )*/
+                     protocol == ADD_FRIEND   )
             {
+                std::string sender, receiver, msg;
+                packetCopy >> sender >> receiver >> msg;
+                LOG(protocol + sender + receiver + msg);
                 sf::Socket::Status status = m_clientSocket.send(packetCopy);
 
                 if (status == sf::Socket::Status::Done)
@@ -48,7 +51,7 @@ namespace prattle
                 return false;
             }
 
-            /*else
+            else
             {
                 LOG("ERROR :: A damaged packet is being tried to be sent by the client.");
                 return false;
@@ -59,41 +62,48 @@ namespace prattle
         {
             LOG("ERROR :: A damaged packet is being tried to be sent by the client.");
             return false;
-        }*/
+        }
     }
 
     bool NetworkManager::receive(sf::Packet& packet)
     {
-        //sf::Packet packet;
+        //std::cout << "X";
+
         sf::Socket::Status status = m_clientSocket.receive(packet);
+        sf::Packet packetCopy{packet};
+
+        //std::cout << "9 " << packetCopy.getDataSize() << " 9" << std::endl;
 
         if (status == sf::Socket::NotReady)
             return false;
 
         else if (status == sf::Socket::Done)
         {
+            //std::cout << "9 " << packetCopy.getDataSize() << " 9" << std::endl;
+
             std::string protocol;
 
-            if (packet >> protocol)
+            if (packetCopy >> protocol)
             {
                 if (protocol == LOGIN_SUCCESS)
                 {
-                    std::cout << "**" + protocol + "**" << std::endl;
+                    //std::cout << "**" + protocol + "**" << std::endl;
                     std::string sender, user, frnd;
                     unsigned short friendCount;
                     std::vector<std::string> friends;
 
-                    if (packet >> sender >> user >> friendCount)
+                    if (packetCopy >> sender >> user >> friendCount)
                     {
-                        std::cout << "*" << std::endl;
+                        //std::cout << "*" << friendCount << "*" << std::endl;
                         if (sender == SERVER)
                         {
-                            for (auto i = 1; i <= friendCount; ++i)
+                            for (auto i = 1; i <= 2; ++i)
                             {
-                                packet >> frnd;
+                                packetCopy >> frnd;
+                                //std::cout << "**" << frnd << "**" << std::endl;
                                 friends.push_back(frnd);
                             }
-                            std::cout << "**" << std::endl;
+                            //std::cout << "**" << std::endl;
 
                             LOG("Client \'" + user + "\' successfully logged in.");
                             return true;
@@ -117,7 +127,7 @@ namespace prattle
                 {
                     std::string sender, user, details;
 
-                    if (packet >> sender >> user >> details)
+                    if (packetCopy >> sender >> user >> details)
                     {
                         if (sender == SERVER)
                         {
@@ -143,7 +153,7 @@ namespace prattle
                 {
                     std::string sender, user, details;
 
-                    if (packet >> sender >> user)
+                    if (packetCopy >> sender >> user)
                     {
                         if (sender == SERVER)
                         {
@@ -169,7 +179,7 @@ namespace prattle
                 {
                     std::string sender, user, details;
 
-                    if (packet >> sender >> user >> details)
+                    if (packetCopy >> sender >> user >> details)
                     {
                         if (sender == SERVER)
                         {
@@ -195,7 +205,7 @@ namespace prattle
                 {
                     std::string sender, source, user, message;
 
-                    if (packet >> sender >> source >> user >> message)
+                    if (packetCopy >> sender >> source >> user >> message)
                     {
                         if (sender == SERVER)
                         {
@@ -221,7 +231,7 @@ namespace prattle
                 {
                     std::string sender, user;
 
-                    if (packet >> sender >> user)
+                    if (packetCopy >> sender >> user)
                     {
                         if (sender == SERVER)
                         {
@@ -247,7 +257,7 @@ namespace prattle
                 {
                     std::string sender, user, details;
 
-                    if (packet >> sender >> user >> details)
+                    if (packetCopy >> sender >> user >> details)
                     {
                         if (sender == SERVER)
                         {
@@ -273,7 +283,7 @@ namespace prattle
                 {
                     std::string sender, user, result;
 
-                    if (packet >> sender >> user >> result)
+                    if (packetCopy >> sender >> user >> result)
                     {
                         if (sender == SERVER)
                         {
@@ -299,7 +309,7 @@ namespace prattle
                 {
                     std::string sender, user;
 
-                    if (packet >> sender >> user)
+                    if (packetCopy >> sender >> user)
                     {
                         if (sender == SERVER)
                         {
@@ -325,7 +335,7 @@ namespace prattle
                 {
                     std::string sender, user, details;
 
-                    if (packet >> sender >> user >> details)
+                    if (packetCopy >> sender >> user >> details)
                     {
                         if (sender == SERVER)
                         {

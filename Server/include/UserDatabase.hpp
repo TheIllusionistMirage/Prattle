@@ -45,7 +45,7 @@ namespace prattle
             void resetDatabase();
             bool isDatabaseOpen();
             bool isUserRegistered(const std::string& name);     // Returns true if 'name' is registered.
-            const Record& getRecord(const std::string& username) const;
+            const Record& getRecord(const std::string& username); //const;
             bool isValidPassword(const std::string& name,
                                  const std::string& plain_pwd); // Returns true if the username/password
                                                                 // combination is matching an entry in the user database.
@@ -57,6 +57,7 @@ namespace prattle
                               const Record& record);
             void deleteRecord(const std::string& username,
                               const Record& record);
+            void reloadAllRecords();
 
         private:
 

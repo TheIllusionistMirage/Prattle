@@ -81,7 +81,14 @@
     ================================
 
     4.1 Packet sent to Server              : SEARCH-USER username SEVER name
-    4.2 Packet sent to Client as reply     : SEARCH-USER-RESULT SERVER username NumOfResults name1 name2 ...
+
+    NOTE : Discarded Protocol => 4.2 Packet sent to Client as reply : SEARCH-USER-RESULT SERVER username NumOfResults name1 name2 ...
+           Newer version for
+           IV.4.2 is given below.
+
+    4.2 Packet sent to Client as reply     : SEARCH-USER-RESULT SERVER username name (or blank string if no
+                                                                                      matching database entry
+                                                                                      for name found)
 
 
     V. Adding friends Protocols

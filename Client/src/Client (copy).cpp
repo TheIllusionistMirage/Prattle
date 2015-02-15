@@ -9,8 +9,8 @@ namespace prattle
                        m_username{""},
                        m_password{""}
     {
-        m_windowPtr = m_ui.getRenderWindow();
-        m_guiPtr = m_ui.getGui();
+        //m_windowPtr = m_ui.getRenderWindow();
+        //m_guiPtr = m_ui.getGui();
         m_networkManager.reset();
         m_ui.reset();
 
@@ -29,32 +29,29 @@ namespace prattle
 
         m_networkManager.reset();
         m_ui.reset();
-
-        //m_ui.m_loginButton->disconnectAll();
-        //m_ui.m_submitButton->disconnectAll();
-        //m_ui.m_logoutButton->disconnectAll();
-        //m_ui.m_searchButton->disconnectAll();
-
-        //m_ui.m_loginButton->connect("pressed", &Client::login, this);
-        //m_ui.m_submitButton->connect("pressed", &Client::signup, this);
-        //m_ui.m_logoutButton->connect("pressed", &Client::logout, this);
-        //m_ui.m_searchButton->connect("pressed", &Client::searchUsername, this);
     }
 
     void Client::run()
     {
-        while (m_windowPtr->isOpen())
+        //while (m_windowPtr->isOpen())
+        while (m_ui.getRenderWindow()->isOpen())
         {
+            //m_ui.getRenderWindow()->close();
+            std::cout << "Z";
             sf::Event event;
-            while (m_windowPtr->pollEvent(event))
+            //while (m_windowPtr->pollEvent(event))
+            while (m_ui.getRenderWindow()->pollEvent(event))
             {
                 if (event.type == sf::Event::Closed)
-                    m_windowPtr->close();
+                    //m_windowPtr->close();
+                    m_ui.getRenderWindow()->close();
 
                 if (event.type == sf::Event::Resized)
                 {
-                    m_windowPtr->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-                    m_guiPtr->setView(m_windowPtr->getView());
+                    //m_windowPtr->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                    m_ui.getRenderWindow()->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                    //m_guiPtr->setView(m_windowPtr->getView());
+                    m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
                 }
 
                 if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
@@ -82,7 +79,8 @@ namespace prattle
                     }
                 }
 
-                m_guiPtr->handleEvent(event);
+                //m_guiPtr->handleEvent(event);
+                m_ui.getGui()->handleEvent(event);
             }
 
             if (isLoggedIn())
@@ -106,9 +104,10 @@ namespace prattle
             m_password = m_ui.getPasswordFieldText();
 
             //m_windowPtr->clear(DEFAULT_BG_COLOR);
-            m_windowPtr->clear(sf::Color::Black);
-            m_guiPtr->draw();
-            m_windowPtr->display();
+            //m_windowPtr->clear(sf::Color::Black);
+            m_ui.getRenderWindow()->clear(sf::Color::Black);
+            m_ui.getGui()->draw();
+            m_ui.getRenderWindow()->display();
         }
     }
 
@@ -131,64 +130,36 @@ namespace prattle
                 if (m_networkManager.send(packet))
                 {
                     sf::Packet replyPacket;
+                    m_networkManager.receive(replyPacket);
 
                     std::string protocol, sender, user, frnd;
-                    unsigned short friendCount;
+                    unsigned int friendCount;
                     std::vector<std::string> friends;
 
-                    m_networkManager.receive(replyPacket);
-                    //std::cout << replyPacket.getDataSize() << std::endl;
-                    sf::Packet cpy{replyPacket};
-                    std::string s;
-                    cpy >> s;
-                    std::cout << "+" << s << "+" << std::endl;
-
-                    if (replyPacket >> protocol)
-                    {
-                        std::cout << "1 " + protocol + " 1" << std::endl;
-                        if (replyPacket >> sender)
-                        {
-                            std::cout << "2 " + sender + " 2" << std::endl;
-                            if (replyPacket >> user)
-                            {
-                                std::cout << "3 " + user + " 3" << std::endl;
-                                if (replyPacket >> friendCount)
-                                {
-                                    std::cout << "4 " << friendCount << " 4" << std::endl;
-                                    //
-                                }
-                            }
-                        }
-                    }
-
-                    else
-                    {
-                        std::cout << "ASADSDASD"<< std::endl;
-                    }
-
-                    /*if (replyPacket >> protocol >> sender >> user >> friendCount)
+                    if (replyPacket >> protocol >> sender >> user >> friendCount)
                     {
                         if (protocol == LOGIN_SUCCESS)
                         {
+                            //std::cout << protocol << " " << sender << " " << user << " " << friendCount;
                             for (auto i = 1; i <= friendCount; ++i)
                             {
-                                packet >> frnd;
+                                replyPacket >> frnd;
+                                //std::cout << " " << frnd;
                                 friends.push_back(frnd);
                             }
 
                             m_friends = friends;
+                            //std::cout << friendCount << std::endl;
 
                             m_loginStatus = true;
                             m_onlineStatus = Status::Online;
 
-                            //std::cout << "Enter the name of the person you want to chat with : ";
-                            //std::string name;
-                            //std::getline(std::cin, name);
-                            //m_friend = name;
                             m_networkManager.setSocketBlocking(false);
-                            //m_ui.insertNewFriendTab(name);
                             m_ui.setChatUsername(m_username);
+                            m_ui.initFriendList(m_friends);
                             m_ui.changeScreenState(ScreenState::ChatScreen);
+
+                            return true;
                         }
 
                         else if (protocol == LOGIN_FAILURE)
@@ -196,7 +167,8 @@ namespace prattle
                             m_ui.m_messageWindow->setSize(400, 60);
                             m_ui.m_messageWindow->setTitle("Error!");
                             if (!m_ui.m_messageWindow->isVisible())
-                                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                                //m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
                             m_ui.m_messageLabel->setText("Can't recognize the username-password combination!\nIf you're not registered with us, please consider signing up.");
                             m_ui.m_messageLabel->setTextSize(12);
                             m_ui.m_messageLabel->setPosition(20, 10);
@@ -216,7 +188,7 @@ namespace prattle
                         m_ui.m_messageWindow->setSize(400, 60);
                         m_ui.m_messageWindow->setTitle("Error!");
                         if (!m_ui.m_messageWindow->isVisible())
-                            m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                            m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
                         m_ui.m_messageLabel->setText("Unkown reply from server. Please try again later");
                         m_ui.m_messageLabel->setTextSize(12);
                         m_ui.m_messageLabel->setPosition(20, 10);
@@ -228,7 +200,7 @@ namespace prattle
                         m_networkManager.reset();
 
                         return false;
-                    }*/
+                    }
 
                     /*if (!serverReply.empty())
                     {
@@ -295,7 +267,7 @@ namespace prattle
                     m_ui.m_messageWindow->setSize(400, 60);
                     m_ui.m_messageWindow->setTitle("Error!");
                     if (!m_ui.m_messageWindow->isVisible())
-                        m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                        m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
                     m_ui.m_messageLabel->setText("Unable to send packet(s) to the server! Please make sure that the\n     server is up and you're connected to the internet.");
                     m_ui.m_messageLabel->setTextSize(12);
                     m_ui.m_messageLabel->setPosition(20, 10);
@@ -315,7 +287,7 @@ namespace prattle
                 m_ui.m_messageWindow->setSize(400, 60);
                 m_ui.m_messageWindow->setTitle("Error!");
                 if (!m_ui.m_messageWindow->isVisible())
-                    m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                    m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
                 m_ui.m_messageLabel->setText("Can't leave either field blank!");
                 m_ui.m_messageLabel->setTextSize(12);
                 m_ui.m_messageLabel->setPosition(20, 10);
@@ -333,7 +305,7 @@ namespace prattle
             m_ui.m_messageWindow->setSize(400, 60);
             m_ui.m_messageWindow->setTitle("Error!");
             if (!m_ui.m_messageWindow->isVisible())
-                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
+                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
             m_ui.m_messageLabel->setText("Unable to connect to server! Please make sure that the\n     server is up and you're connected to the internet.");
             m_ui.m_messageLabel->setTextSize(12);
             m_ui.m_messageLabel->setPosition(20, 10);
@@ -560,3 +532,4 @@ namespace prattle
         m_networkManager.setSocketBlocking(false);*/
     }
 }
+

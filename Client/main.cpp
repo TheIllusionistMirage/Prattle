@@ -1,18 +1,20 @@
-#include <exception>
-#include "Client.hpp"
+#include <iostream>
+#include "../include/Client.hpp"
 
 int main()
 {
+    std::cout << "Client test" << std::endl;
+
     try
     {
         prattle::Client client;
         client.run();
-
-        return 0;
     }
 
-    catch (std::exception& e)
+    catch(std::exception& e)
     {
         std::cout << e.what() << std::endl;
     }
+
+    return 0;
 }

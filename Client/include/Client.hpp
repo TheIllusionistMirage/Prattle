@@ -1,10 +1,11 @@
 /**
 
     Prattle/Client/Client.hpp
+    =========================
 
     The client side application for chatting.
 
-    Client contains two instances of Prattle/Client/NetworkManager and Prattle/Client/GUI each.
+    Client contains instance of Prattle/Client/NetworkManager and Prattle/Client/GUI each.
     NetworkManager handles the networking part while GUI is responsible for the graphics.
 
 */
@@ -22,8 +23,10 @@ namespace prattle
         public:
             Client();
 
-            //void searchUsername(const std::string& username);
-            void searchUsername();
+            //void addFriend(const std::string& username);
+            void addFriend();
+            bool searchUsername(const std::string& username);
+            //void searchUsername();
             bool checkIfWhitespace(const std::string& message);
             bool isLoggedIn();
             std::string const& getUserName() const;
@@ -41,7 +44,7 @@ namespace prattle
             bool m_loginStatus;
             std::string m_username;
             std::string m_password;
-            std::string m_friend;
+            //std::string m_friend;
             std::vector<std::string> m_friends;
             std::vector<std::string> m_friendsOnline;
             Status m_onlineStatus;
@@ -49,8 +52,8 @@ namespace prattle
             NetworkManager m_networkManager;
             UI m_ui;
 
-            sf::RenderWindow* m_windowPtr;
-            tgui::Gui* m_guiPtr;
+            //sf::RenderWindow* m_windowPtr;
+            //tgui::Gui* m_guiPtr;
     };
 }
 

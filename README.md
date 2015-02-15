@@ -1,6 +1,8 @@
 Prattle
 ===========
 
+NOTE : The current code though complete is ridden with many spooky and tiny bugs right now.
+
 Prattle is a simple chat program written in C++, using SFML's networking module and TGUI for the GUI.
 
 Currently, the features supported are:
