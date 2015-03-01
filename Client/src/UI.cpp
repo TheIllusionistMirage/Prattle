@@ -508,7 +508,7 @@ namespace prattle
 
     void UI::addTextToChatBox(const std::string& user, const std::string& message)
     {
-        m_chatBox->addText(user + " : " + message + "\n");
+        m_chatBox->addText(user + " : " + message);// + "\n");
     }
 
     void UI::clearInputTextBox()

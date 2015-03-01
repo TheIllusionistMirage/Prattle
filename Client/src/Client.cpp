@@ -40,6 +40,8 @@ namespace prattle
 
             while (m_ui.getRenderWindow()->pollEvent(event))
             {
+                m_ui.getGui()->handleEvent(event);
+
                 if (event.type == sf::Event::Closed)
                     m_ui.getRenderWindow()->close();
 
@@ -54,67 +56,6 @@ namespace prattle
                     m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
                 }
 
-                //if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
-                /*else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
-                {
-                    if (isLoggedIn())
-                    {
-                        if (!checkIfWhitespace(m_ui.getInputText()))
-                        {
-                            std::string message = m_ui.getInputText();
-                            //std::cout << message << std::endl;
-
-                            sf::Packet packet;
-                            LOG(m_ui.getFriendTabPtr()->getSelected());
-                            std::string frnd = m_ui.getFriendTabPtr()->getSelected();
-                            packet << SEND_MSG << m_username << frnd << message;
-                            LOG(SEND_MSG + m_username + m_ui.getFriendTabPtr()->getSelected() + message);
-
-                            if(m_networkManager.send(packet))
-                            {
-                                m_ui.addTextToChatBox(m_username, message);
-                                m_ui.clearInputTextBox();
-                                sf::Packet replyPacket;
-
-                                m_networkManager.receive(replyPacket);
-
-                                std::string protocol, sender, receiver, details;
-
-                                if (replyPacket >> protocol)
-                                {
-                                    if (protocol == SEND_MSG_SUCCESS)
-                                        LOG("Msg sent");
-                                    else if (protocol == SEND_MSG_FAILURE)
-                                    {
-                                        replyPacket >> sender >> receiver >> details;
-                                        LOG("Msg not sent. Details : " + details);
-                                    }
-                                }
-
-                                else
-                                    LOG("Corrupt packet received!");
-                            }
-
-                            else
-                            {
-                                LOG("Unable to send message to server!");
-                            }
-
-                            /*if (!m_networkManager.send(packet))
-                            {
-                                //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
-                                LOG(" ERROR :: Error in sending message! Please try again");
-                            }
-
-                            else
-                            {
-                                m_ui.addTextToChatBox(m_username, message);
-                                m_ui.clearInputTextBox();
-                            }*/
-                        /*}
-                    }
-                }*/
-
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
                 {
                     if (isLoggedIn())
@@ -123,7 +64,7 @@ namespace prattle
                         {
                             std::string message = m_ui.getInputText();
                             //std::string message = m_username + " : " + m_ui.getInputText() + "\n";
-                            //std::cout << message << std::endl;
+                            //std::cout << "xxx " << m_username << " : " << message << " xxx" << std::endl;
 
                             sf::Packet packet;
                             //LOG(m_ui.getFriendTabPtr()->getSelected());
@@ -135,62 +76,46 @@ namespace prattle
                             {
                                 sf::Packet replyPacket;
 
-                                m_networkManager.receive(replyPacket);
-
-                                std::string protocol, sender, receiver, details;
-
-                                if (replyPacket >> protocol)
+                                if (m_networkManager.receive(replyPacket))
                                 {
-                                    if (protocol == SEND_MSG_SUCCESS)
-                                        LOG("Msg sent");
-                                    else if (protocol == SEND_MSG_FAILURE)
+                                    std::string protocol, sender, receiver, details;
+
+                                    if (replyPacket >> protocol)
                                     {
-                                        replyPacket >> sender >> receiver >> details;
-                                        LOG("Msg not sent. Details : " + details);
+                                        if (protocol == SEND_MSG_SUCCESS)
+                                            LOG("Msg sent");
+                                        else if (protocol == SEND_MSG_FAILURE)
+                                        {
+                                            replyPacket >> sender >> receiver >> details;
+                                            LOG("Msg not sent. Details : " + details);
+                                        }
                                     }
+
+                                    else
+                                        LOG("Corrupt packet received!");
+
+                                    //m_ui.addTextToChatBox(m_username, message);
+                                    //m_ui.addTextToChatBox(m_username, message);
+                                    //std::cout << m_username << " : " << message << std::endl;
+                                    //m_ui.clearInputTextBox();
                                 }
 
-                                else
-                                    LOG("Corrupt packet received!");
-
                                 m_ui.addTextToChatBox(m_username, message);
+                                //m_ui.addTextToChatBox(m_username, message);
+                                //std::cout << m_username << " : " << message << std::endl;
                                 m_ui.clearInputTextBox();
+                                //m_ui.clearInputTextBox();
                             }
 
                             else
                             {
                                 LOG("Unable to send message to server!");
                             }
-
-                            /*if (!m_networkManager.send(packet))
-                            {
-                                //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Error in sending message! Please try again" << std::endl;
-                                LOG(" ERROR :: Error in sending message! Please try again");
-                            }
-
-                            else
-                            {
-                                m_ui.addTextToChatBox(m_username, message);
-                                m_ui.clearInputTextBox();
-                            }*/
                         }
                     }
                 }
 
-                /*else if (event.type == sf::Event::MouseButtonPressed)
-                {
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                    {
-                        if (m_ui.getFriendListPtr()->getSelectedItem() != "")
-                        {
-                            //if ()
-                                m_ui.getFriendTabPtr()->add(m_ui.getFriendListPtr()->getSelectedItem());
-                        }
-                    }
-                    m_ui.getFriendListPtr()->deselectItem();
-                }*/
-
-                m_ui.getGui()->handleEvent(event);
+                //m_ui.getGui()->handleEvent(event);
             }
 
             if (isLoggedIn())
@@ -200,9 +125,14 @@ namespace prattle
                 sf::Packet packet;
                 while (m_networkManager.receive(packet))
                 {
-                    std::cout << protocol << source << sender << receiver << message << std::endl;
-                    packet >> protocol >> source >> receiver >> sender >> message;
-                    m_ui.addTextToChatBox(sender, message);
+                    //std::cout << protocol << source << sender << receiver << message << std::endl;
+                    packet >> protocol;
+
+                    if (protocol ==  SEND_MSG)
+                    {
+                        packet >> source >> receiver >> sender >> message;
+                        m_ui.addTextToChatBox(sender, message);
+                    }
                 }
             }
 
@@ -225,19 +155,19 @@ namespace prattle
     //bool Client::login(const std::string& username, const std::string& password)
     bool Client::login()
     {
-        LOG("1");
+        //LOG("1");
         if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
         {
-            LOG("2");
+            //LOG("2");
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
             {
-                LOG("3");
+                //LOG("3");
                 sf::Packet packet;
                 packet << LOGIN << m_username << SERVER << m_password ;
 
                 if (m_networkManager.send(packet))
                 {
-                    LOG("4");
+                    //LOG("4");
                     sf::Packet replyPacket;
                     m_networkManager.receive(replyPacket);
 
@@ -245,12 +175,12 @@ namespace prattle
                     unsigned int friendCount;
                     std::vector<std::string> friends;
 
-                    std::cout << "abcdefgh ----" << std::endl;
+                    //std::cout << "abcdefgh ----" << std::endl;
 
                     if (replyPacket >> protocol)
                     {
-                        LOG("5");
-                        std::cout << protocol << std::endl;
+                        //LOG("5");
+                        //std::cout << protocol << std::endl;
                         LOG(protocol);
 
                         if (protocol == LOGIN_SUCCESS)
@@ -259,11 +189,11 @@ namespace prattle
 
                             if(replyPacket >> sender >> user >> friendCount)
                             {
-                                LOG(protocol + " " + sender + " " + user + " " + std::to_string(friendCount));
+                                //LOG(protocol + " " + sender + " " + user + " " + std::to_string(friendCount));
                                 for (auto i = 1; i <= friendCount; ++i)
                                 {
                                     replyPacket >> frnd;
-                                    std::cout << " " << frnd;
+                                    //std::cout << " " << frnd;
                                     friends.push_back(frnd);
                                 }
 
@@ -656,16 +586,16 @@ namespace prattle
 
             m_networkManager.receive(replyPacket);
 
-            LOG("ASA");
+            //LOG("ASA");
             if (replyPacket >> protocol)
             {
-                LOG("ASA -");
+                //LOG("ASA -");
                 if (protocol == SEARCH_USER_RESULTS)
                 {
-                    LOG("ASA --");
+                    //LOG("ASA --");
                     if (replyPacket >> sender >> receiver >> result)
                     {
-                        LOG("ASA ---" + result);
+                        //LOG("ASA ---" + result);
                         //LOG(result);
                         if (result == "")
                         {
@@ -693,7 +623,7 @@ namespace prattle
 
                         else
                         {
-                            std::cout << "ASA ---+" << std::endl;
+                            //std::cout << "ASA ---+" << std::endl;
                             m_ui.m_searchResults->setSize(260, 0);
                             m_ui.m_searchResults->removeAllItems();
                             m_ui.m_searchResults->setSize(m_ui.m_searchResults->getSize().x, m_ui.m_searchResults->getSize().y + 20);
