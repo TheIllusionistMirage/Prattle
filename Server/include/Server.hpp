@@ -81,16 +81,9 @@
     ================================
 
     4.1 Packet sent to Server              : SEARCH-USER username SEVER name
-
-    NOTE : Discarded Protocol => 4.2 Packet sent to Client as reply : SEARCH-USER-RESULT SERVER username NumOfResults name1 name2 ...
-           Newer version for
-           IV.4.2 is given below.
-
     4.2 Packet sent to Client as reply     : SEARCH-USER-RESULT SERVER username name (or blank string if no
                                                                                       matching database entry
                                                                                       for name found)
-
-
     V. Adding friends Protocols
     ============================
 
@@ -113,64 +106,55 @@ namespace prattle
 {
     /* Protocols */
 
-    const std::string SERVER = "server";
-    //#define SERVER               "server"
+    const std::string SERVER              = "server";
 
-    const std::string LOGIN = "login";
-    //#define LOGIN                "login"
-    const std::string LOGIN_SUCCESS = "login_success";
-    //#define LOGIN_SUCCESS        "login_success"
-    const std::string LOGIN_FAILURE = "login_failure";
-    //#define LOGIN_FAILURE        "login_failure"
+    const std::string LOGIN               = "login";
+    const std::string LOGIN_SUCCESS       = "login_success";
+    const std::string LOGIN_FAILURE       = "login_failure";
 
-    const std::string SIGNUP = "signup";
-    //#define SIGNUP               "signup"
-    const std::string SIGNUP_SUCCESS = "signup_success";
-    //#define SIGNUP_SUCCESS       "signup_success"
-    const std::string SIGNUP_FAILURE = "signup_failure";
-    //#define SIGNUP_FAILURE       "signup_failure"
+    const std::string SIGNUP              = "signup";
+    const std::string SIGNUP_SUCCESS      = "signup_success";
+    const std::string SIGNUP_FAILURE      = "signup_failure";
 
-    const std::string SEND_MSG = "send_msg";
-    //#define SEND_MSG             "send_msg"
-    const std::string SEND_MSG_SUCCESS = "send_msg_success";
-    //#define SEND_MSG_SUCCESS     "send_msg_success"
-    const std::string SEND_MSG_FAILURE = "send_msg_failure";
-    //#define SEND_MSG_FAILURE     "send_msg_failure"
+    const std::string SEND_MSG            = "send_msg";
+    const std::string SEND_MSG_SUCCESS    = "send_msg_success";
+    const std::string SEND_MSG_FAILURE    = "send_msg_failure";
 
-    const std::string SEARCH_USER = "search_user";
-    //#define SEARCH_USER          "search_user"
+    const std::string SEARCH_USER         = "search_user";
     const std::string SEARCH_USER_RESULTS = "search_user_results";
-    //#define SEARCH_USER_RESULTS  "search_user_results"
 
-    const std::string ADD_FRIEND = "add_friend";
-    //#define ADD_FRIEND           "add_friend"
-    const std::string ADD_FRIEND_SUCCESS = "add_friend_success";
-    //#define ADD_FRIEND_SUCCESS   "add_friend_success"
-    const std::string ADD_FRIEND_FAILURE = "add_friend_failure";
-    //#define ADD_FRIEND_FAILURE   "add_friend_failure"
+    const std::string ADD_FRIEND          = "add_friend";
+    const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
+    const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
+
+    // Class Server which is the main component for Prattle's Server. It controls
+    // the overall chat process as described in the beginning of this file.
 
     class Server
     {
         public:
             Server();
 
-            void run();
+            void run();                         // Runs the server and has the main control loop of the program
 
             bool isRunning();                   // Returns true if 'm_running' is true.
+
             bool wait();                        // Causes 'm_selector' to wait until one or more sockets are ready to receive.
                                                 // Returns true if a socket is ready.
+
             bool newConnectionRequest();        // Listens for new connections until a socket is ready to accept a new connection.
+
             void addNewClient();                // Adds a connected client (a sf::TcpSocket) to the list of currently connected
                                                 // clients 'm_clients'.
+
             bool send(const sf::Packet& packet);// sends a packet (an instance of sf::Packet) to a connected
                                                 // client (an instance of sf::TcpSocket)
+
             void receive();                     // Receive packets from all clients who are either connected or trying to connect.
+
             void shutdown();                    // Stop listening to incoming connections
-            //void searchDatabase(const std::string& username);
-                                                // Search the database for 'username'
 
         private:
-            private:
             sf::TcpListener m_listener;         // Listens to incoming connections at port OPEN_PORT.
             sf::SocketSelector m_selector;      // Selector class for interacting with multiple sockets.
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;

@@ -1,4 +1,13 @@
-#include "ErrorLog.hpp"
+/**
+
+    Prattle/Server/ErrorLog.cpp
+    ===========================
+
+    Contains implementations of class ErrorLog declared in Prattle/Server/ErrorLog.hpp
+
+*/
+
+#include "../include/ErrorLog.hpp"
 
 namespace prattle
 {
@@ -23,15 +32,15 @@ namespace prattle
         }
     }
 
-    void ErrorLog::log(const std::string& output, const std::string& file, unsigned int line, const std::string& strm)
+    void ErrorLog::log(const std::string& output, const std::string& file, unsigned int line, const std::string& stream)
     {
-        if (strm == "file")
+        if (stream == "file")
         {
             if (logFile.is_open())
                 logFile << lineNo++ << ".)\n File :" << file << ":\n Line :" << line << "\n --- " << output << "\n" << std::endl;
         }
 
-        else if (strm == "stdout")
+        else if (stream == "stdout")
         {
 
             logFile << lineNo << ".)\n File :" << file << ":\n Line : " << line << "\n --- " << output << " [Also logged to STDOUT]\n" << std::endl;

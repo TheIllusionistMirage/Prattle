@@ -1,4 +1,4 @@
-#include "UI.hpp"
+#include "../include/UI.hpp"
 
 namespace prattle
 {
@@ -8,7 +8,7 @@ namespace prattle
              , m_title{"Prattle - Always be Near [version 0.1]"}
              , m_gui{}
     {
-        m_window.create(sf::VideoMode(m_width, m_height, m_bpp), m_title, sf::Style::Default);
+        m_window.create(sf::VideoMode(m_width, m_height, m_bpp), m_title, sf::Style::Close);
 
         /* Initializing the GUI */
 
@@ -29,15 +29,18 @@ namespace prattle
         m_gui.add(m_chatPanel);//, "chat_panel");
 
         // The background image of the application
-        m_background = tgui::Picture::create(CHAT_BACKGROUND);
+        m_background = tgui::Picture::create(DEFAULT_BACKGROUND);
+        //m_gui.add(m_background);
+        //m_background->moveToBack();
 
         // The logo of the application
         m_logo = tgui::Picture::create(DEFAULT_LOGO);
-        m_logo->setPosition(tgui::bindWidth(m_gui) / 4, tgui::bindHeight(m_gui) / 4 - 80);
+        m_logo->scale(0.8, 0.8);
+        m_logo->setPosition(tgui::bindWidth(m_gui) / 2.5, tgui::bindHeight(m_gui) / 4 - 80);
         m_logo->getTooltip()->setText("Always be near");
 
         // The motto of Prattle (Always be near)
-        m_caption = tgui::Label::create(DEFAULT_TGUI_THEME);
+        //m_caption = tgui::Label::create(DEFAULT_TGUI_THEME);
         m_loginMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
         m_usernameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_passwordField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
@@ -50,7 +53,7 @@ namespace prattle
         // displayed in the login screen
         m_loginPanel->add(m_background);
         m_loginPanel->add(m_logo);
-        m_loginPanel->add(m_caption);
+        //m_loginPanel->add(m_caption);
         m_loginPanel->add(m_loginMsg);
         m_loginPanel->add(m_usernameField);
         m_loginPanel->add(m_passwordField);
@@ -69,7 +72,7 @@ namespace prattle
         // displayed in the signup screen
         m_registerPanel->add(m_background);
         m_registerPanel->add(m_logo);
-        m_registerPanel->add(m_caption);
+       // m_registerPanel->add(m_caption);
         m_registerPanel->add(m_signUpMsg);
         m_registerPanel->add(m_submitButton);
         m_registerPanel->add(m_backButton);
@@ -162,9 +165,12 @@ namespace prattle
         m_addFriendButton->disconnectAll();
         m_messageWindow->disconnectAll();*/
 
-        m_caption->setPosition(tgui::bindWidth(m_gui) / 2, tgui::bindHeight(m_gui) / 3.5);
+        /*m_background->setSize(tgui::bindMaximum(800, tgui::bindWidth(m_gui)),
+                               tgui::bindMaximum(600, tgui::bindHeight(m_gui)));*/
+
+        /*m_caption->setPosition(tgui::bindWidth(m_gui) / 2, tgui::bindHeight(m_gui) / 3.5);
         m_caption->setText("Always be near");
-        m_caption->setTextColor(sf::Color(0, 242, 255));
+        m_caption->setTextColor(sf::Color(0, 242, 255));*/
 
         m_loginMsg->setPosition(tgui::bindWidth(m_gui) / 3 + 30, tgui::bindHeight(m_gui) / 2.25);
         m_loginMsg->setText("Login to start prattling");
@@ -172,12 +178,12 @@ namespace prattle
         m_loginMsg->setTextColor(sf::Color::White);
 
         m_usernameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
-        m_usernameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
+        m_usernameField->setPosition(tgui::bindWidth(m_gui) / 10, tgui::bindHeight(m_gui) / 1.85);
         m_usernameField->setDefaultText("Username");
         m_usernameField->setText("");
 
         m_passwordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
-        m_passwordField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindBottom(m_usernameField) + 10);
+        m_passwordField->setPosition(tgui::bindWidth(m_gui) / 10, tgui::bindBottom(m_usernameField) + 10);
         m_passwordField->setDefaultText("Password");
         m_passwordField->setPasswordCharacter('*');
         m_passwordField->setText("");

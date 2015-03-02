@@ -115,7 +115,7 @@ namespace prattle
             tgui::Gui          m_gui;
             tgui::Picture::Ptr m_background;
             tgui::Picture::Ptr m_logo;
-            tgui::Label::Ptr   m_caption;
+            //tgui::Label::Ptr   m_caption;
 
 
             // Screen panels

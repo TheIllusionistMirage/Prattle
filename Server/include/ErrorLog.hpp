@@ -1,15 +1,10 @@
 /**
 
-    Prattle/Server/ErrorLog
-    =======================
+    Prattle/Server/ErrorLog.hpp
+    ===========================
 
-    Provides error logging with various layers of error:
-     - WARNINGs
-     - SERVER_ERRORs
-     - CLIENT_ERRORs
-     - FATAL_ERRORs
-
-    The results of the log file can be found in 'logFile.txt'.
+    Provides a very basic error logging system.The results of the log file can
+    be found in 'server_log.txt' in the directory containing the Server binary.
 
 */
 
@@ -28,6 +23,12 @@ namespace prattle
 
     const std::string LOG_FILE = "server_log.txt";    // Error log file
 
+    // Class ErrorLog which provides methods to log errors,
+    // warnings or any test messages to the log file.
+    //
+    // The ErrorLog class is a singleton class which ensures
+    // only one instance of the logger is created.
+
     class ErrorLog
     {
         public:
@@ -36,7 +37,7 @@ namespace prattle
             void log(const std::string& output,
                      const std::string& file,
                      unsigned int line,
-                     const std::string& strm = STREAM);
+                     const std::string& stream = STREAM);   // Log a line of information to STREAM
 
         protected:
         private:

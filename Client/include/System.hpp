@@ -32,10 +32,10 @@ namespace prattle
             };
 
     const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
-    const std::string DEFAULT_BACKGROUND = "resources/images/new_bg.png";
+    const std::string DEFAULT_BACKGROUND = "resources/images/Untitled.png";
     //const std::string CHAT_BACKGROUND = "resources/images/background-chat.png";
-    const std::string CHAT_BACKGROUND = "resources/images/new_bg.png";
-    const std::string DEFAULT_LOGO = "resources/images/logo.png";
+    //const std::string CHAT_BACKGROUND = "resources/images/new_bg.png";
+    const std::string DEFAULT_LOGO = "resources/images/Prattle_Madly_Orange_logo_1.png";
     const std::string DEFAULT_TGUI_THEME = "resources/widgets/Black.conf";
 }
 

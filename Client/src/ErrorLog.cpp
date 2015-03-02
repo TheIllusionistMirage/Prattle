@@ -1,4 +1,4 @@
-#include "ErrorLog.hpp"
+#include "../include/ErrorLog.hpp"
 
 namespace prattle
 {

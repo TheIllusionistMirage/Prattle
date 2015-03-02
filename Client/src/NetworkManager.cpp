@@ -1,4 +1,4 @@
-#include "NetworkManager.hpp"
+#include "../include/NetworkManager.hpp"
 
 namespace prattle
 {

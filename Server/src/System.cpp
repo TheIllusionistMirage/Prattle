@@ -3,13 +3,11 @@
     Prattle/Server/System.cpp
     =========================
 
-    Contains implementations of functions declared in Prattle/server/System.hpp
+    Contains implementations of functions declared in Prattle/Server/System.hpp
 
 */
 
-#include "System.hpp"
-
-//#define LOG(stream, string) prattle::ErrorLog::Logger()->log(stream, string, __FILE__, __LINE__)
+#include "../include/System.hpp"
 
 namespace prattle
 {

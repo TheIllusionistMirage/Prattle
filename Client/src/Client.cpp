@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "../include/Client.hpp"
 
 namespace prattle
 {
@@ -45,16 +45,17 @@ namespace prattle
                 if (event.type == sf::Event::Closed)
                     m_ui.getRenderWindow()->close();
 
-                if (event.type == sf::Event::Resized)
+                /*if (event.type == sf::Event::Resized)
                 {
                     m_ui.getRenderWindow()->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
 
                     // Problem in scaling background
-                    m_ui.getBackground()->scale(event.size.width / m_ui.getBackground()->getSize().x,
-                                                event.size.height / m_ui.getBackground()->getSize().y);
+                    m_ui.getBackground()->setSize(event.size.width, event.size.height);
+                    //m_ui.getBackground()->scale(event.size.width / m_ui.getBackground()->getSize().x,
+                                                //event.size.height / m_ui.getBackground()->getSize().y);
 
                     m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
-                }
+                }*/
 
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
                 {

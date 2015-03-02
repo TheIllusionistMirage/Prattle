@@ -1,6 +1,7 @@
 /**
 
     Prattle/Client/Config.hpp
+    =========================
 
     Holds OS specific includes/codes for implementing a minimum window size.
 

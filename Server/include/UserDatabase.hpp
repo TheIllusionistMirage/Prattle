@@ -36,34 +36,43 @@ namespace prattle
         std::vector<std::string> friends;
     };
 
+    // Class UserDatabase which handles all tasks related
+    // to the user database (i.e., members.db)
     class UserDatabase
     {
         public:
 
             UserDatabase();
 
-            void resetDatabase();
-            bool isDatabaseOpen();
-            bool isUserRegistered(const std::string& name);     // Returns true if 'name' is registered.
-            const Record& getRecord(const std::string& username); //const;
-            bool isValidPassword(const std::string& name,
+            void resetDatabase();                               // Reset the database by setting read
+                                                                // and write pointer at the beginning
+
+            bool isDatabaseOpen();                              // Returns true if members.db is open and
+                                                                // is okay for read/write operations.
+
+            bool isUserRegistered(const std::string& username);     // Returns true if 'username' is registered.
+
+            const Record& getRecord(const std::string& username); // Returns the database record for the user 'username'.
+
+            bool isValidPassword(const std::string& username,
                                  const std::string& plain_pwd); // Returns true if the username/password
                                                                 // combination is matching an entry in the user database.
-            bool addNewUser(const std::string &name,
-                            const std::string& plain_pwd);      // Returns true if 'name' was added to the database.
-            bool addNewFriend(const std::string& username,      // Add a friend's name for the person 'username'
-                              const std::string& friendname);
-            void updateRecord(const std::string& username,
-                              const Record& record);
-            void deleteRecord(const std::string& username,
-                              const Record& record);
-            void reloadAllRecords();
+            bool addNewUser(const std::string &username,
+                            const std::string& plain_pwd);      // Returns true if 'username' was added to the database.
+
+            bool addNewFriend(const std::string& username,
+                              const std::string& friendname);   // Add a friend's name for the person 'username'.
+                                                                // Returns if the addition was successful.
+            bool updateRecord(const std::string& username,
+                              const Record& record);            // Updates the record for the user 'username'.
+
+            bool reloadAllRecords();                            // Reload all records from 'members.db'
 
         private:
 
             void                          parse_file();         // Parse the file and read the records.
-            std::fstream                  dbFile;               // The database file (called members.dat).
-            std::map<std::string, Record> records;              // Records are treated as USERNAME : HASHED_PASSWORD:SALT:
+            std::fstream                  dbFile;               // The database file (i.e., members.db).
+            std::map<std::string, Record> records;              // The map of records built after reading the database.
     };
 }
 

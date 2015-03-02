@@ -4,7 +4,7 @@
 
 */
 
-#include "System.hpp"
+#include "../include/System.hpp"
 
 namespace prattle
 {
