@@ -1,3 +1,12 @@
+/**
+
+    Prattle/Client/UI.cpp
+    =====================
+
+    Contains implementations of class UI declared in Prattle/Client/UI.hpp
+
+*/
+
 #include "../include/UI.hpp"
 
 namespace prattle
@@ -64,7 +73,6 @@ namespace prattle
 
         // Widgets for signup screen
         m_signUpMsg = tgui::Label::create(DEFAULT_TGUI_THEME);
-        m_fullNameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
         m_submitButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_backButton = tgui::Button::create(DEFAULT_TGUI_THEME);
 
@@ -95,11 +103,6 @@ namespace prattle
         m_searchPanel = tgui::Panel::create(sf::Vector2f(0, 0));
         m_searchWindowVisibilityButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_searchPanelVisibility = true;
-        /*m_searchPanel->add(m_searchBox);
-        m_searchPanel->add(m_searchButton);
-        m_searchPanel->add(m_searchResults);
-        m_searchPanel->add(m_searchMsg);
-        m_searchPanel->add(m_addFriendButton);*/
 
         m_chatBox = tgui::TextBox::create();
         m_inputTextBox = tgui::TextBox::create();
@@ -159,19 +162,6 @@ namespace prattle
             XCloseDisplay(display);
         #endif
 
-        /*m_friendListVisibilityButton->disconnectAll();
-        m_searchWindowVisibilityButton->disconnectAll();
-        m_signUpButton->disconnectAll();
-        m_addFriendButton->disconnectAll();
-        m_messageWindow->disconnectAll();*/
-
-        /*m_background->setSize(tgui::bindMaximum(800, tgui::bindWidth(m_gui)),
-                               tgui::bindMaximum(600, tgui::bindHeight(m_gui)));*/
-
-        /*m_caption->setPosition(tgui::bindWidth(m_gui) / 2, tgui::bindHeight(m_gui) / 3.5);
-        m_caption->setText("Always be near");
-        m_caption->setTextColor(sf::Color(0, 242, 255));*/
-
         m_loginMsg->setPosition(tgui::bindWidth(m_gui) / 3 + 30, tgui::bindHeight(m_gui) / 2.25);
         m_loginMsg->setText("Login to start prattling");
         m_loginMsg->setTextSize(22);
@@ -209,16 +199,6 @@ namespace prattle
 
         // Add all these widgets to the login panel so that they get
         // displayed in the login screen
-        /*m_loginPanel->add(m_background);
-        m_loginPanel->add(m_logo);
-        m_loginPanel->add(m_caption);
-        m_loginPanel->add(m_loginMsg);
-        m_loginPanel->add(m_usernameField);
-        m_loginPanel->add(m_passwordField);
-        m_loginPanel->add(m_loginButton);
-        m_loginPanel->add(m_rememberMeCheckbox);
-        m_loginPanel->add(m_registerMsg);
-        m_loginPanel->add(m_signUpButton);*/
 
         // Widgets for signup screen
 
@@ -226,10 +206,6 @@ namespace prattle
         m_signUpMsg->setText("Fill your details");
         m_signUpMsg->setTextSize(22);
         m_signUpMsg->setTextColor(sf::Color::White);
-
-        m_fullNameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
-        m_fullNameField->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 1.85);
-        m_fullNameField->setDefaultText("Your full name");
 
         m_submitButton->setText("Sign Up");
         m_submitButton->setTextSize(15);
@@ -240,6 +216,8 @@ namespace prattle
         m_backButton->setTextSize(15);
         m_backButton->setSize(100, 30);
         m_backButton->setPosition(tgui::bindWidth(m_passwordField) + 80, tgui::bindHeight(m_gui) / 1.15);
+
+        // Chat screen related widgets
 
         m_userNameLabel->setText("Logged in as : ");
         m_userNameLabel->setTextSize(15);
@@ -272,10 +250,6 @@ namespace prattle
         m_friendListVisibilityButton->setSize(120, 30);
         m_friendListVisibilityButton->setPosition(40, tgui::bindHeight(m_logoutButton) + 20);
 
-        //m_friendListVisibilityButton->connect("pressed", &UI::changePanelVisibility, this, m_friendlistPanel, friendsPanelVisibility);
-        //m_friendListVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_friendlistPanel);
-
-        //
         m_noOfTabs = 0;
 
         m_friendChatTabs->removeAll();
@@ -293,7 +267,6 @@ namespace prattle
 
         m_searchPanelVisibility = true;
 
-        //m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getSize().y + m_searchButton->getSize().y + 20);
         m_searchPanel->setPosition(tgui::bindLeft(m_searchWindowVisibilityButton), tgui::bindBottom(m_searchWindowVisibilityButton) + 5);
         m_searchPanel->add(m_searchBox);
         m_searchPanel->add(m_searchButton);
@@ -306,9 +279,6 @@ namespace prattle
         m_searchWindowVisibilityButton->setTextSize(12);
         m_searchWindowVisibilityButton->setSize(120, 30);
         m_searchWindowVisibilityButton->setPosition(tgui::bindRight(m_friendListVisibilityButton) + 20, tgui::bindTop(m_friendListVisibilityButton));
-
-        //m_searchWindowVisibilityButton->connect("pressed", &UI::changePanelVisibility, this, m_searchPanel, searchPanelVisibility);
-        //m_searchWindowVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_searchPanel);
 
         m_searchBox->setDefaultText("Search username");
         m_searchBox->setText("");
@@ -324,7 +294,6 @@ namespace prattle
         m_searchResults->removeAllItems();
         m_searchResults->setSize(260, 0);
         m_searchResults->setPosition(tgui::bindLeft(m_searchBox), tgui::bindBottom(m_searchButton) + 20);
-        //std::cout << m_searchBox->getSize().y << " " << m_searchResults->getSize().y << " " << m_searchButton->getSize().y << std::endl;
 
         m_searchMsg->setTextSize(14);
         m_searchMsg->setPosition(tgui::bindLeft(m_searchBox), tgui::bindBottom(m_searchButton) + 20);
@@ -333,16 +302,9 @@ namespace prattle
         m_addFriendButton->setTextSize(14);
         m_addFriendButton->setSize(200, 30);
         m_addFriendButton->setPosition(tgui::bindLeft(m_searchPanel) - 100, tgui::bindBottom(m_searchResults) + 10);
-        //m_addFriendButton->connect("pressed", &tgui::ListBox::addItem, this, std::bind(&tgui::ListBox::getSelectedItem, m_searchResults));
-        //m_addFriendButton->connect("pressed", &tgui::ListBox::addItem, m_friendList, std::bind(&tgui::ListBox::getSelectedItem, m_searchResults));
 
         m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getSize().y + m_searchButton->getSize().y + 20);
         m_searchPanel->setPosition(tgui::bindLeft(m_searchWindowVisibilityButton), tgui::bindBottom(m_searchWindowVisibilityButton) + 5);
-        /*m_searchPanel->add(m_searchBox);
-        m_searchPanel->add(m_searchButton);
-        m_searchPanel->add(m_searchResults);
-        m_searchPanel->add(m_searchMsg);
-        m_searchPanel->add(m_addFriendButton);*/
         m_searchPanel->hide();
 
         //std::cout << m_searchPanel->getSize().y << std::endl;
@@ -365,6 +327,7 @@ namespace prattle
         m_initialMsg->setTextColor(sf::Color::White);
         m_initialMsg->setPosition(tgui::bindWidth(m_gui) / 2 - m_initialMsg->getSize().x / 2, tgui::bindHeight(m_gui) / 2 - 20);
 
+        // Change the screen state to the login screen
         m_screenState = ScreenState::LoginScreen;
         changeScreenState(m_screenState);
     }
@@ -379,62 +342,124 @@ namespace prattle
         return m_friendChatTabs;
     }
 
-    sf::RenderWindow* UI::getRenderWindow()
+    void UI::updateWidgets()
     {
-        return &m_window;
-    }
-
-    tgui::Gui* UI::getGui()
-    {
-        return &m_gui;
-    }
-
-    tgui::Picture::Ptr UI::getBackground()
-    {
-        return m_background;
-    }
-
-    //void UI::togglePanelVisibility(tgui::Panel::Ptr panel, bool &visibility)
-    void UI::togglePanelVisibility(tgui::Panel::Ptr panel)
-    {
-        /*if (visibility)
+        if (m_friendList->getItemCount() == 0)
         {
-            panel->show();
-            visibility = false;
+            m_friendList->hide();
+            m_infoLabel->setText("You don't have any buddies (yet)! :)");
+            m_initialMsg->show();
         }
 
         else
         {
-            panel->hide();
-            visibility= true;
-        }*/
-        if (m_friendsPanelVisibility)
-        {
-            panel->show();
-            m_friendsPanelVisibility = false;
-        }
-        else
-        {
-            panel->hide();
-            m_friendsPanelVisibility = true;
+            m_friendChatTabs->show();
+            m_friendList->show();
+            m_infoLabel->setText("All buddies :");
         }
 
-        if (m_searchPanelVisibility)
+        if (m_friendList->getSelectedItem() != "")
         {
-            panel->show();
-            m_searchPanelVisibility = false;
+            insertNewFriendTab(m_friendList->getSelectedItem());
+            m_friendList->deselectItem();
         }
+
+        if (m_friendChatTabs->getSelected() == "")
+        {
+            m_initialMsg->show();
+            m_friendChatTabs->hide();
+        }
+
         else
         {
-            panel->hide();
-            m_searchPanelVisibility = true;
+            m_friendChatTabs->show();
+            m_initialMsg->hide();
+            m_chatBox->show();
+            m_inputTextBox->show();
+
         }
+
+        if (m_searchResults->getSelectedItem() != "")
+            m_addFriendButton->show();
+        else
+            m_addFriendButton->hide();
+
+        // Beware of test code for GUI
+        m_friendList->setSize(250, m_friendList->getItemCount() * 30);
+        if (m_friendList->getFullSize().y + 100 < m_width - 200)
+            m_friendlistPanel->setSize(m_friendlistPanel->getSize().x, m_friendList->getFullSize().y + 100);
+        else
+            m_friendlistPanel->setSize(m_friendlistPanel->getSize().x, m_width - 400);
+
+        m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getFullSize().y + m_searchButton->getSize().y + m_addFriendButton->getSize().y + 100);
     }
 
-    void UI::changeScreenState(const ScreenState& screenState)
+    void UI::setChatUsername(const std::string& username)
     {
-        m_screenState = screenState;
-        selectScreenState();
+        m_userNameLabel->setText(m_userNameLabel->getText() + username);
+        m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - username.length() * 10, 40);
+    }
+
+    void UI::insertNewFriendTab(const std::string& friendName)
+    {
+        if (m_friendChatTabs->getSelected() != "")
+        {
+            for (int i = 0; i <= m_noOfTabs; i++)
+            {
+                m_friendChatTabs->select(i);
+
+                if (m_friendChatTabs->getSelected() == friendName)
+                    return;
+            }
+        }
+
+        m_friendChatTabs->add(friendName);
+        m_noOfTabs++;
+    }
+
+    void UI::insertNewFriend(const std::string& friendName)
+    {
+        m_friendList->addItem(friendName);
+    }
+
+    void UI::addTextToChatBox(const std::string& user, const std::string& message)
+    {
+        m_chatBox->addText(user + " : " + message);// + "\n");
+    }
+
+    void UI::initFriendList(const std::vector<std::string>& friends)
+    {
+        for(auto& itr : friends)
+        {
+            m_friendList->addItem(itr);
+        }
+
+        m_friendList->show();
+    }
+
+    void UI::clearInputTextBox()
+    {
+        m_inputTextBox->setText("");
+    }
+
+    std::string UI::getSearchBoxText()
+    {
+        return m_searchBox->getText();
+    }
+
+    std::string UI::getInputText()
+    {
+        return m_inputTextBox->getText();
+    }
+
+    std::string UI::getUsernameFieldText()
+    {
+        return m_usernameField->getText();
+    }
+
+    std::string UI::getPasswordFieldText()
+    {
+        return m_passwordField->getText();
     }
 
     void UI::selectScreenState()
@@ -482,142 +507,61 @@ namespace prattle
         }
     }
 
-    void UI::initFriendList(const std::vector<std::string>& friends)
+    void UI::changeScreenState(const ScreenState& screenState)
     {
-        for(auto& itr : friends)
+        m_screenState = screenState;
+        selectScreenState();
+    }
+
+    //void UI::togglePanelVisibility(tgui::Panel::Ptr panel, bool &visibility)
+    void UI::togglePanelVisibility(tgui::Panel::Ptr panel)
+    {
+        /*if (visibility)
         {
-            m_friendList->addItem(itr);
-        }
-
-        m_friendList->show();
-    }
-
-    std::string UI::getUsernameFieldText()
-    {
-        return m_usernameField->getText();
-    }
-
-    std::string UI::getPasswordFieldText()
-    {
-        return m_passwordField->getText();
-    }
-
-    std::string UI::getInputText()
-    {
-        return m_inputTextBox->getText();
-    }
-
-    std::string UI::getSearchBoxText()
-    {
-        return m_searchBox->getText();
-    }
-
-    void UI::addTextToChatBox(const std::string& user, const std::string& message)
-    {
-        m_chatBox->addText(user + " : " + message);// + "\n");
-    }
-
-    void UI::clearInputTextBox()
-    {
-        m_inputTextBox->setText("");
-    }
-
-    void UI::insertNewFriendTab(const std::string& friendName)
-    {
-        if (m_friendChatTabs->getSelected() != "")
-        {
-            for (int i = 0; i <= m_noOfTabs; i++)
-            {
-                m_friendChatTabs->select(i);
-
-                if (m_friendChatTabs->getSelected() == friendName)
-                    return;
-            }
-        }
-
-        //m_friendList->addItem(friendName);
-        m_friendChatTabs->add(friendName);
-        //togglePanelVisibility(m_friendlistPanel);
-        //m_friendlistPanel->hide();
-        m_noOfTabs++;
-        //m_friendChatTabs->select(0);
-        // Select the newly added tab
-    }
-
-    void UI::insertNewFriend(const std::string& friendName)
-    {
-        m_friendList->addItem(friendName);
-    }
-
-    void UI::setChatUsername(const std::string& username)
-    {
-        m_userNameLabel->setText(m_userNameLabel->getText() + username);
-        m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - username.length() * 10, 40);
-    }
-
-    void UI::updateWidgets()
-    {
-        if (m_friendList->getItemCount() == 0)
-        {
-            m_friendList->hide();
-            m_infoLabel->setText("You don't have any buddies (yet)! :)");
-            m_initialMsg->show();
+            panel->show();
+            visibility = false;
         }
 
         else
         {
-            m_friendChatTabs->show();
-            m_friendList->show();
-            //m_initialMsg->hide();
-            m_infoLabel->setText("All buddies :");
-        }
-
-        /*if (m_friendList->getSelectedItem() != "")
-        {
-            if (m_friendChatTabs->)
-            m_friendChatTabs->add(m_friendList->getSelectedItem());
+            panel->hide();
+            visibility= true;
         }*/
-
-        //if (m_screenState == prattle::ScreenState::ChatScreen)
-        if (m_friendList->getSelectedItem() != "")
+        if (m_friendsPanelVisibility)
         {
-            insertNewFriendTab(m_friendList->getSelectedItem());
-            m_friendList->deselectItem();
-            //togglePanelVisibility(m_friendlistPanel);
+            panel->show();
+            m_friendsPanelVisibility = false;
         }
-
-        if (m_friendChatTabs->getSelected() == "")
-        {
-            m_initialMsg->show();
-            m_friendChatTabs->hide();
-            //m_friendList->hide();
-            //m_infoLabel->setText("You don't have any buddies (yet)! :)");
-            //m_initialMsg->show();
-        }
-
         else
         {
-            m_friendChatTabs->show();
-            //m_friendList->show();
-            m_initialMsg->hide();
-            //m_infoLabel->setText("All buddies :");
-            m_chatBox->show();
-            m_inputTextBox->show();
-
+            panel->hide();
+            m_friendsPanelVisibility = true;
         }
 
-        if (m_searchResults->getSelectedItem() != "")
-            m_addFriendButton->show();
+        if (m_searchPanelVisibility)
+        {
+            panel->show();
+            m_searchPanelVisibility = false;
+        }
         else
-            m_addFriendButton->hide();
+        {
+            panel->hide();
+            m_searchPanelVisibility = true;
+        }
+    }
 
-        // Beware of test code for GUI
-        m_friendList->setSize(250, m_friendList->getItemCount() * 30);
-        if (m_friendList->getFullSize().y + 100 < m_width - 200)
-            m_friendlistPanel->setSize(m_friendlistPanel->getSize().x, m_friendList->getFullSize().y + 100);
-        else
-            m_friendlistPanel->setSize(m_friendlistPanel->getSize().x, m_width - 400);
+    tgui::Picture::Ptr UI::getBackground()
+    {
+        return m_background;
+    }
 
-        m_searchPanel->setSize(300, m_searchBox->getSize().y + m_searchResults->getFullSize().y + m_searchButton->getSize().y + m_addFriendButton->getSize().y + 100);
+    tgui::Gui* UI::getGui()
+    {
+        return &m_gui;
+    }
+
+    sf::RenderWindow* UI::getRenderWindow()
+    {
+        return &m_window;
     }
 }

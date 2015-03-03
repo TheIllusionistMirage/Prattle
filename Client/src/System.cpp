@@ -1,6 +1,9 @@
 /**
 
-    See Prattle/Client/System.hpp for info.
+    Prattle/Client/System.cpp
+    =========================
+
+    Contains implementations of functions declared in Prattle/Server/System.hpp
 
 */
 

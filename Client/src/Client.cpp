@@ -1,16 +1,23 @@
+/**
+
+    Prattle/Client/Client.cpp
+    =====================
+
+    Contains implementations of class Client declared in Prattle/Client/Client.hpp
+
+*/
+
 #include "../include/Client.hpp"
 
 namespace prattle
 {
-    Client::Client() : m_networkManager{}
-                     , m_ui{}
-                     , m_loginStatus{false}
-                     , m_onlineStatus{Status::Offline}
+    Client::Client() : m_loginStatus{false}
                      , m_username{""}
                      , m_password{""}
+                     , m_onlineStatus{Status::Offline}
+                     , m_networkManager{}
+                     , m_ui{}
     {
-        //m_windowPtr = m_ui.getRenderWindow();
-        //m_guiPtr = m_ui.getGui();
         m_networkManager.reset();
         m_ui.reset();
 
@@ -45,17 +52,11 @@ namespace prattle
                 if (event.type == sf::Event::Closed)
                     m_ui.getRenderWindow()->close();
 
-                /*if (event.type == sf::Event::Resized)
+                if (event.type == sf::Event::Resized)
                 {
                     m_ui.getRenderWindow()->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
-
-                    // Problem in scaling background
-                    m_ui.getBackground()->setSize(event.size.width, event.size.height);
-                    //m_ui.getBackground()->scale(event.size.width / m_ui.getBackground()->getSize().x,
-                                                //event.size.height / m_ui.getBackground()->getSize().y);
-
                     m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
-                }*/
+                }
 
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
                 {
@@ -64,14 +65,8 @@ namespace prattle
                         if (!checkIfWhitespace(m_ui.getInputText()))
                         {
                             std::string message = m_ui.getInputText();
-                            //std::string message = m_username + " : " + m_ui.getInputText() + "\n";
-                            //std::cout << "xxx " << m_username << " : " << message << " xxx" << std::endl;
-
-                            sf::Packet packet;
-                            //LOG(m_ui.getFriendTabPtr()->getSelected());
-                            std::string frnd = m_ui.getFriendTabPtr()->getSelected();
+                            sf::Packet packet;std::string frnd = m_ui.getFriendTabPtr()->getSelected();
                             packet << SEND_MSG << m_username << frnd << message;
-                            //LOG(SEND_MSG + m_username + m_ui.getFriendTabPtr()->getSelected() + message);
 
                             if(m_networkManager.send(packet))
                             {
@@ -94,18 +89,10 @@ namespace prattle
 
                                     else
                                         LOG("Corrupt packet received!");
-
-                                    //m_ui.addTextToChatBox(m_username, message);
-                                    //m_ui.addTextToChatBox(m_username, message);
-                                    //std::cout << m_username << " : " << message << std::endl;
-                                    //m_ui.clearInputTextBox();
                                 }
 
                                 m_ui.addTextToChatBox(m_username, message);
-                                //m_ui.addTextToChatBox(m_username, message);
-                                //std::cout << m_username << " : " << message << std::endl;
                                 m_ui.clearInputTextBox();
-                                //m_ui.clearInputTextBox();
                             }
 
                             else
@@ -115,18 +102,15 @@ namespace prattle
                         }
                     }
                 }
-
-                //m_ui.getGui()->handleEvent(event);
             }
 
             if (isLoggedIn())
             {
                 std::string protocol, sender, source, receiver, message;
-
                 sf::Packet packet;
+
                 while (m_networkManager.receive(packet))
                 {
-                    //std::cout << protocol << source << sender << receiver << message << std::endl;
                     packet >> protocol;
 
                     if (protocol ==  SEND_MSG)
@@ -153,22 +137,17 @@ namespace prattle
         return m_loginStatus;
     }
 
-    //bool Client::login(const std::string& username, const std::string& password)
     bool Client::login()
     {
-        //LOG("1");
         if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
         {
-            //LOG("2");
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
             {
-                //LOG("3");
                 sf::Packet packet;
                 packet << LOGIN << m_username << SERVER << m_password ;
 
                 if (m_networkManager.send(packet))
                 {
-                    //LOG("4");
                     sf::Packet replyPacket;
                     m_networkManager.receive(replyPacket);
 
@@ -176,30 +155,19 @@ namespace prattle
                     unsigned int friendCount;
                     std::vector<std::string> friends;
 
-                    //std::cout << "abcdefgh ----" << std::endl;
-
                     if (replyPacket >> protocol)
                     {
-                        //LOG("5");
-                        //std::cout << protocol << std::endl;
-                        LOG(protocol);
-
                         if (protocol == LOGIN_SUCCESS)
                         {
-                            //std::cout << protocol << " " << sender << " " << user << " " << friendCount;
-
                             if(replyPacket >> sender >> user >> friendCount)
                             {
-                                //LOG(protocol + " " + sender + " " + user + " " + std::to_string(friendCount));
-                                for (auto i = 1; i <= friendCount; ++i)
+                                for (unsigned int i = 1; i <= friendCount; ++i)
                                 {
                                     replyPacket >> frnd;
-                                    //std::cout << " " << frnd;
                                     friends.push_back(frnd);
                                 }
 
                                 m_friends = friends;
-                                //std::cout << friendCount << std::endl;
 
                                 m_loginStatus = true;
                                 m_onlineStatus = Status::Online;
@@ -211,15 +179,37 @@ namespace prattle
 
                                 return true;
                             }
+
+                            else
+                            {
+                                m_ui.m_messageWindow->setSize(400, 60);
+                                m_ui.m_messageWindow->setTitle("Error!");
+
+                                if (!m_ui.m_messageWindow->isVisible())
+                                    m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
+                                m_ui.m_messageLabel->setText("Corrupt packet received!");
+                                m_ui.m_messageLabel->setTextSize(12);
+                                m_ui.m_messageLabel->setPosition(20, 10);
+
+                                if (!m_ui.m_messageWindow->isVisible())
+                                    m_ui.m_messageWindow->show();
+
+                                LOG("ERROR :: Corrupt packet received from server");
+                                m_networkManager.reset();
+
+                                return false;
+                            }
                         }
 
                         else if (protocol == LOGIN_FAILURE)
                         {
                             m_ui.m_messageWindow->setSize(400, 60);
                             m_ui.m_messageWindow->setTitle("Error!");
+
                             if (!m_ui.m_messageWindow->isVisible())
-                                //m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
                                 m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                             m_ui.m_messageLabel->setText("Can't recognize the username-password combination!\nIf you're not registered with us, please consider signing up.");
                             m_ui.m_messageLabel->setTextSize(12);
                             m_ui.m_messageLabel->setPosition(20, 10);
@@ -227,7 +217,7 @@ namespace prattle
                             if (!m_ui.m_messageWindow->isVisible())
                                 m_ui.m_messageWindow->show();
 
-                            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: You are not registered with us! Please register before logging in!" << std::endl;
+                            LOG("ERROR :: You are not registered with us! Please register before logging in!");
                             m_networkManager.reset();
 
                             return false;
@@ -237,9 +227,10 @@ namespace prattle
                         {
                             m_ui.m_messageWindow->setSize(400, 60);
                             m_ui.m_messageWindow->setTitle("Error!");
+
                             if (!m_ui.m_messageWindow->isVisible())
-                                //m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
                                 m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                             m_ui.m_messageLabel->setText("Unrecognized protocol received!");
                             m_ui.m_messageLabel->setTextSize(12);
                             m_ui.m_messageLabel->setPosition(20, 10);
@@ -247,7 +238,7 @@ namespace prattle
                             if (!m_ui.m_messageWindow->isVisible())
                                 m_ui.m_messageWindow->show();
 
-                            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unknown protocol!" << std::endl;
+                            LOG("ERROR :: Unknown protocol!");
                             m_networkManager.reset();
 
                             return false;
@@ -258,8 +249,10 @@ namespace prattle
                     {
                         m_ui.m_messageWindow->setSize(400, 60);
                         m_ui.m_messageWindow->setTitle("Error!");
+
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                         m_ui.m_messageLabel->setText("Damaged packet received from server. Please try again later");
                         m_ui.m_messageLabel->setTextSize(12);
                         m_ui.m_messageLabel->setPosition(20, 10);
@@ -267,7 +260,7 @@ namespace prattle
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->show();
 
-                        std::cerr << __FILE__ << ':' << __LINE__ << " Damaged packet received from server. Please try again later" << std::endl;
+                        LOG("Damaged packet received from server. Please try again later");
                         m_networkManager.reset();
 
                         return false;
@@ -278,8 +271,10 @@ namespace prattle
                 {
                     m_ui.m_messageWindow->setSize(400, 60);
                     m_ui.m_messageWindow->setTitle("Error!");
+
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                     m_ui.m_messageLabel->setText("Unable to send packet(s) to the server! Please make sure that the\n     server is up and you're connected to the internet.");
                     m_ui.m_messageLabel->setTextSize(12);
                     m_ui.m_messageLabel->setPosition(20, 10);
@@ -287,7 +282,7 @@ namespace prattle
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->show();
 
-                    std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to send login info to server!" << std::endl;
+                    LOG("ERROR :: Unable to send login info to server!");
                     m_networkManager.reset();
 
                     return false;
@@ -298,8 +293,10 @@ namespace prattle
             {
                 m_ui.m_messageWindow->setSize(400, 60);
                 m_ui.m_messageWindow->setTitle("Error!");
+
                 if (!m_ui.m_messageWindow->isVisible())
                     m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                 m_ui.m_messageLabel->setText("Can't leave either field blank!");
                 m_ui.m_messageLabel->setTextSize(12);
                 m_ui.m_messageLabel->setPosition(20, 10);
@@ -307,7 +304,7 @@ namespace prattle
                 if (!m_ui.m_messageWindow->isVisible())
                     m_ui.m_messageWindow->show();
 
-                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Username or password field is blank!" << std::endl;
+                LOG("ERROR :: Username or password field is blank!");
                 m_networkManager.reset();
 
                 return false;
@@ -318,8 +315,10 @@ namespace prattle
         {
             m_ui.m_messageWindow->setSize(400, 60);
             m_ui.m_messageWindow->setTitle("Error!");
+
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
             m_ui.m_messageLabel->setText("Unable to connect to server! Please make sure that the\n     server is up and you're connected to the internet.");
             m_ui.m_messageLabel->setTextSize(12);
             m_ui.m_messageLabel->setPosition(20, 10);
@@ -327,7 +326,7 @@ namespace prattle
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->show();
 
-            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Can't connect to server! Please try again" << std::endl;
+            LOG(" ERROR :: Can't connect to server! Please try again");
             m_networkManager.reset();
 
             return false;
@@ -358,8 +357,10 @@ namespace prattle
                             {
                                 m_ui.m_messageWindow->setSize(400, 60);
                                 m_ui.m_messageWindow->setTitle("Registered!");
+
                                 if (!m_ui.m_messageWindow->isVisible())
                                     m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                                 m_ui.m_messageLabel->setText("Registration successful! Now login to start prattling! ;)");
                                 m_ui.m_messageLabel->setTextSize(12);
                                 m_ui.m_messageLabel->setPosition(20, 10);
@@ -367,7 +368,7 @@ namespace prattle
                                 if (!m_ui.m_messageWindow->isVisible())
                                     m_ui.m_messageWindow->show();
 
-                                //std::cout << "Registration successful! Now login to start prattling!" << std::endl;
+                                LOG("Registration successful! Now login to start prattling!");
                                 reset();
                                 m_ui.changeScreenState(ScreenState::LoginScreen);
 
@@ -378,8 +379,10 @@ namespace prattle
                             {
                                 m_ui.m_messageWindow->setSize(400, 60);
                                 m_ui.m_messageWindow->setTitle("Error!");
+
                                 if (!m_ui.m_messageWindow->isVisible())
                                     m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                                 m_ui.m_messageLabel->setText("Corrupted packet received!");
                                 m_ui.m_messageLabel->setTextSize(12);
                                 m_ui.m_messageLabel->setPosition(20, 10);
@@ -387,7 +390,7 @@ namespace prattle
                                 if (!m_ui.m_messageWindow->isVisible())
                                     m_ui.m_messageWindow->show();
 
-                                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Corrupted packet received." << std::endl;
+                                LOG("ERROR :: Corrupted packet received.");
                                 m_networkManager.reset();
 
                                 return false;
@@ -398,8 +401,10 @@ namespace prattle
                         {
                             m_ui.m_messageWindow->setSize(400, 60);
                             m_ui.m_messageWindow->setTitle("Error!");
+
                             if (!m_ui.m_messageWindow->isVisible())
                                 m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                             m_ui.m_messageLabel->setText("Error in signup process! Please try again!");
                             m_ui.m_messageLabel->setTextSize(12);
                             m_ui.m_messageLabel->setPosition(20, 10);
@@ -407,7 +412,7 @@ namespace prattle
                             if (!m_ui.m_messageWindow->isVisible())
                                 m_ui.m_messageWindow->show();
 
-                            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to signup." << std::endl;
+                            LOG("ERROR :: Unable to signup.");
                             m_networkManager.reset();
 
                             return false;
@@ -421,8 +426,10 @@ namespace prattle
                     {
                         m_ui.m_messageWindow->setSize(400, 60);
                         m_ui.m_messageWindow->setTitle("Error!");
+
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                         m_ui.m_messageLabel->setText("Corrupted packet received!");
                         m_ui.m_messageLabel->setTextSize(12);
                         m_ui.m_messageLabel->setPosition(20, 10);
@@ -430,65 +437,21 @@ namespace prattle
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->show();
 
-                        std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Corrupted packet received." << std::endl;
+                        LOG("ERROR :: Corrupted packet received.");
                         m_networkManager.reset();
 
                         return false;
                     }
-
-                    /*if (!serverReply.empty())
-                    {
-                        // In this case, the client socket receives only
-                        // one string "registered" as the reply. Any other
-                        // reply would be counted as error.
-
-                        if (serverReply == "registered")
-                        {
-                            m_ui.m_messageWindow->setSize(400, 60);
-                            m_ui.m_messageWindow->setTitle("Registered!");
-                            if (!m_ui.m_messageWindow->isVisible())
-                                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
-                            m_ui.m_messageLabel->setText("Registration successful! Now login to start prattling! ;)");
-                            m_ui.m_messageLabel->setTextSize(12);
-                            m_ui.m_messageLabel->setPosition(20, 10);
-
-                            if (!m_ui.m_messageWindow->isVisible())
-                                m_ui.m_messageWindow->show();
-
-                            //std::cout << "Registration successful! Now login to start prattling!" << std::endl;
-                            reset();
-                            m_ui.changeScreenState(ScreenState::LoginScreen);
-
-                            return true;
-                        }
-
-                        else
-                        {
-                            m_ui.m_messageWindow->setSize(400, 60);
-                            m_ui.m_messageWindow->setTitle("Error!");
-                            if (!m_ui.m_messageWindow->isVisible())
-                                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
-                            m_ui.m_messageLabel->setText("Registration was not successful! :(\n     Please try again.");
-                            m_ui.m_messageLabel->setTextSize(12);
-                            m_ui.m_messageLabel->setPosition(20, 10);
-
-                            if (!m_ui.m_messageWindow->isVisible())
-                                m_ui.m_messageWindow->show();
-
-                            //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Registration was not successful! Please try again." << std::endl;
-                            m_networkManager.reset();
-
-                            return false;
-                        }
-                    }*/
                 }
 
                 else
                 {
                     m_ui.m_messageWindow->setSize(400, 60);
                     m_ui.m_messageWindow->setTitle("Error!");
+
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                     m_ui.m_messageLabel->setText("Unable to send login info to server! Please try again.");
                     m_ui.m_messageLabel->setTextSize(12);
                     m_ui.m_messageLabel->setPosition(20, 10);
@@ -496,7 +459,7 @@ namespace prattle
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->show();
 
-                    std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to send login info to server!" << std::endl;
+                    LOG("ERROR :: Unable to send login info to server!");
                     m_networkManager.reset();
 
                     return false;
@@ -506,17 +469,19 @@ namespace prattle
             else
             {
                 m_ui.m_messageWindow->setSize(400, 60);
-                    m_ui.m_messageWindow->setTitle("Error!");
-                    if (!m_ui.m_messageWindow->isVisible())
-                        m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
-                    m_ui.m_messageLabel->setText("Can't leave either field blank!");
-                    m_ui.m_messageLabel->setTextSize(12);
-                    m_ui.m_messageLabel->setPosition(20, 10);
+                m_ui.m_messageWindow->setTitle("Error!");
 
-                    if (!m_ui.m_messageWindow->isVisible())
-                        m_ui.m_messageWindow->show();
+                if (!m_ui.m_messageWindow->isVisible())
+                    m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
 
-                std::cerr << __FILE__ << ":" << __LINE__ << "ERROR :: Username and password fields can't be blank!" << std::endl;
+                m_ui.m_messageLabel->setText("Can't leave either field blank!");
+                m_ui.m_messageLabel->setTextSize(12);
+                m_ui.m_messageLabel->setPosition(20, 10);
+
+                if (!m_ui.m_messageWindow->isVisible())
+                    m_ui.m_messageWindow->show();
+
+                LOG("ERROR :: Username and password fields can't be blank!");
                 m_networkManager.reset();
 
                 return false;
@@ -527,8 +492,10 @@ namespace prattle
         {
             m_ui.m_messageWindow->setSize(400, 60);
             m_ui.m_messageWindow->setTitle("Error!");
+
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
             m_ui.m_messageLabel->setText("Can't connect to server! Please make sure the server is up\nand running, you're connected to the internet and try again.");
             m_ui.m_messageLabel->setTextSize(12);
             m_ui.m_messageLabel->setPosition(20, 10);
@@ -536,7 +503,7 @@ namespace prattle
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->show();
 
-            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Can't connect to server! Please try again." << std::endl;
+            LOG(" ERROR :: Can't connect to server! Please try again.");
             m_networkManager.reset();
 
             return false;
@@ -560,21 +527,14 @@ namespace prattle
         return m_username;
     }
 
-    /*std::string const& Client::getFriendsName() const
-    {
-        return m_friend;
-    }*/
-
-    bool Client::logout()
+    void Client::logout()
     {
         reset();
     }
 
-    //void Client::searchUsername(const std::string& username)
     bool Client::searchUsername(const std::string& username)
     {
         m_networkManager.setSocketBlocking(true);
-        //std::string protocol, sender = m_username, receiver = SERVER;
         std::string searchQuery = m_ui.getSearchBoxText();
 
         sf::Packet packet;
@@ -587,17 +547,12 @@ namespace prattle
 
             m_networkManager.receive(replyPacket);
 
-            //LOG("ASA");
             if (replyPacket >> protocol)
             {
-                //LOG("ASA -");
                 if (protocol == SEARCH_USER_RESULTS)
                 {
-                    //LOG("ASA --");
                     if (replyPacket >> sender >> receiver >> result)
                     {
-                        //LOG("ASA ---" + result);
-                        //LOG(result);
                         if (result == "")
                         {
                             m_ui.m_messageWindow->setSize(400, 60);
@@ -614,9 +569,7 @@ namespace prattle
                             m_ui.m_searchResults->setSize(260, 0);
                             m_ui.m_searchResults->removeAllItems();
 
-                            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-                            //m_networkManager.reset();
-
+                            LOG("ERROR :: Unable to receive search results from the server");
                             m_networkManager.setSocketBlocking(false);
 
                             return true;
@@ -624,14 +577,12 @@ namespace prattle
 
                         else
                         {
-                            //std::cout << "ASA ---+" << std::endl;
                             m_ui.m_searchResults->setSize(260, 0);
                             m_ui.m_searchResults->removeAllItems();
                             m_ui.m_searchResults->setSize(m_ui.m_searchResults->getSize().x, m_ui.m_searchResults->getSize().y + 20);
                             m_ui.m_searchResults->addItem(searchQuery);
 
                             m_networkManager.setSocketBlocking(false);
-                            //m_networkManager.reset();
 
                             return true;
                         }
@@ -641,8 +592,10 @@ namespace prattle
                     {
                         m_ui.m_messageWindow->setSize(400, 60);
                         m_ui.m_messageWindow->setTitle("Error!");
+
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                         m_ui.m_messageLabel->setText("Corrupt packet received from server!");
                         m_ui.m_messageLabel->setTextSize(12);
                         m_ui.m_messageLabel->setPosition(20, 10);
@@ -650,9 +603,7 @@ namespace prattle
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->show();
 
-                        std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-                        //m_networkManager.reset();
-
+                        LOG("ERROR :: Unable to receive search results from the server");
                         m_networkManager.setSocketBlocking(false);
 
                         return false;
@@ -663,8 +614,10 @@ namespace prattle
                 {
                     m_ui.m_messageWindow->setSize(400, 60);
                     m_ui.m_messageWindow->setTitle("Error!");
+
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                     m_ui.m_messageLabel->setText("Corrupt packet received from server!");
                     m_ui.m_messageLabel->setTextSize(12);
                     m_ui.m_messageLabel->setPosition(20, 10);
@@ -672,9 +625,7 @@ namespace prattle
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->show();
 
-                    std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-                    //m_networkManager.reset();
-
+                    LOG("ERROR :: Unable to receive search results from the server");
                     m_networkManager.setSocketBlocking(false);
 
                     return false;
@@ -694,9 +645,7 @@ namespace prattle
                 if (!m_ui.m_messageWindow->isVisible())
                     m_ui.m_messageWindow->show();
 
-                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-                //m_networkManager.reset();
-
+                LOG("ERROR :: Unable to receive search results from the server");
                 m_networkManager.setSocketBlocking(false);
 
                 return false;
@@ -707,8 +656,10 @@ namespace prattle
         {
             m_ui.m_messageWindow->setSize(400, 60);
             m_ui.m_messageWindow->setTitle("Error!");
+
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
             m_ui.m_messageLabel->setText("Unable to send search query to server! Please try again.");
             m_ui.m_messageLabel->setTextSize(12);
             m_ui.m_messageLabel->setPosition(20, 10);
@@ -716,77 +667,13 @@ namespace prattle
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->show();
 
-            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-            //m_networkManager.reset();
-
+            LOG("ERROR :: Unable to receive search results from the server");
             m_networkManager.setSocketBlocking(false);
 
             return false;
         }
-        /*m_networkManager.setSocketBlocking(true);
-
-        std::string searchQuery = m_ui.getSearchBoxText();
-
-        if (m_networkManager.send(m_username, "server", searchQuery))
-        {
-            std::string serverReply;
-            m_networkManager.receive(serverReply);
-
-            if (!serverReply.empty())
-            {
-                // In this case, the client socket receives only
-                // one string "legal_result" or NOTHING.
-
-                if (serverReply == "legal_result")
-                {
-                    m_ui.m_searchResults->setSize(m_ui.m_searchResults->getSize().x, m_ui.m_searchResults->getSize().y + 20);
-                    m_ui.m_searchResults->addItem(searchQuery);
-                }
-
-                else
-                {
-                    m_ui.m_searchMsg->setText("No matching results found!");
-                }
-            }
-            else
-            {
-                m_ui.m_messageWindow->setSize(400, 60);
-                m_ui.m_messageWindow->setTitle("Error!");
-                if (!m_ui.m_messageWindow->isVisible())
-                    m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
-                m_ui.m_messageLabel->setText("Faulty packet received from Server! Please try again.");
-                m_ui.m_messageLabel->setTextSize(12);
-                m_ui.m_messageLabel->setPosition(20, 10);
-
-                if (!m_ui.m_messageWindow->isVisible())
-                    m_ui.m_messageWindow->show();
-
-                std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-                m_networkManager.reset();
-            }
-        }
-
-        else
-        {
-            m_ui.m_messageWindow->setSize(400, 60);
-            m_ui.m_messageWindow->setTitle("Error!");
-            if (!m_ui.m_messageWindow->isVisible())
-                m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_guiPtr) / 2 - 200, tgui::bindHeight(*m_guiPtr) / 2 - m_ui.m_messageLabel->getSize().y);
-            m_ui.m_messageLabel->setText("Unable to send packet(s) to the server! Please make sure that the\n     server is up and you're connected to the internet.");
-            m_ui.m_messageLabel->setTextSize(12);
-            m_ui.m_messageLabel->setPosition(20, 10);
-
-            if (!m_ui.m_messageWindow->isVisible())
-                m_ui.m_messageWindow->show();
-
-            std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to send query to server!" << std::endl;
-            m_networkManager.reset();
-        }
-
-        m_networkManager.setSocketBlocking(false);*/
     }
 
-    //void Client::addFriend(const std::string& username)
     void Client::addFriend()
     {
         m_networkManager.setSocketBlocking(true);
@@ -810,8 +697,10 @@ namespace prattle
 
                     m_ui.m_messageWindow->setSize(400, 60);
                     m_ui.m_messageWindow->setTitle("Info");
+
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                     m_ui.m_messageLabel->setText("\'" + username + "\' successfully added as your friend! To chat with him, double click his name\nfrom your buddy list");
                     m_ui.m_messageLabel->setTextSize(12);
                     m_ui.m_messageLabel->setPosition(20, 10);
@@ -819,8 +708,7 @@ namespace prattle
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->show();
 
-                    //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-
+                    LOG("ERROR :: Unable to receive search results from the server");
                     m_networkManager.setSocketBlocking(false);
                 }
 
@@ -830,8 +718,10 @@ namespace prattle
                     {
                         m_ui.m_messageWindow->setSize(400, 60);
                         m_ui.m_messageWindow->setTitle("Error!");
+
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                         m_ui.m_messageLabel->setText("\'" + username + "\' was not added as your friend! " + details);
                         m_ui.m_messageLabel->setTextSize(12);
                         m_ui.m_messageLabel->setPosition(20, 10);
@@ -839,8 +729,7 @@ namespace prattle
                         if (!m_ui.m_messageWindow->isVisible())
                             m_ui.m_messageWindow->show();
 
-                        //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-
+                        LOG("ERROR :: Unable to receive search results from the server");
                         m_networkManager.setSocketBlocking(false);
                     }
                 }
@@ -849,8 +738,10 @@ namespace prattle
                 {
                     m_ui.m_messageWindow->setSize(400, 60);
                     m_ui.m_messageWindow->setTitle("Error!");
+
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                     m_ui.m_messageLabel->setText("Unrecognized protocol received from the server.");
                     m_ui.m_messageLabel->setTextSize(12);
                     m_ui.m_messageLabel->setPosition(20, 10);
@@ -858,8 +749,7 @@ namespace prattle
                     if (!m_ui.m_messageWindow->isVisible())
                         m_ui.m_messageWindow->show();
 
-                    //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-
+                    LOG("ERROR :: Unable to receive search results from the server");
                     m_networkManager.setSocketBlocking(false);
                 }
             }
@@ -868,8 +758,10 @@ namespace prattle
             {
                 m_ui.m_messageWindow->setSize(400, 60);
                 m_ui.m_messageWindow->setTitle("Error!");
+
                 if (!m_ui.m_messageWindow->isVisible())
                     m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
                 m_ui.m_messageLabel->setText("Corrupt packet received from the server.");
                 m_ui.m_messageLabel->setTextSize(12);
                 m_ui.m_messageLabel->setPosition(20, 10);
@@ -877,8 +769,7 @@ namespace prattle
                 if (!m_ui.m_messageWindow->isVisible())
                     m_ui.m_messageWindow->show();
 
-                //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-
+                LOG("ERROR :: Unable to receive search results from the server");
                 m_networkManager.setSocketBlocking(false);
             }
         }
@@ -887,8 +778,10 @@ namespace prattle
         {
             m_ui.m_messageWindow->setSize(400, 60);
             m_ui.m_messageWindow->setTitle("Error!");
+
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->setPosition(tgui::bindWidth(*m_ui.getGui()) / 2 - 200, tgui::bindHeight(*m_ui.getGui()) / 2 - m_ui.m_messageLabel->getSize().y);
+
             m_ui.m_messageLabel->setText("Unable to send friend request protocol to server! Please try again.");
             m_ui.m_messageLabel->setTextSize(12);
             m_ui.m_messageLabel->setPosition(20, 10);
@@ -896,8 +789,7 @@ namespace prattle
             if (!m_ui.m_messageWindow->isVisible())
                 m_ui.m_messageWindow->show();
 
-            //std::cerr << __FILE__ << ':' << __LINE__ << " ERROR :: Unable to receive search results from the server" << std::endl;
-
+            LOG("ERROR :: Unable to receive search results from the server");
             m_networkManager.setSocketBlocking(false);
         }
     }

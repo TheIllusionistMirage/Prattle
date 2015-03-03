@@ -1,10 +1,10 @@
 /**
 
-    Prattle/Client/UI
-    =================
+    Prattle/Client/UI.hpp
+    =====================
 
     Manages the nice and visually appeasing UI of Prattle,
-    with the help of TGUI (https://tgui.eu), which is built upon SFML.
+    with the help of TGUI, which is built upon SFML.
 
 */
 
@@ -17,17 +17,21 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-#include "Config.hpp"
-#include "System.hpp"
+#include "../include/Config.hpp"
+#include "../include/System.hpp"
 
 namespace prattle
 {
-    class Client;
+    // Class UI which handles the GUI
+    // part of the Client application.
 
     class UI
     {
         public:
+
             UI();                                   // The ctor initializes ALL the SFML and TGUI.
+
+            void reset();                           // Reset all UI elements to a default state
 
             tgui::ListBox::Ptr getFriendListPtr();
 
@@ -66,11 +70,8 @@ namespace prattle
             void changeScreenState(const ScreenState& screenState);
                                                     // Change the current screenstate
 
-            void togglePanelVisibility(tgui::Panel::Ptr panel);//,
-                                       //bool &visibility);
+            void togglePanelVisibility(tgui::Panel::Ptr panel);
                                                     // Toggle the visibility of a tgui::Panel::Ptr
-
-            void reset();                           // Reset all UI elements to a default state
 
             tgui::Picture::Ptr getBackground();    // Returns the background image
 
@@ -78,16 +79,7 @@ namespace prattle
 
             sf::RenderWindow* getRenderWindow();    // Return a pointer to the sf::RenderWindow object used for drawing
 
-            friend bool logout();                   // Disconnect from the server
-
-            friend bool login(const std::string& username,
-                              const std::string& password);
-                                                    // Connect to the server and log the user in.
-
-            friend void signup(const std::string& username,
-                               const std::string& password);
-                                                    // Signup a new user.
-
+            // Public widgets accessible from the Client class
             tgui::Button::Ptr      m_loginButton;
             tgui::Button::Ptr      m_submitButton;
             tgui::Button::Ptr      m_logoutButton;
@@ -96,7 +88,7 @@ namespace prattle
             tgui::ListBox::Ptr     m_searchResults;
             tgui::Button::Ptr      m_searchButton;
             tgui::Label::Ptr       m_searchMsg;
-            tgui::Button::Ptr  m_addFriendButton;
+            tgui::Button::Ptr      m_addFriendButton;
 
         private:
 
@@ -115,7 +107,6 @@ namespace prattle
             tgui::Gui          m_gui;
             tgui::Picture::Ptr m_background;
             tgui::Picture::Ptr m_logo;
-            //tgui::Label::Ptr   m_caption;
 
 
             // Screen panels
@@ -135,7 +126,6 @@ namespace prattle
 
             // Registration screen related widgets
             tgui::Label::Ptr   m_signUpMsg;
-            tgui::EditBox::Ptr m_fullNameField;
             tgui::Button::Ptr  m_backButton;
 
 
@@ -149,7 +139,6 @@ namespace prattle
             tgui::Label::Ptr   m_infoLabel;
             bool               m_friendsPanelVisibility;
             tgui::EditBox::Ptr m_searchBox;
-            //tgui::Button::Ptr  m_addFriendButton;
             tgui::Panel::Ptr   m_searchPanel;
             tgui::Button::Ptr  m_searchWindowVisibilityButton;
             bool               m_searchPanelVisibility;

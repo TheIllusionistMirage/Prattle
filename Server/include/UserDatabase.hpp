@@ -22,7 +22,7 @@
 #include <fstream>
 #include <map>
 #include <iostream>
-#include "System.hpp"
+#include "../include/System.hpp"
 
 namespace prattle
 {

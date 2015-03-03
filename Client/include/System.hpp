@@ -1,6 +1,7 @@
 /**
 
     Prattle/Client/System.hpp
+    =========================
 
     Holds various constants, enumerations for use by the Client side application.
 
@@ -19,24 +20,24 @@ namespace prattle
     const std::string SERVER_IP_ADDRESS = "127.0.0.1";
     const std::string getCurrentTimeAndDate();
 
-    enum class ScreenState{
-                LoginScreen ,
-                SignupScreen,
-                ChatScreen
-            };
+    enum class ScreenState
+    {
+        LoginScreen ,
+        SignupScreen,
+        ChatScreen
+    };
 
-    enum class Status{
-                Online  ,
-                Busy    ,
-                Offline
-            };
+    enum class Status
+    {
+        Online  ,
+        Busy    ,
+        Offline
+    };
 
     const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
-    const std::string DEFAULT_BACKGROUND = "resources/images/Untitled.png";
-    //const std::string CHAT_BACKGROUND = "resources/images/background-chat.png";
-    //const std::string CHAT_BACKGROUND = "resources/images/new_bg.png";
-    const std::string DEFAULT_LOGO = "resources/images/Prattle_Madly_Orange_logo_1.png";
-    const std::string DEFAULT_TGUI_THEME = "resources/widgets/Black.conf";
+    const std::string DEFAULT_BACKGROUND  = "resources/images/Untitled.png";
+    const std::string DEFAULT_LOGO        = "resources/images/Prattle_Madly_Orange_logo_1.png";
+    const std::string DEFAULT_TGUI_THEME  = "resources/widgets/Black.conf";
 }
 
 #endif // SYSTEM_HPP_INCLUDED

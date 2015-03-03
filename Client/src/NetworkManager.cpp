@@ -1,3 +1,12 @@
+/**
+
+    Prattle/Client/NetworkManager.cpp
+    =================================
+
+    Contains implementations of class NetworkManager declared in Prattle/Client/NetworkManager.hpp
+
+*/
+
 #include "../include/NetworkManager.hpp"
 
 namespace prattle
@@ -67,43 +76,33 @@ namespace prattle
 
     bool NetworkManager::receive(sf::Packet& packet)
     {
-        //std::cout << "X";
-
         sf::Socket::Status status = m_clientSocket.receive(packet);
         sf::Packet packetCopy{packet};
-
-        //std::cout << "9 " << packetCopy.getDataSize() << " 9" << std::endl;
 
         if (status == sf::Socket::NotReady)
             return false;
 
         else if (status == sf::Socket::Done)
         {
-            //std::cout << "9 " << packetCopy.getDataSize() << " 9" << std::endl;
-
             std::string protocol;
 
             if (packetCopy >> protocol)
             {
                 if (protocol == LOGIN_SUCCESS)
                 {
-                    //std::cout << "**" + protocol + "**" << std::endl;
                     std::string sender, user, frnd;
                     unsigned short friendCount;
                     std::vector<std::string> friends;
 
                     if (packetCopy >> sender >> user >> friendCount)
                     {
-                        //std::cout << "*" << friendCount << "*" << std::endl;
                         if (sender == SERVER)
                         {
                             for (auto i = 1; i <= 2; ++i)
                             {
                                 packetCopy >> frnd;
-                                //std::cout << "**" << frnd << "**" << std::endl;
                                 friends.push_back(frnd);
                             }
-                            //std::cout << "**" << std::endl;
 
                             LOG("Client \'" + user + "\' successfully logged in.");
                             return true;
