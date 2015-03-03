@@ -103,7 +103,6 @@ namespace prattle
 
         if (packetCopy >> protocol)
         {
-            std::cout << "Protocol : " + protocol;
             if ( protocol == LOGIN_SUCCESS       ||
                   protocol == LOGIN_FAILURE       ||
                    protocol == SIGNUP_SUCCESS      ||
@@ -119,7 +118,6 @@ namespace prattle
 
                 if (packetCopy >> sender >> username)       // NOTE : the sender in this case is ALWAYS the server.
                 {
-                    std::cout << "Mesg being sent to " + username << std::endl;
                     auto itr = m_clients.find(username);
                     bool result = true;
 

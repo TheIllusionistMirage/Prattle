@@ -34,7 +34,8 @@ namespace prattle
         Offline
     };
 
-    const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
+    //const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
+    const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/AndBasR.ttf";
     const std::string DEFAULT_BACKGROUND  = "resources/images/Untitled.png";
     const std::string DEFAULT_LOGO        = "resources/images/Prattle_Madly_Orange_logo_1.png";
     const std::string DEFAULT_TGUI_THEME  = "resources/widgets/Black.conf";
