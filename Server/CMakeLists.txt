@@ -15,7 +15,9 @@ file(GLOB SOURCES
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/SHA256/SHA256.cpp"
 )
- 
+
+file(COPY resources DESTINATION .)
+
 # Find SFML
 if (SFML_OS_WINDOWS AND SFML_COMPILER_MSVC)
     find_package( SFML 2 COMPONENTS main network graphics window system )
