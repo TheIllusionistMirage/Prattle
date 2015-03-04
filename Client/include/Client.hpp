@@ -20,7 +20,7 @@ namespace prattle
     {
         public:
 
-            Client();
+            Client(std::string s_ip = "127.0.0.1", int s_port = 19999);
 
             void addFriend();                                   // Add the person who's name was received after a database search.
 
@@ -43,7 +43,7 @@ namespace prattle
             void reset();                                       // Reset the Client application to a default state.
 
             void run();                                         // Runs the Client and has the main control loop of the program.
-
+            
         private:
 
             bool m_loginStatus;                                 // Is set to true if m_networkManager is connected to the Server.
@@ -64,6 +64,11 @@ namespace prattle
                                                                 // communication with the Server.
 
             UI m_ui;                                            // Instance of Class UI to handle the GUI of the Client.
+            
+            std::string m_server_ip;                            // Server ip
+            
+            int m_server_port;                                  // Server port
+
     };
 }
 

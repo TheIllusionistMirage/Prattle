@@ -11,12 +11,14 @@
 
 namespace prattle
 {
-    Client::Client() : m_loginStatus{false}
+    Client::Client(std::string s_ip, int s_port) : m_loginStatus{false}
                      , m_username{""}
                      , m_password{""}
                      , m_onlineStatus{Status::Offline}
                      , m_networkManager{}
                      , m_ui{}
+                     , m_server_ip(s_ip)
+                     , m_server_port(s_port)
     {
         m_networkManager.reset();
         m_ui.reset();
@@ -139,7 +141,7 @@ namespace prattle
 
     bool Client::login()
     {
-        if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
+        if (m_networkManager.connectToServer(m_server_ip, m_server_port))
         {
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
             {
@@ -335,7 +337,7 @@ namespace prattle
 
     bool Client::signup()
     {
-        if (m_networkManager.connectToServer(SERVER_IP_ADDRESS, OPEN_PORT))
+        if (m_networkManager.connectToServer(m_server_ip, m_server_port))
         {
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
             {
