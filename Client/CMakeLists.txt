@@ -39,4 +39,4 @@ endif()
  
 add_executable(prattle-client ${SOURCES})
  
-target_link_libraries(prattle-client ${TGUI_LIBRARY} ${SFML_LIBRARIES})
+target_link_libraries(prattle-client ${TGUI_LIBRARY} ${SFML_LIBRARIES} X11)
