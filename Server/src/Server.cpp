@@ -362,7 +362,7 @@ namespace prattle
                                     if (db.isValidPassword(sender, plainPassword))
                                     {
                                         sf::Packet loginResult;
-                                        loginResult << LOGIN_SUCCESS << SERVER << sender << db.getRecord(sender).friends.size();
+                                        loginResult << LOGIN_SUCCESS << SERVER << sender << sf::Uint32(db.getRecord(sender).friends.size());
 
                                         for (auto& friendName : db.getRecord(sender).friends)
                                             loginResult << friendName;
