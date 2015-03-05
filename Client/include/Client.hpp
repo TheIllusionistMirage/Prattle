@@ -22,6 +22,8 @@ namespace prattle
 
             Client(std::string s_ip = "127.0.0.1", int s_port = 19999);
 
+            //void insertNotification(const std::string& username);   // add a notification as '[n]' where n = no. of unread messages from user 'username'
+
             void addFriend();                                   // Add the person who's name was received after a database search.
 
             bool searchUsername(const std::string& username);   // Returns true if 'username' was found in the user database.
@@ -46,7 +48,7 @@ namespace prattle
 
         private:
 
-            std::map<std::string, std::string> m_chatHistory;
+            //std::map<std::string, std::string> m_chatHistory;
 
             bool m_loginStatus;                                 // Is set to true if m_networkManager is connected to the Server.
 

@@ -147,6 +147,7 @@ namespace prattle
         m_messageWindow->connect("Closed", std::bind(&tgui::ChildWindow::hide, m_messageWindow));
         m_friendListVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_friendlistPanel);
         m_searchWindowVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_searchPanel);
+        m_friendChatTabs->connect("TabChanged", &UI::reloadChat, this);
 
         // Change the screen state to the login screen
         m_screenState = ScreenState::LoginScreen;
@@ -352,6 +353,12 @@ namespace prattle
         return m_friendChatTabs;
     }
 
+    void UI::reloadChat()
+    {
+        clearChatBox();
+        addTextToChatBox(m_chatHistory.find(m_friendChatTabs->getSelected())->second);
+    }
+
     void UI::updateWidgets()
     {
         if (m_friendList->getItemCount() == 0)
@@ -442,6 +449,14 @@ namespace prattle
         return m_friendChatTabs->getSelected();
     }*/
 
+    /*void UI::insertNotification(const std::string& username)
+    {
+        m_friendChatTabs->select(0);
+        m_friendChatTabs->remove(username);
+        m_friendChatTabs->add("(*)" + username);
+        m_friendChatTabs->select(username);
+    }*/
+
     void UI::insertNewFriendTab(const std::string& friendName)
     {
         if (m_friendChatTabs->getSelected() != "")
@@ -499,10 +514,10 @@ namespace prattle
         return m_searchBox->getText();
     }
 
-    void UI::insertNewLine()
+    /*void UI::insertNewLine()
     {
         m_inputTextBox->addText("\n");
-    }
+    }*/
 
     std::string UI::getInputText()
     {

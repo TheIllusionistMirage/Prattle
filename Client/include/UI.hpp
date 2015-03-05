@@ -39,6 +39,8 @@ namespace prattle
 
             tgui::Tab::Ptr getFriendTabPtr();
 
+            void reloadChat();
+
             void updateWidgets();                   // Update widgets like the chat box etc that can change frequently.
 
             void setChatUsername(const std::string& username);
@@ -46,6 +48,9 @@ namespace prattle
 
             const std::string getSelectedFriendTab();
             //const std::string& getSelectedFriend() const;
+
+            //void editFriendTab(const std::string& friendName);
+            //void insertNotification(const std::string& username);
 
             void insertNewFriendTab(const std::string& friendName);
                                                     // Insert a new chat tab
@@ -68,7 +73,7 @@ namespace prattle
 
             std::string getSearchBoxText();         // Get the text of the search field editbox
 
-            void insertNewLine();            // Inserts a new lines to the input textbox
+            //void insertNewLine();            // Inserts a new lines to the input textbox
 
             std::string getInputText();             // Get the text of the input textbox
 
@@ -101,7 +106,7 @@ namespace prattle
             tgui::Label::Ptr       m_searchMsg;
             tgui::Button::Ptr      m_addFriendButton;
 
-            //std::map<std::string, std::string> m_chatHistory;
+            std::map<std::string, std::string> m_chatHistory;
 
         private:
 

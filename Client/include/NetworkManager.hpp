@@ -70,6 +70,15 @@ namespace prattle
 
             sf::TcpSocket m_clientSocket;           // The socket class instance
     };
+
+    class Notifier
+    {
+        public:
+            //
+
+        private:
+            //
+    };
 }
 
 #endif // NETWORK_MANAGER_HPP

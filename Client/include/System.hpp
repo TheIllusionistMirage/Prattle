@@ -16,9 +16,9 @@
 
 namespace prattle
 {
-    const int OPEN_PORT = 19999;
+    //const int OPEN_PORT = 19999;
     //const std::string SERVER_IP_ADDRESS = "127.0.0.1";
-    //const std::string getCurrentTimeAndDate();
+    const std::string getCurrentTimeAndDate();
 
     enum class ScreenState
     {

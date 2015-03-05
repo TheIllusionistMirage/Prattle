@@ -61,14 +61,14 @@ namespace prattle
                     m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
                 }
 
-                /*if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return) && event.key.shift)
-                {
-                    m_ui.insertNewLine();
-                }*/
-                /*if (event.key.shift)
-                    std::cout << "A" << std::endl;*/
+                bool shift = false;
 
-                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
+                if ((event.type == sf::Event::KeyPressed &&
+                      event.key.code == sf::Keyboard::Return) &&
+                       event.key.shift)
+                    shift = true;
+
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return && !shift)
                 {
                     if (isLoggedIn())
                     {
@@ -103,13 +103,13 @@ namespace prattle
                                         LOG("Corrupt packet received!");
                                 }
 
-                                //m_ui.addTextToChatBox(m_username, message);
+                                m_ui.addTextToChatBox(m_username + " : " + message);
                                 m_ui.clearInputTextBox();
 
                                 //system("clear");
                                 //std::cout << m_ui.getSelectedFriendTab() << std::endl;
 
-                                m_chatHistory.find(frnd)->second = m_chatHistory.find(frnd)->second + m_username + " : " + message;// + "\n";
+                                m_ui.m_chatHistory.find(frnd)->second = m_ui.m_chatHistory.find(frnd)->second + m_username + " : " + message;// + "\n";
                             }
 
                             else
@@ -118,20 +118,15 @@ namespace prattle
                             }
                         }
                     }
+
+                    else
+                    {
+                        if (!checkIfWhitespace(m_ui.getUsernameFieldText())
+                             && !checkIfWhitespace(m_ui.getPasswordFieldText()))
+                            login();
+                    }
                 }
-
-                /*if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return) && event.key.shift)
-                {
-                    m_ui.insertNewLine();
-                }*/
             }
-
-            /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
-                    sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
-                {
-                    m_ui.insertNewLine();
-                }*/
 
             if (isLoggedIn())
             {
@@ -149,16 +144,23 @@ namespace prattle
 
                         if (packet >> source >> receiver >> sender >> message)
                         {
+                            if (m_ui.getSelectedFriendTab() == sender)
+                                m_ui.addTextToChatBox(sender + " : " + message);
                             //auto chatter = m_ui.getSelectedFriendTab();
                             //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + sender + " : " + message;// + "\n";
 
                             //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + message;
                             //std::cout << m_chatHistory.find(chatter)->second << std::endl;
-                            m_chatHistory.find(sender)->second = m_chatHistory.find(sender)->second + sender + " : " + message;// + "\n";
+                            m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;// + "\n";
+                            /*if (m_ui.getSelectedFriendTab() != sender)
+                            {
+                                m_ui.insertNotification(sender);
+                            }*/
                             //m_ui.clearChatBox();
                             //m_ui.addTextToChatBox(chatter, m_chatHistory.find(chatter)->second);
                         }
                     }
+
                     else if (protocol == ADD_FRIEND_SUCCESS)
                     {
                         if (packet >> source >> receiver >> sender)
@@ -169,11 +171,22 @@ namespace prattle
 
             //LOG(m_ui.getSelectedFriendTab());
 
-            if (m_ui.getSelectedFriendTab() != "")
+            /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+            {
+                if (!checkIfWhitespace(m_ui.getUsernameFieldText())
+                     && !checkIfWhitespace(m_ui.getPasswordFieldText()))
+                    login();
+            }*/
+
+            /*if (m_ui.getSelectedFriendTab() != "")
             {
                 m_ui.clearChatBox();
+                //std::string name = m_ui.getSelectedFriendTab();
+                //if (name.substr(0, 2) == "(*)")
+                    //m_ui.addTextToChatBox(m_chatHistory.find(name.substr(0, 2))->second);
+
                 m_ui.addTextToChatBox(m_chatHistory.find(m_ui.getSelectedFriendTab())->second);
-            }
+            }*/
             /*m_ui.clearChatBox();
             std::string s = m_ui.getSelectedFriendTab();
             std::string s2 = m_chatHistory.find(s)->second;
@@ -207,7 +220,7 @@ namespace prattle
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
             {
                 sf::Packet packet;
-                packet << LOGIN << m_username << SERVER << m_password ;
+                packet << LOGIN << m_username << SERVER << m_password;
 
                 if (m_networkManager.send(packet))
                 {
@@ -234,8 +247,7 @@ namespace prattle
 
                                 for (auto itr : m_friends)
                                 {
-                                    m_chatHistory[itr] = "";
-                                    std::cout << itr << " " ;
+                                    m_ui.m_chatHistory[itr] = "";
                                 }
 
                                 /*for (auto itr : m_friends)
