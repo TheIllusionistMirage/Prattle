@@ -11,8 +11,8 @@
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "NetworkManager.hpp"
-#include "UI.hpp"
+#include "../include/NetworkManager.hpp"
+#include "../include/UI.hpp"
 
 namespace prattle
 {
@@ -43,8 +43,10 @@ namespace prattle
             void reset();                                       // Reset the Client application to a default state.
 
             void run();                                         // Runs the Client and has the main control loop of the program.
-            
+
         private:
+
+            std::map<std::string, std::string> m_chatHistory;
 
             bool m_loginStatus;                                 // Is set to true if m_networkManager is connected to the Server.
 
@@ -64,11 +66,10 @@ namespace prattle
                                                                 // communication with the Server.
 
             UI m_ui;                                            // Instance of Class UI to handle the GUI of the Client.
-            
-            std::string m_server_ip;                            // Server ip
-            
-            int m_server_port;                                  // Server port
 
+            std::string m_server_ip;                            // Server ip
+
+            int m_server_port;                                  // Server port
     };
 }
 

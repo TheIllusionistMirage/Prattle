@@ -16,9 +16,9 @@
 
 namespace prattle
 {
-//     const int OPEN_PORT = 19999;
-//     const std::string SERVER_IP_ADDRESS = "127.0.0.1";
-    const std::string getCurrentTimeAndDate();
+    const int OPEN_PORT = 19999;
+    //const std::string SERVER_IP_ADDRESS = "127.0.0.1";
+    //const std::string getCurrentTimeAndDate();
 
     enum class ScreenState
     {
@@ -34,8 +34,8 @@ namespace prattle
         Offline
     };
 
-    //const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
-    const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/AndBasR.ttf";
+    const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
+    //const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/AndBasR.ttf";
     const std::string DEFAULT_BACKGROUND  = "resources/images/Untitled.png";
     const std::string DEFAULT_LOGO        = "resources/images/Prattle_Madly_Orange_logo_1.png";
     const std::string DEFAULT_TGUI_THEME  = "resources/widgets/Black.conf";

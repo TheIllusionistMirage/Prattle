@@ -51,7 +51,6 @@ namespace prattle
             {
                 std::string sender, receiver, msg;
                 packetCopy >> sender >> receiver >> msg;
-                LOG(protocol + sender + receiver + msg);
                 sf::Socket::Status status = m_clientSocket.send(packetCopy);
 
                 if (status == sf::Socket::Status::Done)

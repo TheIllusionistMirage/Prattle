@@ -289,6 +289,14 @@ namespace prattle
                                         {
                                             LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
                                         }
+
+                                        result.clear();
+
+                                        result << ADD_FRIEND_SUCCESS << SERVER << user << sender;
+                                        if (!send(result))
+                                        {
+                                            LOG("ERROR :: Failed to send success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+                                        }
                                     }
 
                                     else

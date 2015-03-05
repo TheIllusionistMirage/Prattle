@@ -17,9 +17,10 @@ namespace prattle
                      , m_onlineStatus{Status::Offline}
                      , m_networkManager{}
                      , m_ui{}
-                     , m_server_ip(s_ip)
-                     , m_server_port(s_port)
     {
+        m_server_ip = s_ip;
+        m_server_port = s_port;
+
         m_networkManager.reset();
         m_ui.reset();
 
@@ -60,6 +61,13 @@ namespace prattle
                     m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
                 }
 
+                /*if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return) && event.key.shift)
+                {
+                    m_ui.insertNewLine();
+                }*/
+                /*if (event.key.shift)
+                    std::cout << "A" << std::endl;*/
+
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return)
                 {
                     if (isLoggedIn())
@@ -67,7 +75,9 @@ namespace prattle
                         if (!checkIfWhitespace(m_ui.getInputText()))
                         {
                             std::string message = m_ui.getInputText();
-                            sf::Packet packet;std::string frnd = m_ui.getFriendTabPtr()->getSelected();
+                            sf::Packet packet;
+                            //std::string frnd = m_ui.getFriendTabPtr()->getSelected();
+                            std::string frnd = m_ui.getSelectedFriendTab();
                             packet << SEND_MSG << m_username << frnd << message;
 
                             if(m_networkManager.send(packet))
@@ -93,8 +103,13 @@ namespace prattle
                                         LOG("Corrupt packet received!");
                                 }
 
-                                m_ui.addTextToChatBox(m_username, message);
+                                //m_ui.addTextToChatBox(m_username, message);
                                 m_ui.clearInputTextBox();
+
+                                //system("clear");
+                                //std::cout << m_ui.getSelectedFriendTab() << std::endl;
+
+                                m_chatHistory.find(frnd)->second = m_chatHistory.find(frnd)->second + m_username + " : " + message;// + "\n";
                             }
 
                             else
@@ -104,7 +119,19 @@ namespace prattle
                         }
                     }
                 }
+
+                /*if ((event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return) && event.key.shift)
+                {
+                    m_ui.insertNewLine();
+                }*/
             }
+
+            /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
+                    sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+                {
+                    m_ui.insertNewLine();
+                }*/
 
             if (isLoggedIn())
             {
@@ -117,11 +144,45 @@ namespace prattle
 
                     if (protocol ==  SEND_MSG)
                     {
-                        packet >> source >> receiver >> sender >> message;
-                        m_ui.addTextToChatBox(sender, message);
+                        //packet >> source >> receiver >> sender >> message;
+                        //m_ui.addTextToChatBox(sender, message);
+
+                        if (packet >> source >> receiver >> sender >> message)
+                        {
+                            //auto chatter = m_ui.getSelectedFriendTab();
+                            //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + sender + " : " + message;// + "\n";
+
+                            //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + message;
+                            //std::cout << m_chatHistory.find(chatter)->second << std::endl;
+                            m_chatHistory.find(sender)->second = m_chatHistory.find(sender)->second + sender + " : " + message;// + "\n";
+                            //m_ui.clearChatBox();
+                            //m_ui.addTextToChatBox(chatter, m_chatHistory.find(chatter)->second);
+                        }
+                    }
+                    else if (protocol == ADD_FRIEND_SUCCESS)
+                    {
+                        if (packet >> source >> receiver >> sender)
+                            m_ui.insertNewFriend(sender);
                     }
                 }
             }
+
+            //LOG(m_ui.getSelectedFriendTab());
+
+            if (m_ui.getSelectedFriendTab() != "")
+            {
+                m_ui.clearChatBox();
+                m_ui.addTextToChatBox(m_chatHistory.find(m_ui.getSelectedFriendTab())->second);
+            }
+            /*m_ui.clearChatBox();
+            std::string s = m_ui.getSelectedFriendTab();
+            std::string s2 = m_chatHistory.find(s)->second;
+            m_ui.addTextToChatBox(s, s2);*/
+            //system("clear");
+            //std::string s = m_ui.getSelectedFriendTab();
+            //std::cout << m_chatHistory.find(s)->second << std::endl;
+
+            //std::cout << m_chatHistory.find(m_ui.getSelectedFriendTab())->second << std::endl;
 
             m_ui.updateWidgets();
 
@@ -170,6 +231,18 @@ namespace prattle
                                 }
 
                                 m_friends = friends;
+
+                                for (auto itr : m_friends)
+                                {
+                                    m_chatHistory[itr] = "";
+                                    std::cout << itr << " " ;
+                                }
+
+                                /*for (auto itr : m_friends)
+                                {
+                                    std::cout << m_chatHistory.find(itr)->second << " ";
+                                }
+                                std::cout << std::endl;*/
 
                                 m_loginStatus = true;
                                 m_onlineStatus = Status::Online;

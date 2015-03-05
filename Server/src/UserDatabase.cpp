@@ -109,16 +109,26 @@ namespace prattle
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 
-        if (isUserRegistered(username))
+        if (isUserRegistered(username) && isUserRegistered(friendname))
         {
+            // Code needs some critics. Instead of adding these users to
+            // each other, this could be done from Server::receive() too.
+
             std::vector<std::string> f_temp = getRecord(username).friends;
             f_temp.push_back(friendname);
+            std::vector<std::string> u_temp = getRecord(friendname).friends;
+            u_temp.push_back(username);
 
-            Record r_temp = {getRecord(username).hashed_pwd,
+            Record r_temp1 = {getRecord(username).hashed_pwd,
                          getRecord(username).salt,
                           f_temp};
 
-            updateRecord(username, r_temp);
+            Record r_temp2 = {getRecord(friendname).hashed_pwd,
+                         getRecord(friendname).salt,
+                          u_temp};
+
+            updateRecord(username, r_temp1);
+            updateRecord(friendname, r_temp2);
             parse_file();
             return true;
         }

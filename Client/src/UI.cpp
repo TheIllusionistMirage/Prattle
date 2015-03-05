@@ -139,6 +139,7 @@ namespace prattle
         m_messageWindow->keepInParent(true);
 
         m_messageLabel = tgui::Label::create();
+        m_messageLabel->setTextColor(sf::Color::White);
         m_messageWindow->add(m_messageLabel);
 
         m_signUpButton->connect("pressed", &UI::changeScreenState, this, ScreenState::SignupScreen);
@@ -317,17 +318,17 @@ namespace prattle
 
         //std::cout << m_searchPanel->getSize().y << std::endl;
 
-        m_chatBox->setSize(tgui::bindWidth(m_window) - 80, 320);
+        m_chatBox->setSize(tgui::bindWidth(m_gui) - 80, tgui::bindHeight(m_gui) / 1.6);
         m_chatBox->setTextSize(15);
         m_chatBox->setText("");
         m_chatBox->setPosition(40, tgui::bindHeight(m_gui) / 5.2);
         m_chatBox->setReadOnly(true);
         m_chatBox->hide();
 
-        m_inputTextBox->setSize(tgui::bindWidth(m_window) - 80, 110);
+        m_inputTextBox->setSize(tgui::bindWidth(m_gui) - 80, tgui::bindHeight(m_gui) / 8);
         m_inputTextBox->setTextSize(15);
         m_inputTextBox->setText("");
-        m_inputTextBox->setPosition(40, tgui::bindHeight(m_window) / 1.35);
+        m_inputTextBox->setPosition(40, tgui::bindBottom(m_chatBox) + 10);
         m_inputTextBox->hide();
 
         m_initialMsg->setText("Welcome Prattler! Please select a prattler to chat with from the\n  Buddy list or click the 'Gobal chat' button to join open chat.");
@@ -337,6 +338,7 @@ namespace prattle
 
         // Change the screen state to the login screen
         m_screenState = ScreenState::LoginScreen;
+        //m_screenState = ScreenState::ChatScreen;
         changeScreenState(m_screenState);
     }
 
@@ -414,6 +416,14 @@ namespace prattle
 
         m_loginButton->setPosition(tgui::bindWidth(m_gui) / 7.3, tgui::bindBottom(m_passwordField) + 20);
         m_loginButton->setSize(tgui::bindWidth(m_passwordField) / 1.3, tgui::bindHeight(m_passwordField) - 10);
+
+        m_userNameLabel->setPosition(tgui::bindRight(m_gui) - m_userNameLabel->getSize().x - m_logoutButton->getSize().x - 60, m_userNameLabel->getPosition().y);
+
+        //m_chatBox->setSize();
+        /*if (now != "")
+        {
+            //if ()
+        }*/
     }
 
     void UI::setChatUsername(const std::string& username)
@@ -421,6 +431,16 @@ namespace prattle
         m_userNameLabel->setText(m_userNameLabel->getText() + username);
         m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - username.length() * 10, 40);
     }
+
+    const std::string UI::getSelectedFriendTab()
+    {
+        return m_friendChatTabs->getSelected();
+    }
+
+    /*const std::string& UI::getSelectedFriend() const
+    {
+        return m_friendChatTabs->getSelected();
+    }*/
 
     void UI::insertNewFriendTab(const std::string& friendName)
     {
@@ -444,9 +464,19 @@ namespace prattle
         m_friendList->addItem(friendName);
     }
 
-    void UI::addTextToChatBox(const std::string& user, const std::string& message)
+    void UI::addTextToChatBox(const std::string& message)
+    {
+        m_chatBox->addText(message);// + "\n");
+    }
+
+    /*void UI::addTextToChatBox(const std::string& user, const std::string& message)
     {
         m_chatBox->addText(user + " : " + message);// + "\n");
+    }*/
+
+    void UI::clearChatBox()
+    {
+        m_chatBox->setText("");
     }
 
     void UI::initFriendList(const std::vector<std::string>& friends)
@@ -467,6 +497,11 @@ namespace prattle
     std::string UI::getSearchBoxText()
     {
         return m_searchBox->getText();
+    }
+
+    void UI::insertNewLine()
+    {
+        m_inputTextBox->addText("\n");
     }
 
     std::string UI::getInputText()
