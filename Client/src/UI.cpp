@@ -73,7 +73,7 @@ namespace prattle
         m_loginPanel->add(m_usernameField);
         m_loginPanel->add(m_passwordField);
         m_loginPanel->add(m_loginButton);
-        m_loginPanel->add(m_rememberMeCheckbox);
+        //m_loginPanel->add(m_rememberMeCheckbox);  NOTE :  Uncomment this later
         m_loginPanel->add(m_registerMsg);
         m_loginPanel->add(m_signUpButton);
 
@@ -332,7 +332,7 @@ namespace prattle
         m_inputTextBox->setPosition(40, tgui::bindBottom(m_chatBox) + 10);
         m_inputTextBox->hide();
 
-        m_initialMsg->setText("Welcome Prattler! Please select a prattler to chat with from the\n  Buddy list or click the 'Gobal chat' button to join open chat.");
+        m_initialMsg->setText("Welcome Prattler! Please select a friend to chat with from the\n  Buddy list button to join a chat.");
         m_initialMsg->setTextSize(15);
         m_initialMsg->setTextColor(sf::Color::White);
         m_initialMsg->setPosition(tgui::bindWidth(m_gui) / 2 - m_initialMsg->getSize().x / 2, tgui::bindHeight(m_gui) / 2 - 20);
@@ -351,12 +351,37 @@ namespace prattle
     tgui::Tab::Ptr UI::getFriendTabPtr()
     {
         return m_friendChatTabs;
+        /*system("clear");
+        for (unsigned int i = 0; i < m_friendChatTabs->getTabsCount(); i++)
+        {
+            std::cout << (std::string)m_friendChatTabs->getText(i) << std::endl;
+        }
+        std::cout << std::endl;*/
     }
 
     void UI::reloadChat()
     {
         clearChatBox();
-        addTextToChatBox(m_chatHistory.find(m_friendChatTabs->getSelected())->second);
+
+        std::string str = m_friendChatTabs->getSelected();
+
+        if (str.substr(0, 2) == "* ")
+        {
+            str = str.substr(2, str.size() - 1);
+
+            for (unsigned int i = 0; i < m_friendChatTabs->getTabsCount(); i++)
+            {
+                if (m_friendChatTabs->getText(i) == "* " + str)
+                {
+                    m_friendChatTabs->changeText(i, str);
+
+                    if (m_window.hasFocus())
+                        m_window.setTitle(m_title);
+                }
+            }
+        }
+
+        addTextToChatBox(m_chatHistory.find(str)->second);
     }
 
     void UI::updateWidgets()
@@ -449,13 +474,45 @@ namespace prattle
         return m_friendChatTabs->getSelected();
     }*/
 
-    /*void UI::insertNotification(const std::string& username)
+    void UI::insertNotification(const std::string& username)
     {
-        m_friendChatTabs->select(0);
+        /*m_friendChatTabs->select(0);
         m_friendChatTabs->remove(username);
         m_friendChatTabs->add("(*)" + username);
-        m_friendChatTabs->select(username);
-    }*/
+        m_friendChatTabs->select(username);*/
+
+        /*tgui::Tab::Ptr temp_tab;
+        temp_tab->create();
+
+        int i = 0;
+        for (m_friendChatTabs->select(0); m_friendChatTabs->getSelected() != ""; m_friendChatTabs->select(i++))
+        {
+            if (m_friendChatTabs->getSelected() == username)
+            {
+                temp_tab->add("*" + username);
+            }
+            else
+                temp_tab->add(std::string(m_friendChatTabs->getSelected()));
+        }
+
+        m_friendChatTabs->removeAll();
+
+        for (temp_tab->select(0); temp_tab->getSelected() != ""; temp_tab->select(i++))
+        {
+            m_friendChatTabs->add(temp_tab->getSelected());
+        }*/
+
+        for (unsigned int i = 0; i < m_friendChatTabs->getTabsCount(); i++)
+        {
+            if (m_friendChatTabs->getText(i) == username)
+            {
+                m_friendChatTabs->changeText(i, "* " + username);
+
+                if (!m_window.hasFocus())
+                    m_window.setTitle("* " + m_title);
+            }
+        }
+    }
 
     void UI::insertNewFriendTab(const std::string& friendName)
     {

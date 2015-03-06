@@ -11,16 +11,28 @@
 
 namespace prattle
 {
-    Server::Server():
-        timeOut(sf::seconds(60))
+    Server::Server(): timeOut(sf::seconds(60))
+                    , m_server_port{-1}
+                    , m_configFile{SERVER_CONFIG_FILE, std::ios::in}
     {
-        auto status = m_listener.listen(OPEN_PORT);
-        LOG("sf::TcpListener object now listening to port " + std::to_string(OPEN_PORT));
+        if (m_configFile.is_open() && m_configFile.good())
+        {
+            parseConfigFile();
+        }
+
+        if (m_server_port == -1)
+        {
+            LOG("FATAL ERROR :: Server's open port unspecified! Please check \'" + SERVER_CONFIG_FILE + "\' for any erroneous values.");
+            throw std::runtime_error("FATAL ERROR :: Server's open port unspecified! Please check \'" + SERVER_CONFIG_FILE + "\' for any erroneous values.");
+        }
+
+        auto status = m_listener.listen(m_server_port);
+        LOG("sf::TcpListener object now listening to port " + std::to_string(m_server_port));
 
         if(status != sf::Socket::Done)
         {
-            LOG("FATAL ERROR : Error binding the listener at " + std::to_string(OPEN_PORT));
-            throw std::runtime_error("Fatal error : Error binding the listener at " + std::to_string(OPEN_PORT));
+            LOG("FATAL ERROR : Error binding the listener at " + std::to_string(m_server_port));
+            throw std::runtime_error("Fatal error : Error binding the listener at " + std::to_string(m_server_port));
         }
 
         m_selector.add(m_listener);
@@ -40,10 +52,46 @@ namespace prattle
         std::cout << "By team Prattle" << std::endl << std::endl;
 
         std::cout << "--- Server went up at " << getCurrentTimeAndDate() << " ---" << std::endl;
-        std::cout << "--- Listening to incoming connections at port " << OPEN_PORT << " ---" << std::endl << std::endl;
+        std::cout << "--- Listening to incoming connections at port " << m_server_port << " ---" << std::endl << std::endl;
         std::cout << "--- SERVER LOG ---" << std::endl << std::endl;
 
         LOG("Server went up at : " + getCurrentTimeAndDate());
+    }
+
+    void Server::parseConfigFile()
+    {
+        if (m_configFile.is_open() && m_configFile.good())
+        {
+            m_configFile.seekg(std::ios::beg);
+            std::string line;
+            std::getline(m_configFile, line);
+
+            for (unsigned int i = 1; !m_configFile.eof(); std::getline(m_configFile, line), i++)
+            {
+                std::string field;
+                std::string value;
+
+                if(line[0] == '#' || line.size() < 2)
+                    continue;
+
+                auto first_colon = line.find(':', 0);
+                auto second_colon = line.find(':', first_colon + 1);
+
+                if(first_colon == std::string::npos
+                   || second_colon == std::string::npos)
+                {
+                    LOG("WARNING :: Invalid configuration value at " + SERVER_CONFIG_FILE + " : " + std::to_string(i));
+                    continue;
+                }
+
+                field = line.substr(0, first_colon);
+                value = line.substr(first_colon + 1, second_colon - first_colon - 1);
+
+                if (field == "OPEN_PORT")
+                    m_server_port = std::stoi(value);
+
+            }
+        }
     }
 
     void Server::run()

@@ -20,7 +20,8 @@ namespace prattle
     {
         public:
 
-            Client(std::string s_ip = "127.0.0.1", int s_port = 19999);
+            //Client(std::string s_ip = "127.0.0.1", int s_port = 19999);
+            Client();
 
             //void insertNotification(const std::string& username);   // add a notification as '[n]' where n = no. of unread messages from user 'username'
 
@@ -45,6 +46,9 @@ namespace prattle
             void reset();                                       // Reset the Client application to a default state.
 
             void run();                                         // Runs the Client and has the main control loop of the program.
+
+        protected:
+            void parseConfigFile();
 
         private:
 
@@ -72,6 +76,8 @@ namespace prattle
             std::string m_server_ip;                            // Server ip
 
             int m_server_port;                                  // Server port
+
+            std::ifstream m_configFile;
     };
 }
 

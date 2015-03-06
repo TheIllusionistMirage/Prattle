@@ -19,7 +19,9 @@ You can view our [to-do list][1] and Prattle's status on Trello.
 =======
 * Basic registration
 * Login
-* Chatting in pairs
+* Chatting in pairs (with multiple persons)
+* Adding Buddies
+* Notifications
 
 You can view our [to-do list][2] on Trello.
 

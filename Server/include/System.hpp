@@ -18,8 +18,9 @@
 namespace prattle
 {
     /* Constants */
-    const int         OPEN_PORT         = 19999;            // The port to which the server listens for connections/communication
-    const std::string SERVER_IP_ADDRESS = "127.0.0.1";      // The IP address of the server
+    const std::string SERVER_CONFIG_FILE = "resources/server.conf";
+    //const int         OPEN_PORT         = 19999;            // The port to which the server listens for connections/communication
+    //const std::string SERVER_IP_ADDRESS = "116.203.150.19";      // The IP address of the server
                                                             // Remember to change it to your desired host's IP
     const std::string USER_LIST         = "resources/members.db";    // The user database
 

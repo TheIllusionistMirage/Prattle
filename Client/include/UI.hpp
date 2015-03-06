@@ -50,7 +50,7 @@ namespace prattle
             //const std::string& getSelectedFriend() const;
 
             //void editFriendTab(const std::string& friendName);
-            //void insertNotification(const std::string& username);
+            void insertNotification(const std::string& username);
 
             void insertNewFriendTab(const std::string& friendName);
                                                     // Insert a new chat tab
@@ -96,6 +96,7 @@ namespace prattle
             sf::RenderWindow* getRenderWindow();    // Return a pointer to the sf::RenderWindow object used for drawing
 
             // Public widgets accessible from the Client class
+            std::string      m_title;
             tgui::Button::Ptr      m_loginButton;
             tgui::Button::Ptr      m_submitButton;
             tgui::Button::Ptr      m_logoutButton;
@@ -117,7 +118,7 @@ namespace prattle
             unsigned int     m_width;
             unsigned int     m_height;
             unsigned int     m_bpp;
-            std::string      m_title;
+//            std::string      m_title;
             ScreenState m_screenState;
 
 

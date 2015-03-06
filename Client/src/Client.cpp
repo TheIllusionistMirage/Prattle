@@ -11,15 +11,27 @@
 
 namespace prattle
 {
-    Client::Client(std::string s_ip, int s_port) : m_loginStatus{false}
+    //Client::Client(std::string s_ip, int s_port) : m_loginStatus{false}
+    Client::Client() : m_server_ip{""}
+                     , m_server_port{-1}
+                     , m_loginStatus{false}
                      , m_username{""}
                      , m_password{""}
                      , m_onlineStatus{Status::Offline}
                      , m_networkManager{}
                      , m_ui{}
+                     , m_configFile{CLIENT_CONFIG_FILE, std::ios::in}
     {
-        m_server_ip = s_ip;
-        m_server_port = s_port;
+        if (m_configFile.is_open() && m_configFile.good())
+        {
+            parseConfigFile();
+        }
+
+        if (m_server_ip == "" || m_server_port == -1)
+        {
+            LOG("FATAL ERROR :: Server IP address or server's open port unspecified! Please check \'" + CLIENT_CONFIG_FILE + "\' for any erroneous values.");
+            throw std::runtime_error("FATAL ERROR :: Server IP address or server's open port unspecified! Please check \'" + CLIENT_CONFIG_FILE + "\' for any erroneous values.");
+        }
 
         m_networkManager.reset();
         m_ui.reset();
@@ -29,6 +41,45 @@ namespace prattle
         m_ui.m_logoutButton->connect("pressed", &Client::logout, this);
         m_ui.m_searchButton->connect("pressed", &Client::searchUsername, this);
         m_ui.m_addFriendButton->connect("pressed", &Client::addFriend, this);
+    }
+
+    void Client::parseConfigFile()
+    {
+        if (m_configFile.is_open() && m_configFile.good())
+        {
+            m_configFile.seekg(std::ios::beg);
+            std::string line;
+            std::getline(m_configFile, line);
+
+            for (unsigned int i = 1; !m_configFile.eof(); std::getline(m_configFile, line), i++)
+            {
+                std::string field;
+                std::string value;
+
+                if(line[0] == '#' || line.size() < 2)
+                    continue;
+
+                auto first_colon = line.find(':', 0);
+                auto second_colon = line.find(':', first_colon + 1);
+
+                if(first_colon == std::string::npos
+                   || second_colon == std::string::npos)
+                {
+                    LOG("WARNING :: Invalid configuration value at " + CLIENT_CONFIG_FILE + " : " + std::to_string(i));
+                    continue;
+                }
+
+                field = line.substr(0, first_colon);
+                value = line.substr(first_colon + 1, second_colon - first_colon - 1);
+
+                if (field == "SERVER_IP")
+                    m_server_ip = value;
+
+                else if (field == "OPEN_PORT")
+                    m_server_port = std::stoi(value);
+
+            }
+        }
     }
 
     void Client::reset()
@@ -53,13 +104,22 @@ namespace prattle
                 m_ui.getGui()->handleEvent(event);
 
                 if (event.type == sf::Event::Closed)
+                {
                     m_ui.getRenderWindow()->close();
+
+                    //if ()
+                }
 
                 if (event.type == sf::Event::Resized)
                 {
                     m_ui.getRenderWindow()->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
                     m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
                 }
+
+                /*if (event.type == sf::Event::LostFocus || event.type == sf::Event::GainedFocus)
+                {
+
+                }*/
 
                 bool shift = false;
 
@@ -78,6 +138,13 @@ namespace prattle
                             sf::Packet packet;
                             //std::string frnd = m_ui.getFriendTabPtr()->getSelected();
                             std::string frnd = m_ui.getSelectedFriendTab();
+                            //std::cout << frnd.substr(0, 1) + "|" << std::endl;
+                            //std::cout << frnd.substr(2, frnd.size()) << std::endl;
+                            if (frnd.substr(0, 2) == "* ")
+                            {
+                                //std::cout << "A" << std::endl;
+                                frnd = frnd.substr(2, frnd.size());
+                            }
                             packet << SEND_MSG << m_username << frnd << message;
 
                             if(m_networkManager.send(packet))
@@ -109,6 +176,7 @@ namespace prattle
                                 //system("clear");
                                 //std::cout << m_ui.getSelectedFriendTab() << std::endl;
 
+                                //std::cout << frnd << std::endl;
                                 m_ui.m_chatHistory.find(frnd)->second = m_ui.m_chatHistory.find(frnd)->second + m_username + " : " + message;// + "\n";
                             }
 
@@ -144,14 +212,33 @@ namespace prattle
 
                         if (packet >> source >> receiver >> sender >> message)
                         {
-                            if (m_ui.getSelectedFriendTab() == sender)
+                            //std::cout << sender << std::endl;
+                            m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;
+
+                            std::string str = m_ui.getSelectedFriendTab();
+                            //std::cout << str << std::endl;
+                            if (str.substr(0, 2) == "* ")
+                            {
+                                if (str.substr(2, str.size() - 1) == sender)
+                                {
+                                    m_ui.addTextToChatBox(sender + " : " + message);
+                                }
+                                else
+                                {
+                                    m_ui.insertNotification(sender);
+                                }
+                            }
+                            else if (str == sender)
                                 m_ui.addTextToChatBox(sender + " : " + message);
+                            else
+                                m_ui.insertNotification(sender);
+
                             //auto chatter = m_ui.getSelectedFriendTab();
                             //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + sender + " : " + message;// + "\n";
 
                             //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + message;
                             //std::cout << m_chatHistory.find(chatter)->second << std::endl;
-                            m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;// + "\n";
+                            //m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;// + "\n";
                             /*if (m_ui.getSelectedFriendTab() != sender)
                             {
                                 m_ui.insertNotification(sender);
@@ -169,6 +256,7 @@ namespace prattle
                 }
             }
 
+            //m_ui.getFriendTabPtr();
             //LOG(m_ui.getSelectedFriendTab());
 
             /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))

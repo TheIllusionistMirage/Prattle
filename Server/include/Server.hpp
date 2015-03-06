@@ -154,6 +154,9 @@ namespace prattle
 
             void shutdown();                    // Stop listening to incoming connections
 
+        protected:
+            void parseConfigFile();
+
         private:
             sf::TcpListener m_listener;         // Listens to incoming connections at port OPEN_PORT.
             sf::SocketSelector m_selector;      // Selector class for interacting with multiple sockets.
@@ -167,6 +170,10 @@ namespace prattle
             std::list<std::unique_ptr<sf::TcpSocket>> newConnections;
                                                 // List to store the clients who have established connection
                                                 // with the server but are not ready to send/receive messages yet.
+
+            int m_server_port;
+
+            std::ifstream m_configFile;
     };
 }
 
