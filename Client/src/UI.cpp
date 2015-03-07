@@ -364,6 +364,7 @@ namespace prattle
         clearChatBox();
 
         std::string str = m_friendChatTabs->getSelected();
+        std::cout << str << std::endl;
 
         if (str.substr(0, 2) == "* ")
         {
@@ -507,11 +508,10 @@ namespace prattle
             if (m_friendChatTabs->getText(i) == username)
             {
                 m_friendChatTabs->changeText(i, "* " + username);
-
-                if (!m_window.hasFocus())
-                    m_window.setTitle("* " + m_title);
             }
         }
+        if (!m_window.hasFocus())
+            m_window.setTitle("* " + m_title);
     }
 
     void UI::insertNewFriendTab(const std::string& friendName)
@@ -529,6 +529,10 @@ namespace prattle
 
         m_friendChatTabs->add(friendName);
         m_noOfTabs++;
+
+        m_friendChatTabs->select(friendName);
+        std::string s = m_friendChatTabs->getSelected();
+        std::cout << "x" + s + "x" << std::endl;
     }
 
     void UI::insertNewFriend(const std::string& friendName)

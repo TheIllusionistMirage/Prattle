@@ -19,11 +19,14 @@ namespace prattle
     {
         m_clientSocket.disconnect();
         m_clientSocket.setBlocking(true);
+        //m_clientSocket.setBlocking(false);
     }
 
     bool NetworkManager::connectToServer(const std::string serverIP, const int port)
     {
-        sf::Socket::Status status = m_clientSocket.connect(serverIP, port);
+        //std::cout << "Reaching here-1" << std::endl;
+        sf::Socket::Status status = m_clientSocket.connect(serverIP, port, sf::milliseconds(5000));
+        //std::cout << "Reaching here-2" << std::endl;
 
         if (status == sf::Socket::Done)
             return true;
