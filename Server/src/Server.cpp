@@ -14,6 +14,7 @@ namespace prattle
     Server::Server(): timeOut(sf::seconds(60))
                     , m_server_port{-1}
                     , m_configFile{SERVER_CONFIG_FILE, std::ios::in}
+                    //, m_globalChat{""}
     {
         if (m_configFile.is_open() && m_configFile.good())
         {
@@ -89,7 +90,6 @@ namespace prattle
 
                 if (field == "OPEN_PORT")
                     m_server_port = std::stoi(value);
-
             }
         }
     }
@@ -232,6 +232,21 @@ namespace prattle
 
                             if (packet >> sender >> receiver >> data)
                             {
+                                /*if (receiver == "Open Chat")
+                                {
+                                    m_globalChat += sender + " : " + data + "\n";
+
+                                    sf::Packet pckt;
+                                    pckt << SEND_MSG << SERVER << sender << SERVER << m_globalChat;
+
+                                    if (!send(pckt))
+                                    {
+                                        LOG("ERROR :: Packet from \'" + SERVER + "\' was not sent to \'" + sender + "\'.");
+                                    }
+
+                                    continue;
+                                }*/
+
                                 sf::Packet newPacket;
                                 newPacket << SEND_MSG << SERVER << receiver << sender << data;
 

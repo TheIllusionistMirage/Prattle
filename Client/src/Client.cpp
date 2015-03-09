@@ -147,6 +147,7 @@ namespace prattle
                                 //std::cout << "A" << std::endl;
                                 frnd = frnd.substr(2, frnd.size());
                             }
+
                             packet << SEND_MSG << m_username << frnd << message;
 
                             if(m_networkManager.send(packet))
@@ -179,6 +180,7 @@ namespace prattle
                                 //std::cout << m_ui.getSelectedFriendTab() << std::endl;
 
                                 //std::cout << "**" + frnd + "**" << std::endl;
+                                //if (frnd != "" && frnd != "Open Chat")
                                 if (frnd != "")
                                     m_ui.m_chatHistory.find(frnd)->second = m_ui.m_chatHistory.find(frnd)->second + m_username + " : " + message;// + "\n";
                             }
@@ -216,7 +218,8 @@ namespace prattle
                         if (packet >> source >> receiver >> sender >> message)
                         {
                             //std::cout << sender << std::endl;
-                            m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;
+                            //if (sender != SERVER)
+                                m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;
 
                             std::string str = m_ui.getSelectedFriendTab();
                             //std::string str = m_ui.getFriendTabPtr()->getSelected();
@@ -225,7 +228,10 @@ namespace prattle
                             {
                                 if (str.substr(2, str.size() - 1) == sender)
                                 {
-                                    m_ui.addTextToChatBox(sender + " : " + message);
+                                   // if (sender != SERVER)
+                                        m_ui.addTextToChatBox(sender + " : " + message);
+                                    //else
+                                        //m_ui.addTextToChatBox(message);
                                 }
                                 else
                                 {
@@ -312,23 +318,23 @@ namespace prattle
 
     bool Client::login()
     {
-        std::cout << "A" << std::endl;
+        //std::cout << "A" << std::endl;
         if (m_networkManager.connectToServer(m_server_ip, m_server_port))
         {
-            std::cout << "B" << std::endl;
+            //std::cout << "B" << std::endl;
             if (!checkIfWhitespace(m_username) && !checkIfWhitespace(m_password))
             {
-                std::cout << "C" << std::endl;
+                //std::cout << "C" << std::endl;
                 sf::Packet packet;
                 packet << LOGIN << m_username << SERVER << m_password;
 
                 if (m_networkManager.send(packet))
                 {
-                    std::cout << "D" << std::endl;
+                    //std::cout << "D" << std::endl;
                     sf::Packet replyPacket;
                     m_networkManager.receive(replyPacket);
-                    std::cout << replyPacket.getDataSize() << std::endl;
-                    std::cout << "D1" << std::endl;
+                    //std::cout << replyPacket.getDataSize() << std::endl;
+                    //std::cout << "D1" << std::endl;
 
                     std::string protocol, sender, user, frnd;
                     unsigned int friendCount;
@@ -337,7 +343,7 @@ namespace prattle
                     //std::cout << replyPacket.getDataSize() << std::endl;
                     if (replyPacket >> protocol)
                     {
-                        std::cout << "E" << std::endl;
+                        //std::cout << "E" << std::endl;
                         if (protocol == LOGIN_SUCCESS)
                         {
                             if(replyPacket >> sender >> user >> friendCount)

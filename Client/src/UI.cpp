@@ -114,6 +114,8 @@ namespace prattle
         m_inputTextBox = tgui::TextBox::create();
         m_initialMsg = tgui::Label::create();
 
+        //m_globalChatButton = tgui::Button::create(DEFAULT_TGUI_THEME);
+
         // Add these widgets to the chat panel
         m_chatPanel->add(m_background);
         m_chatPanel->add(m_userNameLabel);
@@ -126,6 +128,7 @@ namespace prattle
         m_chatPanel->add(m_chatBox);
         m_chatPanel->add(m_inputTextBox, "input_textbox");
         m_chatPanel->add(m_initialMsg);
+        //m_chatPanel->add(m_globalChatButton);
 
         m_loginPanel->hide();
         m_registerPanel->hide();
@@ -148,6 +151,7 @@ namespace prattle
         m_friendListVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_friendlistPanel);
         m_searchWindowVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_searchPanel);
         m_friendChatTabs->connect("TabChanged", &UI::reloadChat, this);
+        //m_globalChatButton->connect("pressed", &UI::insertNewFriendTab, this, "Open Chat");
 
         // Change the screen state to the login screen
         m_screenState = ScreenState::LoginScreen;
@@ -336,6 +340,11 @@ namespace prattle
         m_initialMsg->setTextSize(15);
         m_initialMsg->setTextColor(sf::Color::White);
         m_initialMsg->setPosition(tgui::bindWidth(m_gui) / 2 - m_initialMsg->getSize().x / 2, tgui::bindHeight(m_gui) / 2 - 20);
+
+        /*m_globalChatButton->setText("Open Chat");
+        m_globalChatButton->setTextSize(13);
+        m_globalChatButton->setSize(100, 30);
+        m_globalChatButton->setPosition(tgui::bindRight(m_searchButton) + 50, tgui::bindTop(m_searchButton) - 20);*/
 
         // Change the screen state to the login screen
         m_screenState = ScreenState::LoginScreen;

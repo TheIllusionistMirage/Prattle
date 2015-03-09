@@ -106,6 +106,7 @@ namespace prattle
             tgui::Button::Ptr      m_searchButton;
             tgui::Label::Ptr       m_searchMsg;
             tgui::Button::Ptr      m_addFriendButton;
+            //tgui::Button::Ptr      m_globalChatButton;
 
             std::map<std::string, std::string> m_chatHistory;
 

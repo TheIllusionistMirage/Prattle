@@ -174,6 +174,8 @@ namespace prattle
             int m_server_port;
 
             std::ifstream m_configFile;
+
+            //std::string m_globalChat;
     };
 }
 
