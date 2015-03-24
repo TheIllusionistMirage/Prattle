@@ -29,7 +29,7 @@ namespace prattle
     {
         public:
 
-            UI();                                   // The ctor initializes ALL the SFML and TGUI.
+            /*UI();                                   // The ctor initializes ALL the SFML and TGUI.
 
             void reset();                           // Reset all UI elements to a default state
 
@@ -60,8 +60,8 @@ namespace prattle
 
             void addTextToChatBox(const std::string& message);
 
-            /*void addTextToChatBox(const std::string& user,
-                                  const std::string& message);*/
+            //void addTextToChatBox(const std::string& user,
+                                  //const std::string& message);
                                                     // Add a block of chat to the chat box.
 
             void clearChatBox();
@@ -96,7 +96,64 @@ namespace prattle
             sf::RenderWindow* getRenderWindow();    // Return a pointer to the sf::RenderWindow object used for drawing
 
             // Public widgets accessible from the Client class
-            std::string      m_title;
+            tgui::Button::Ptr      m_loginButton;
+            tgui::Button::Ptr      m_submitButton;
+            tgui::Button::Ptr      m_logoutButton;
+            tgui::ChildWindow::Ptr m_messageWindow;
+            tgui::Label::Ptr       m_messageLabel;
+            tgui::ListBox::Ptr     m_searchResults;
+            tgui::Button::Ptr      m_searchButton;
+            tgui::Label::Ptr       m_searchMsg;
+            tgui::Button::Ptr      m_addFriendButton;
+            //tgui::Button::Ptr      m_globalChatButton;
+
+            std::map<std::string, std::string> m_chatHistory;*/
+
+            // Initialization & re-initialization
+            UI();
+            void reset();
+
+            // Update widgets
+            void updateWidgets();
+
+            // Load & reload chat history
+            void reloadChat();
+            void insertChatHistory(const std::string& username,
+                                   const std::string& chat);
+
+            // Set chat username
+            void setChatUsername(const std::string& username);
+
+            // Insert a notification about an unread message
+            void insertNotification(const std::string& username);
+
+            // Modify input and chat textboxes, friend list and the friend tab
+            tgui::ListBox::Ptr getFriendListPtr();
+            tgui::Tab::Ptr getFriendTabPtr();
+            void insertNewFriendTab(const std::string& friendName);
+            void addNewFriend(const std::string& friendName);
+            void initFriendList(const std::vector<std::string>& friends);
+
+            void addTextToChatBox(const std::string& message);
+            void clearInputTextBox();               // Clear the text of the input textbox
+            void clearChatBox();                    // Clear the text of the chat box
+            std::string getSearchBoxText();         // Get the text of the search field editbox
+            std::string getInputText();             // Get the text of the input textbox
+
+            std::string getUsernameFieldText();     // Get the text of the username editbox
+            std::string getPasswordFieldText();     // Get the text of the password editbox
+
+            void selectScreenState();               // Identify the screen state which needs to be used.
+            void changeScreenState(const ScreenState& screenState);
+                                                    // Change the current screenstate
+            void togglePanelVisibility(tgui::Panel::Ptr panel, bool& visibility);
+                                                    // Toggle the visibility of a tgui::Panel::Ptr
+
+            tgui::Picture::Ptr getBackground();     // Returns the background image
+            tgui::Gui* getGui();                    // Return a pointer to the tgui:Gui object used for the GUI
+            sf::RenderWindow* getRenderWindow();    // Return a pointer to the sf::RenderWindow object used for drawing
+
+            // Public widgets accessible from the Client class
             tgui::Button::Ptr      m_loginButton;
             tgui::Button::Ptr      m_submitButton;
             tgui::Button::Ptr      m_logoutButton;
@@ -119,8 +176,8 @@ namespace prattle
             unsigned int     m_width;
             unsigned int     m_height;
             unsigned int     m_bpp;
-//            std::string      m_title;
-            ScreenState m_screenState;
+            std::string      m_title;
+            ScreenState      m_screenState;
 
 
             // Widgets related members

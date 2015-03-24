@@ -55,29 +55,19 @@ namespace prattle
             //std::map<std::string, std::string> m_chatHistory;
 
             bool m_loginStatus;                                 // Is set to true if m_networkManager is connected to the Server.
-
             std::string m_username;                             // Stores the username of the Client.
-
             std::string m_password;                             // Stores the password of the Client.
-
             std::vector<std::string> m_friends;                 // Stores the usernames of the Client's friends.
                                                                 // NOTE : Currently not under use.
-
             std::vector<std::string> m_friendsOnline;           // Stores the usernames of the Client's friends currently online.
                                                                 // NOTE : Currently not under use.
-
             Status m_onlineStatus;                              // The online status of the Client.
-
             NetworkManager m_networkManager;                    // Instance of Class NetworkManager to handle
                                                                 // communication with the Server.
-
             UI m_ui;                                            // Instance of Class UI to handle the GUI of the Client.
-
             std::string m_server_ip;                            // Server ip
-
             int m_server_port;                                  // Server port
-
-            std::ifstream m_configFile;
+            std::ifstream m_configFile;                         // Stores basic server configuration
     };
 }
 

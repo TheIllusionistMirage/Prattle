@@ -93,6 +93,216 @@ namespace prattle
         m_ui.reset();
     }
 
+//    void Client::run()
+//    {
+//        while (m_ui.getRenderWindow()->isOpen())
+//        {
+//            sf::Event event;
+//
+//            while (m_ui.getRenderWindow()->pollEvent(event))
+//            {
+//                m_ui.getGui()->handleEvent(event);
+//
+//                if (event.type == sf::Event::Closed)
+//                {
+//                    m_ui.getRenderWindow()->close();
+//                }
+//
+//                if (event.type == sf::Event::Resized)
+//                {
+//                    m_ui.getRenderWindow()->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+//                    m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
+//                }
+//
+//                bool shift = false;
+//
+//                if ((event.type == sf::Event::KeyPressed &&
+//                      event.key.code == sf::Keyboard::Return) &&
+//                       event.key.shift)
+//                    shift = true;
+//
+//                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Return && !shift)
+//                {
+//                    if (isLoggedIn())
+//                    {
+//                        if (!checkIfWhitespace(m_ui.getInputText()))
+//                        {
+//                            std::string message = m_ui.getInputText();
+//                            sf::Packet packet;
+//                            std::string frnd = m_ui.getFriendTabPtr()->getSelected();
+//
+//                            //std::cout << frnd.substr(0, 1) + "|" << std::endl;
+//                            //std::cout << frnd.substr(2, frnd.size()) << std::endl;
+//                            if (frnd.substr(0, 2) == "* ")
+//                            {
+//                                //std::cout << "A" << std::endl;
+//                                frnd = frnd.substr(2, frnd.size());
+//                            }
+//
+//                            packet << SEND_MSG << m_username << frnd << message;
+//
+//                            if(m_networkManager.send(packet))
+//                            {
+//                                sf::Packet replyPacket;
+//
+//                                if (m_networkManager.receive(replyPacket))
+//                                {
+//                                    std::string protocol, sender, receiver, details;
+//
+//                                    if (replyPacket >> protocol)
+//                                    {
+//                                        if (protocol == SEND_MSG_SUCCESS)
+//                                            LOG("Msg sent");
+//                                        else if (protocol == SEND_MSG_FAILURE)
+//                                        {
+//                                            replyPacket >> sender >> receiver >> details;
+//                                            LOG("Msg not sent. Details : " + details);
+//                                        }
+//                                    }
+//
+//                                    else
+//                                        LOG("Corrupt packet received!");
+//                                }
+//
+//                                m_ui.addTextToChatBox(m_username + " : " + message);
+//                                m_ui.clearInputTextBox();
+//
+//                                //system("clear");
+//                                //std::cout << m_ui.getSelectedFriendTab() << std::endl;
+//
+//                                //std::cout << "**" + frnd + "**" << std::endl;
+//                                //if (frnd != "" && frnd != "Open Chat")
+//                                if (frnd != "")
+//                                    m_ui.m_chatHistory.find(frnd)->second = m_ui.m_chatHistory.find(frnd)->second + m_username + " : " + message;// + "\n";
+//                            }
+//
+//                            else
+//                            {
+//                                LOG("Unable to send message to server!");
+//                            }
+//                        }
+//                    }
+//
+//                    else
+//                    {
+//                        if (!checkIfWhitespace(m_ui.getUsernameFieldText())
+//                             && !checkIfWhitespace(m_ui.getPasswordFieldText()))
+//                            login();
+//                    }
+//                }
+//            }
+//
+//            if (isLoggedIn())
+//            {
+//                std::string protocol, sender, source, receiver, message;
+//                sf::Packet packet;
+//
+//                while (m_networkManager.receive(packet))
+//                {
+//                    packet >> protocol;
+//
+//                    if (protocol ==  SEND_MSG)
+//                    {
+//                        //packet >> source >> receiver >> sender >> message;
+//                        //m_ui.addTextToChatBox(sender, message);
+//
+//                        if (packet >> source >> receiver >> sender >> message)
+//                        {
+//                            //std::cout << sender << std::endl;
+//                            //if (sender != SERVER)
+//                                m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;
+//
+//                            //std::string str = m_ui.getSelectedFriendTab();
+//                            std::string str = m_ui.getFriendTabPtr()->getSelected();
+//                            std::cout << "|" + str + "|" << std::endl;
+//                            if (str.substr(0, 2) == "* ")
+//                            {
+//                                if (str.substr(2, str.size() - 1) == sender)
+//                                {
+//                                   // if (sender != SERVER)
+//                                        m_ui.addTextToChatBox(sender + " : " + message);
+//                                    //else
+//                                        //m_ui.addTextToChatBox(message);
+//                                }
+//                                else
+//                                {
+//                                    m_ui.insertNotification(sender);
+//                                }
+//                            }
+//
+//                            else if (str == sender)
+//                            {
+//                                m_ui.addTextToChatBox(sender + " : " + message);
+//                                m_ui.reloadChat();
+//                            }
+//
+//                            else
+//                                m_ui.insertNotification(sender);
+//
+//                            //auto chatter = m_ui.getSelectedFriendTab();
+//                            //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + sender + " : " + message;// + "\n";
+//
+//                            //m_chatHistory.find(chatter)->second = m_chatHistory.find(chatter)->second + message;
+//                            //std::cout << m_chatHistory.find(chatter)->second << std::endl;
+//                            //m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;// + "\n";
+//                            /*if (m_ui.getSelectedFriendTab() != sender)
+//                            {
+//                                m_ui.insertNotification(sender);
+//                            }*/
+//                            //m_ui.clearChatBox();
+//                            //m_ui.addTextToChatBox(chatter, m_chatHistory.find(chatter)->second);
+//                        }
+//                    }
+//
+//                    else if (protocol == ADD_FRIEND_SUCCESS)
+//                    {
+//                        if (packet >> source >> receiver >> sender)
+//                            //m_ui.//insertNewFriend(sender);
+//                            m_ui.addNewFriend(sender);
+//                    }
+//                }
+//            }
+//
+//            //m_ui.getFriendTabPtr();
+//            //LOG(m_ui.getSelectedFriendTab());
+//
+//            /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return))
+//            {
+//                if (!checkIfWhitespace(m_ui.getUsernameFieldText())
+//                     && !checkIfWhitespace(m_ui.getPasswordFieldText()))
+//                    login();
+//            }*/
+//
+//            /*if (m_ui.getSelectedFriendTab() != "")
+//            {
+//                m_ui.clearChatBox();
+//                //std::string name = m_ui.getSelectedFriendTab();
+//                //if (name.substr(0, 2) == "(*)")
+//                    //m_ui.addTextToChatBox(m_chatHistory.find(name.substr(0, 2))->second);
+//
+//                m_ui.addTextToChatBox(m_chatHistory.find(m_ui.getSelectedFriendTab())->second);
+//            }*/
+//            /*m_ui.clearChatBox();
+//            std::string s = m_ui.getSelectedFriendTab();
+//            std::string s2 = m_chatHistory.find(s)->second;
+//            m_ui.addTextToChatBox(s, s2);*/
+//            //system("clear");
+//            //std::string s = m_ui.getSelectedFriendTab();
+//            //std::cout << m_chatHistory.find(s)->second << std::endl;
+//
+//            //std::cout << m_chatHistory.find(m_ui.getSelectedFriendTab())->second << std::endl;
+//
+//            m_ui.updateWidgets();
+//
+//            m_username = m_ui.getUsernameFieldText();
+//            m_password = m_ui.getPasswordFieldText();
+//
+//            m_ui.getRenderWindow()->clear(sf::Color::Black);
+//            m_ui.getGui()->draw();
+//            m_ui.getRenderWindow()->display();
+//        }
+//    }
+
     void Client::run()
     {
         while (m_ui.getRenderWindow()->isOpen())
@@ -106,10 +316,6 @@ namespace prattle
                 if (event.type == sf::Event::Closed)
                 {
                     m_ui.getRenderWindow()->close();
-
-                    //m_networkManager.reset();
-
-                    //if ()
                 }
 
                 if (event.type == sf::Event::Resized)
@@ -117,11 +323,6 @@ namespace prattle
                     m_ui.getRenderWindow()->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
                     m_ui.getGui()->setView(m_ui.getRenderWindow()->getView());
                 }
-
-                /*if (event.type == sf::Event::LostFocus || event.type == sf::Event::GainedFocus)
-                {
-
-                }*/
 
                 bool shift = false;
 
@@ -138,8 +339,8 @@ namespace prattle
                         {
                             std::string message = m_ui.getInputText();
                             sf::Packet packet;
-                            //std::string frnd = m_ui.getFriendTabPtr()->getSelected();
-                            std::string frnd = m_ui.getSelectedFriendTab();
+                            std::string frnd = m_ui.getFriendTabPtr()->getSelected();
+
                             //std::cout << frnd.substr(0, 1) + "|" << std::endl;
                             //std::cout << frnd.substr(2, frnd.size()) << std::endl;
                             if (frnd.substr(0, 2) == "* ")
@@ -221,8 +422,8 @@ namespace prattle
                             //if (sender != SERVER)
                                 m_ui.m_chatHistory.find(sender)->second = m_ui.m_chatHistory.find(sender)->second + sender + " : " + message;
 
-                            std::string str = m_ui.getSelectedFriendTab();
-                            //std::string str = m_ui.getFriendTabPtr()->getSelected();
+                            //std::string str = m_ui.getSelectedFriendTab();
+                            std::string str = m_ui.getFriendTabPtr()->getSelected();
                             std::cout << "|" + str + "|" << std::endl;
                             if (str.substr(0, 2) == "* ")
                             {
@@ -266,7 +467,12 @@ namespace prattle
                     else if (protocol == ADD_FRIEND_SUCCESS)
                     {
                         if (packet >> source >> receiver >> sender)
-                            m_ui.insertNewFriend(sender);
+                            //m_ui.//insertNewFriend(sender);
+                        {
+                            m_ui.addNewFriend(sender);
+                            m_friends.push_back(sender);
+                            m_ui.m_chatHistory[sender] = "";
+                        }
                     }
                 }
             }
@@ -911,7 +1117,8 @@ namespace prattle
                     m_friends.push_back(username);
                     m_ui.m_chatHistory[username] = "";
 
-                    m_ui.insertNewFriend(username);
+                    //m_ui.insertNewFriend(username);
+                    m_ui.addNewFriend(username);
 
                     m_ui.m_messageWindow->setSize(400, 60);
                     m_ui.m_messageWindow->setTitle("Info");

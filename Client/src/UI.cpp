@@ -148,9 +148,9 @@ namespace prattle
         m_signUpButton->connect("pressed", &UI::changeScreenState, this, ScreenState::SignupScreen);
         m_backButton->connect("pressed", &UI::changeScreenState, this, ScreenState::LoginScreen);
         m_messageWindow->connect("Closed", std::bind(&tgui::ChildWindow::hide, m_messageWindow));
-        m_friendListVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_friendlistPanel);
-        m_searchWindowVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_searchPanel);
-        m_friendChatTabs->connect("TabChanged", &UI::reloadChat, this);
+        m_friendListVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_friendlistPanel, m_friendsPanelVisibility);
+        m_searchWindowVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_searchPanel, m_searchPanelVisibility);
+        m_friendChatTabs->connect("TabSelected", &UI::reloadChat, this);
         //m_globalChatButton->connect("pressed", &UI::insertNewFriendTab, this, "Open Chat");
 
         // Change the screen state to the login screen
@@ -384,6 +384,7 @@ namespace prattle
                 if (m_friendChatTabs->getText(i) == "* " + str)
                 {
                     m_friendChatTabs->changeText(i, str);
+                    m_friendList->changeItem("* " + str, str);
 
                     if (m_window.hasFocus())
                         m_window.setTitle(m_title);
@@ -474,10 +475,10 @@ namespace prattle
         m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - username.length() * 10, 40);
     }
 
-    const std::string UI::getSelectedFriendTab()
+    /*const std::string UI::getSelectedFriendTab()
     {
         return m_friendChatTabs->getSelected();
-    }
+    }*/
 
     /*const std::string& UI::getSelectedFriend() const
     {
@@ -512,15 +513,21 @@ namespace prattle
             m_friendChatTabs->add(temp_tab->getSelected());
         }*/
 
+        //sf::RenderWindow notifWindow{sf::VideoMode{200, 50, 32}, "", sf::Style::None};
+
         for (unsigned int i = 0; i < m_friendChatTabs->getTabsCount(); i++)
         {
             if (m_friendChatTabs->getText(i) == username)
             {
                 m_friendChatTabs->changeText(i, "* " + username);
+                m_friendList->changeItem(username, "* " + username);
             }
         }
+
         if (!m_window.hasFocus())
             m_window.setTitle("* " + m_title);
+        else
+            m_window.setTitle(m_title);
     }
 
     void UI::insertNewFriendTab(const std::string& friendName)
@@ -531,7 +538,8 @@ namespace prattle
             {
                 m_friendChatTabs->select(i);
 
-                if (m_friendChatTabs->getSelected() == friendName)
+                if (m_friendChatTabs->getSelected() == friendName
+                    || m_friendChatTabs->getSelected() == friendName.substr(2, friendName.size() - 1))
                     return;
             }
         }
@@ -544,7 +552,8 @@ namespace prattle
         std::cout << "x" + s + "x" << std::endl;
     }
 
-    void UI::insertNewFriend(const std::string& friendName)
+    //void UI::insertNewFriend(const std::string& friendName)
+    void UI::addNewFriend(const std::string& friendName)
     {
         m_friendList->addItem(friendName);
     }
@@ -661,9 +670,9 @@ namespace prattle
     }
 
     //void UI::togglePanelVisibility(tgui::Panel::Ptr panel, bool &visibility)
-    void UI::togglePanelVisibility(tgui::Panel::Ptr panel)
+    void UI::togglePanelVisibility(tgui::Panel::Ptr panel, bool& visibility)
     {
-        /*if (visibility)
+        if (visibility)
         {
             panel->show();
             visibility = false;
@@ -673,8 +682,8 @@ namespace prattle
         {
             panel->hide();
             visibility= true;
-        }*/
-        if (m_friendsPanelVisibility)
+        }
+        /*if (m_friendsPanelVisibility)
         {
             panel->show();
             m_friendsPanelVisibility = false;
@@ -694,7 +703,7 @@ namespace prattle
         {
             panel->hide();
             m_searchPanelVisibility = true;
-        }
+        }*/
     }
 
     tgui::Picture::Ptr UI::getBackground()
