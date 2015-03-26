@@ -3,71 +3,105 @@
     Prattle/Client/Client.hpp
     =========================
 
-    The client side application for chatting. Client contains instances of
-    Prattle/Client/NetworkManager and Prattle/Client/GUI each.
+    Base class for the client application of Prattle.
 
 */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include "../include/NetworkManager.hpp"
-#include "../include/UI.hpp"
+#include <iostream>
+#include <SFML/Network.hpp>
+#include "../include/ErrorLog.hpp"
 
 namespace prattle
 {
+    // Constants
+    const std::string CONFIG_FILE = "resources/config/client.conf";
+
+    // Protocols
+    const std::string SERVER              = "server";
+
+    const std::string LOGIN               = "login";
+    const std::string LOGIN_SUCCESS       = "login_success";
+    const std::string LOGIN_FAILURE       = "login_failure";
+
+    const std::string SIGNUP              = "signup";
+    const std::string SIGNUP_SUCCESS      = "signup_success";
+    const std::string SIGNUP_FAILURE      = "signup_failure";
+
+    const std::string SEND_MSG            = "send_msg";
+    const std::string SEND_MSG_SUCCESS    = "send_msg_success";
+    const std::string SEND_MSG_FAILURE    = "send_msg_failure";
+
+    const std::string SEARCH_USER         = "search_user";
+    const std::string SEARCH_USER_RESULTS = "search_user_results";
+
+    const std::string ADD_FRIEND          = "add_friend";
+    const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
+    const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
+
+    enum class Status               // Online status
+    {
+        Online,
+        Away,
+        Offline
+    };
+
     class Client
     {
         public:
-
-            //Client(std::string s_ip = "127.0.0.1", int s_port = 19999);
             Client();
 
-            //void insertNotification(const std::string& username);   // add a notification as '[n]' where n = no. of unread messages from user 'username'
+            void readConfigFile();
 
-            void addFriend();                                   // Add the person who's name was received after a database search.
+            virtual void run(float dt) = 0;
 
-            bool searchUsername(const std::string& username);   // Returns true if 'username' was found in the user database.
+            //const std::string& getUsername() const;
+            //const std::string& getPassword() const;
 
-            bool checkIfWhitespace(const std::string& message); // Returns true if 'message' is a whitespace string.
+            void resetSocket();             // Reset the client to a default state
 
-            bool isLoggedIn();                                  // Returns true if the Client is logged in , i.e.,
-                                                                // m_networkManager is connected to the Server.
+            bool checkIfWhitespace(const std::string& message);
 
-            std::string const& getUserName() const;             // Returns the username of the Client.
+            void setStatus(Status status);
+            Status getStatus();
 
-            void logout();                                      // Disconnect from the Server.
+            virtual bool login() = 0;             // Log in to the Prattle server
+            virtual bool signup() = 0;            // Sign up in the Prattle server
+            virtual void logout() = 0;            // Log out from the Prattle server
+            virtual bool searchUsername() = 0;    // Search for a user on the Prattle server
+            virtual bool addFriend() = 0;         // Add a friend from the Prattle server
 
-            bool login();                                       // Connect to the Server through a login process.
+            bool send(const sf::Packet& packet);    // Send a packet to the server
+            bool receive(sf::Packet& packet);  // Receive a packet from the server
+            bool isLoggedIn();
 
-            bool signup();                                      // Create an account. Before Logging in, the Client
-                                                                // needs an account.
+            void blockSocket(bool blocking);   // Set m_socket blocking/non-blocking
 
-            void reset();                                       // Reset the Client application to a default state.
-
-            void run();                                         // Runs the Client and has the main control loop of the program.
+            void disconnect();        // Disconnects to Prattle's server
+            bool connect();           // Connects to Prattle's server
 
         protected:
-            void parseConfigFile();
+
+            std::string m_username;   // Store the username of the client
+            std::string m_password;   // Store the password of the client
+            std::vector<std::string> m_friends;     // Store the names of friends
 
         private:
 
-            //std::map<std::string, std::string> m_chatHistory;
+            Status m_status;
 
-            bool m_loginStatus;                                 // Is set to true if m_networkManager is connected to the Server.
-            std::string m_username;                             // Stores the username of the Client.
-            std::string m_password;                             // Stores the password of the Client.
-            std::vector<std::string> m_friends;                 // Stores the usernames of the Client's friends.
-                                                                // NOTE : Currently not under use.
-            std::vector<std::string> m_friendsOnline;           // Stores the usernames of the Client's friends currently online.
-                                                                // NOTE : Currently not under use.
-            Status m_onlineStatus;                              // The online status of the Client.
-            NetworkManager m_networkManager;                    // Instance of Class NetworkManager to handle
-                                                                // communication with the Server.
-            UI m_ui;                                            // Instance of Class UI to handle the GUI of the Client.
-            std::string m_server_ip;                            // Server ip
-            int m_server_port;                                  // Server port
-            std::ifstream m_configFile;                         // Stores basic server configuration
+            sf::TcpSocket m_socket;   // Client socket
+
+            struct configuration      // Stores basic configuration info
+            {
+                std::string ip;
+                int port;
+            } m_clientConf;
+
+            //std::string m_ip;         // Server's IP address
+            //int m_port;               // Server's open port
     };
 }
 
