@@ -14,8 +14,10 @@ Currently, the features supported are:
 * Chatting in pairs (with multiple persons)
 * Adding Buddies
 * Notifications
+* Online Status
+* Autologin
 
-You can view our [to-do list][1] and Prattle's status on Trello.
+You can view our [to-do list][2] and Prattle's status on Trello.
 
 [1]: https://github.com/TheIllusionistMirage/Prattle/tree/debug "debug"
 [2]: https://trello.com/b/7T367Ya3/current-to-do-list "to-do list"
