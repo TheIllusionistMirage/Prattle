@@ -406,6 +406,9 @@ namespace prattle
             }
         }
 
+        if (m_window.hasFocus())
+            m_window.setTitle(m_title);
+
         auto str = selected.substr(0, selected.size() - 3);
         addTextToChatBox(m_chatHistory.find(str)->second);
     }

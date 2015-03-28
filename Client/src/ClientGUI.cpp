@@ -153,6 +153,14 @@ namespace prattle
                             getRenderWindow()->setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
                             getGui()->setView(getRenderWindow()->getView());
                         } break;
+
+                    case sf::Event::GainedFocus:
+                        {
+                            if (isLoggedIn() &&
+                                 getFriendListPtr()->getItemCount() > 0 &&
+                                  getFriendTabPtr()->getTabsCount() > 0)
+                                    reloadChat();
+                        } break;
                 }
             }
 
