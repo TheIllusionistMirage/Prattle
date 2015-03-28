@@ -85,11 +85,19 @@
                                                                                       matching database entry
                                                                                       for name found)
     V. Adding friends Protocols
-    ============================
+    ===========================
 
-    5.1 Packet sent to Server              : ADD-FRIEND username SERVER name
+    5.1 Packet sent to Server              : ADD-FRIEND username SERVER friendname
     5.2 Packet sent to Client as reply     : ADD-FRIEND-SUCCESS SERVER username
     5.3 Packet sent to Client as reply     : ADD-FRIEND-FAILURE SERVER username details
+
+    VI. Notification Protocols
+    ==========================
+
+    6.1.1 Packet sent to Client for a friend connecting        : NOTIF-LOGIN  SERVER username friendname
+    6.1.2 Packet sent to Client for a friend disconnecting     : NOTIF-LOGOUT SERVER username friendname
+    6.2.3 Packet sent to Server for currently online friends   : NOTIF-ONLINE username SERVER
+    6.2.4 Packet sent to Client as reply                       : NOTIF-ONLINE SERVER username onlineFriends
 
 */
 
@@ -126,6 +134,10 @@ namespace prattle
     const std::string ADD_FRIEND          = "add_friend";
     const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
     const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
+
+    const std::string NOTIF_LOGIN         = "notif_login";
+    const std::string NOTIF_LOGOUT        = "notif_logout";
+    const std::string NOTIF_ONLINE        = "notif_online";
 
     // Class Server which is the main component for Prattle's Server. It controls
     // the overall chat process as described in the beginning of this file.

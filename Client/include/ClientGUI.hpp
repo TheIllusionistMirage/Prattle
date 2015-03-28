@@ -25,7 +25,7 @@ namespace prattle
 
         private:
 
-
+            //bool m_autoLoginEnabled;
     };
 }
 

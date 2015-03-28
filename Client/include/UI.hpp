@@ -45,9 +45,12 @@ namespace prattle
 
             void                alert(const std::string& message);
 
+            bool                isAutoLoginChecked();
+            void                checkAutoLogin();
             void                reloadChat();
             void                setChatUsername(const std::string& username);
-            void                insertNotification(const std::string& username);
+            void                insertUnreadMessageNotif(const std::string& username);
+            //void                insertNotification(const std::string& notif);
             tgui::ListBox::Ptr  getFriendListPtr();
             tgui::Tab::Ptr      getFriendTabPtr();
             void                insertNewFriendTab(const std::string& friendName);
@@ -62,6 +65,7 @@ namespace prattle
             std::string         getUsernameFieldText();
             std::string         getPasswordFieldText();
 
+            const ScreenState&  getScreenState();
             void                setScreenState(ScreenState state);
             void                togglePanelVisibility(tgui::Panel::Ptr panel,
                                                       bool& visibility);

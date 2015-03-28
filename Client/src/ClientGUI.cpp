@@ -2,7 +2,7 @@
 
 namespace prattle
 {
-    ClientGUI::ClientGUI()
+    ClientGUI::ClientGUI() //: m_autoLoginEnabled{false}
     {
         resetSocket();
         resetGUI();
@@ -12,6 +12,26 @@ namespace prattle
         m_logoutButton->connect("pressed", &Client::logout, this);
         m_searchButton->connect("pressed", &Client::searchUsername, this);
         m_addFriendButton->connect("pressed", &Client::addFriend, this);
+
+        std::fstream localPassFile("resources/config/local", std::ios::in);
+
+        if(localPassFile.is_open() && localPassFile.good())
+        {
+            std::string user;
+            std::string pawd;
+
+            localPassFile >> user >> pawd;
+
+            m_username = user;
+            m_password = pawd;
+
+            if (m_username != "" && m_password != "")
+            {
+                //m_autoLoginEnabled = true;
+                checkAutoLogin();
+                login();
+            }
+        }
     }
 
     void ClientGUI::run(float dt)
@@ -30,6 +50,22 @@ namespace prattle
                 {
                     case sf::Event::Closed:
                         {
+                            if(isAutoLoginChecked())
+                            {
+                                std::fstream localPassFile("resources/config/local", std::ios::out);
+
+                                localPassFile.clear();
+
+                                if (!localPassFile.is_open() && !localPassFile.good())
+                                    return;
+
+                                localPassFile << m_username << "\n" << m_password;
+                                localPassFile.close();
+                            }
+
+                            else
+                                std::remove("resources/config/local");
+
                             getRenderWindow()->close();
                         }
                         break;
@@ -56,8 +92,10 @@ namespace prattle
 
                                             if (selectedTab .substr(0, 2) == "* ")
                                             {
-                                                selectedTab  = selectedTab .substr(2, selectedTab .size());
+                                                selectedTab  = selectedTab.substr(2, selectedTab.size());
                                             }
+
+                                            selectedTab  = selectedTab.substr(0, selectedTab.size() - 3);
 
                                             packet << SEND_MSG << m_username << selectedTab  << message;
 
@@ -135,27 +173,40 @@ namespace prattle
 
                             std::string selectedTab = getFriendTabPtr()->getSelected();
 
+                            //std::cout << "dd" + selectedTab.substr(0, selectedTab.size() - 3) + "dd" << std::endl;
                             if (selectedTab.substr(0, 2) == "* ")
                             {
-                                if (selectedTab.substr(2, selectedTab.size() - 1) == sender)
+                                //std::cout << "dd" + selectedTab.substr(2, selectedTab.size() - 1) + "dd" << std::endl;
+                                if (selectedTab.substr(2, selectedTab.size() - 3) == sender)
                                 {
-                                   addTextToChatBox(sender + " : " + message);
+                                    addTextToChatBox(sender + " : " + message);
+                                    insertUnreadMessageNotif(sender);
                                 }
 
                                 else
                                 {
-                                    insertNotification(sender);
+                                    insertUnreadMessageNotif(sender);
                                 }
                             }
 
-                            else if (selectedTab == sender)
+                            else if (selectedTab.substr(0, selectedTab.size() - 3) == sender)
                             {
-                                addTextToChatBox(sender + " : " + message);
-                                reloadChat();
+                                if (!getRenderWindow()->hasFocus())
+                                {
+                                    insertUnreadMessageNotif(sender);
+                                    addTextToChatBox(sender + " : " + message);
+                                    reloadChat();
+                                }
+
+                                else
+                                {
+                                    addTextToChatBox(sender + " : " + message);
+                                    reloadChat();
+                                }
                             }
 
                             else
-                                insertNotification(sender);
+                                insertUnreadMessageNotif(sender);
                         }
                     }
 
@@ -168,13 +219,76 @@ namespace prattle
                             m_chatHistory[sender] = "";
                         }
                     }
+
+                    else if (protocol == NOTIF_LOGIN)
+                    {
+                        if (packet >> source >> receiver >> sender)
+                        {
+                            getFriendListPtr()->changeItem(sender + "(x)", sender + "(o)");
+
+                            for (unsigned int i = 0; i < getFriendTabPtr()->getTabsCount(); ++i)
+                            {
+                                std::string currentTab = getFriendTabPtr()->getText(i);
+
+                                if (currentTab.substr(0, 2) == "* ")
+                                {
+                                    if (currentTab.substr(2, currentTab.size() - 3) == sender)
+                                        getFriendTabPtr()->changeText(i, "* " + sender  + "(o)");
+                                }
+
+                                else
+                                {
+                                    if (currentTab.substr(0, currentTab.size() - 3) == sender)
+                                        getFriendTabPtr()->changeText(i, sender + "(o)");
+                                }
+                            }
+                        }
+                    }
+
+                    else if (protocol == NOTIF_LOGOUT)
+                    {
+                        if (packet >> source >> receiver >> sender)
+                        {
+                            getFriendListPtr()->changeItem(sender + "(o)", sender  + "(x)");
+
+                            for (unsigned int i = 0; i < getFriendTabPtr()->getTabsCount(); ++i)
+                            {
+                                std::string currentTab = getFriendTabPtr()->getText(i);
+
+                                if (currentTab.substr(0, 2) == "* ")
+                                {
+                                    if (currentTab.substr(2, currentTab.size() - 3) == sender)
+                                        getFriendTabPtr()->changeText(i, "* " + sender  + "(x)");
+                                }
+
+                                else
+                                {
+                                    if (currentTab.substr(0, currentTab.size() - 3) == sender)
+                                        getFriendTabPtr()->changeText(i, sender + "(x)");
+                                }
+                            }
+                        }
+                    }
+
+                    else if (protocol == NOTIF_ONLINE)
+                    {
+                        std::string onlineFriend;
+
+                        if (packet >> source >> receiver >> onlineFriend)
+                        {
+                            getFriendListPtr()->changeItem(onlineFriend + "(x)", onlineFriend  + "(o)");
+                        }
+                    }
                 }
             }
 
             update();
 
-            m_username = getUsernameFieldText();
-            m_password = getPasswordFieldText();
+            if (getScreenState() == ScreenState::LoginScreen && !isAutoLoginChecked())
+            {
+                m_username = getUsernameFieldText();
+                m_password = getPasswordFieldText();
+            }
 
             getRenderWindow()->clear(sf::Color::Black);
             getGui()->draw();
@@ -233,6 +347,8 @@ namespace prattle
                                 setChatUsername(m_username);
                                 initFriendList(m_friends);
                                 setScreenState(ScreenState::ChatScreen);
+
+                                sf::Packet onlnieFriendsPacket;
 
                                 return true;
                             }

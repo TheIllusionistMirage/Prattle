@@ -104,6 +104,7 @@ namespace prattle
                 {
                     addNewClient();
                 }
+
                 else
                 {
                     receive();
@@ -160,7 +161,10 @@ namespace prattle
                        protocol == SEND_MSG_FAILURE    ||
                         protocol == SEARCH_USER_RESULTS ||
                          protocol == ADD_FRIEND_SUCCESS  ||
-                          protocol == ADD_FRIEND_FAILURE   )
+                          protocol == ADD_FRIEND_FAILURE  ||
+                           protocol == NOTIF_LOGIN         ||
+                            protocol == NOTIF_LOGOUT        ||
+                             protocol == NOTIF_ONLINE )
             {
                 std::string sender, username;
 
@@ -173,12 +177,12 @@ namespace prattle
                     {
                         // NOTE : the sender in this case is ALWAYS the server.
                         m_messages.insert(std::make_pair(username, std::make_pair(sender, packetCopy)));
-                        LOG("Msg for offline user " + username + "Stored in server");
+                        LOG("Messesge for offline user " + username + "Stored in server");
                     }
 
                     else
                     {
-                        LOG("Msg for online user " + username + "sent");
+                        LOG("Messege for online user " + username + " sent");
                         if (itr->second->send(packetCopy) != sf::Socket::Done)
                         {
                             LOG("ERROR :: Error in sending packet from " + sender + " to " + username + ".");
@@ -382,6 +386,42 @@ namespace prattle
                             }
                         }
 
+                        /*else if (protocol == NOTIF_ONLINE)
+                        {
+                            std::string sender, receiver;
+
+                            if (packet >> sender >> receiver)
+                            {
+                                Record itr_record = db.getRecord(itr->first);
+                                auto itr_friends = itr_record.friends;
+
+                                for (auto& friendName : itr_friends)
+                                {
+                                    auto friend_itr = m_clients.find(friendName);
+
+                                    if (friend_itr != m_clients.end())
+                                    {
+                                        //std::cout << friendName << " is online" << std::endl;
+                                        sf::Packet notifPacket;
+                                        notifPacket << NOTIF_ONLINE << SERVER << itr->first;
+
+                                        if(send(notifPacket))
+                                        {
+                                            LOG("Notified \'" + itr->first + "\' that \'" + friendName + "\' is online");
+                                        }
+
+                                        else
+                                            LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
+                                    }
+                                }
+                            }
+
+                            else
+                            {
+                                LOG("ERROR :: Damaged packet received by server");
+                            }
+                        }*/
+
                         else
                         {
                             LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried be executed by the server.");
@@ -396,9 +436,39 @@ namespace prattle
 
                 else if (status == sf::Socket::Disconnected)
                 {
+                    // TODO : add the code to make the client's status offline here
+
                     std::cout << " x [" + itr->first + "] left chat " << getCurrentTimeAndDate() << std::endl;
                     LOG("[" + itr->first + "] left chat on " + getCurrentTimeAndDate());
                     m_selector.remove(*itr->second);
+                    //itr = m_clients.erase(itr);
+
+                    // Send a notif to all online friends of itr->first about his status
+
+                    Record itr_record = db.getRecord(itr->first);
+                    auto itr_friends = itr_record.friends;
+
+                    for (auto& friendName : itr_friends)
+                    {
+                        auto friend_itr = m_clients.find(friendName);
+
+                        if (friend_itr != m_clients.end())
+                        {
+                            //std::cout << friendName << " is online" << std::endl;
+                            sf::Packet notifPacket;
+                            notifPacket << NOTIF_LOGOUT << SERVER << friendName << itr->first;
+
+                            if(send(notifPacket))
+                            {
+                                LOG("Notified \'" + friendName + "\' that \'" + itr->first + "\' logged out");
+                            }
+
+                            else
+                                LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
+                        }
+                    }
+
+                    //
                     itr = m_clients.erase(itr);
 
                     continue;
@@ -463,6 +533,45 @@ namespace prattle
                                         m_messages.erase(sender);
                                         m_clients.insert(std::make_pair(sender, std::move(*itr)));
                                         itr = newConnections.erase(itr);
+
+                                        //
+
+                                        Record sender_record = db.getRecord(sender);
+                                        auto sender_friends = sender_record.friends;
+                                        sf::Packet onlinePacket;
+
+                                        for (auto& friendName : sender_friends)
+                                        {
+                                            auto friend_itr = m_clients.find(friendName);
+
+                                            if (friend_itr != m_clients.end())
+                                            {
+                                                //std::cout << friendName << " is online" << std::endl;
+                                                sf::Packet notifPacket;
+                                                notifPacket << NOTIF_LOGIN << SERVER << friendName << sender;
+
+                                                if(send(notifPacket))
+                                                {
+                                                    LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
+                                                }
+
+                                                else
+                                                    LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
+
+                                                notifPacket.clear();
+                                                notifPacket << NOTIF_ONLINE << SERVER << sender << friendName;
+
+                                                if(send(notifPacket))
+                                                {
+                                                    LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
+                                                }
+
+                                                else
+                                                    LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+                                            }
+                                        }
+
+                                        //
                                     }
 
                                     else

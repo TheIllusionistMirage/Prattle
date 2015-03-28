@@ -95,7 +95,9 @@ namespace prattle
                   protocol == SIGNUP      ||
                    protocol == SEND_MSG    ||
                     protocol == SEARCH_USER ||
-                     protocol == ADD_FRIEND   )
+                     protocol == ADD_FRIEND  ||
+                      protocol == NOTIF_LOGIN ||
+                       protocol == NOTIF_LOGOUT )
             {
                 std::string sender, receiver, msg;
                 packetCopy >> sender >> receiver >> msg;
@@ -401,6 +403,61 @@ namespace prattle
                     }
                 }
 
+                else if (protocol == NOTIF_LOGIN)
+                {
+                    std::string source, receiver, sender;
+
+                    if (packetCopy >> source >> receiver >> sender)
+                    {
+                        LOG("New notification about login of \'" + sender + "\' received");
+                        return true;
+                    }
+
+                    else
+                    {
+                        LOG("Error in receiving notification/packet is corrupt");
+                        return false;
+                    }
+                }
+
+                else if (protocol == NOTIF_LOGOUT)
+                {
+                    std::string source, receiver, sender;
+
+                    if (packetCopy >> source >> receiver >> sender)
+                    {
+                        LOG("New notification about logout of \'" + sender + "\' received");
+                        return true;
+                    }
+
+                    else
+                    {
+                        LOG("Error in receiving notification/packet is corrupt");
+                        return false;
+                    }
+                }
+
+                else if (protocol == NOTIF_ONLINE)
+                {
+                    std::string source, receiver, onlineFriend;
+
+                    std::cout << "o" << std::endl;
+
+                    if (packetCopy >> source >> receiver >> onlineFriend)
+                    {
+                        std::cout << "oo" << std::endl;
+                        LOG("New notification for \'" + onlineFriend + "\' received");
+                        return true;
+                    }
+
+                    else
+                    {
+                        std::cout << "ooo" << std::endl;
+                        LOG("Error in receiving notification/packet is corrupt");
+                        return false;
+                    }
+                }
+
                 else
                 {
                     LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried be executed by the client.");
@@ -416,7 +473,7 @@ namespace prattle
 
     bool Client::isLoggedIn()
     {
-        return m_status == Status::Online || m_status == Status::Away;
+        return m_status == Status::Online;// || m_status == Status::Away;
     }
 
     void Client::blockSocket(bool blocking)

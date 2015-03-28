@@ -39,6 +39,7 @@ namespace prattle
         m_loginPanel->add(m_usernameField);
         m_loginPanel->add(m_passwordField);
         m_loginPanel->add(m_loginButton);
+        m_loginPanel->add(m_rememberMeCheckbox);
         m_loginPanel->add(m_registerMsg);
         m_loginPanel->add(m_signUpButton);
 
@@ -101,6 +102,7 @@ namespace prattle
 
         m_signUpButton->connect("pressed", &UI::setScreenState, this, ScreenState::SignupScreen);
         m_backButton->connect("pressed", &UI::setScreenState, this, ScreenState::LoginScreen);
+        m_rememberMeCheckbox->connect("Checked", std::bind(&tgui::Checkbox::check, m_rememberMeCheckbox));
         m_messageWindow->connect("Closed", std::bind(&tgui::ChildWindow::hide, m_messageWindow));
         m_friendListVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_friendlistPanel, m_friendsPanelVisibility);
         m_searchWindowVisibilityButton->connect("pressed", &UI::togglePanelVisibility, this, m_searchPanel, m_searchPanelVisibility);
@@ -154,6 +156,7 @@ namespace prattle
         m_rememberMeCheckbox->setText("Remember me");
         m_rememberMeCheckbox->setSize(tgui::bindWidth(m_passwordField) / 10 - 20, tgui::bindHeight(m_passwordField) - 20);
         m_rememberMeCheckbox->setPosition(tgui::bindLeft(m_passwordField) + 50, tgui::bindBottom(m_loginButton) + 10);
+        m_rememberMeCheckbox->uncheck();
 
         m_registerMsg->setPosition(tgui::bindWidth(m_gui) / 3.4, tgui::bindHeight(m_gui) / 1.09);
         m_registerMsg->setText("Need an account? Then signup!");
@@ -370,6 +373,16 @@ namespace prattle
             m_messageWindow->show();
     }
 
+    bool UI::isAutoLoginChecked()
+    {
+        return m_rememberMeCheckbox->isChecked();
+    }
+
+    void UI::checkAutoLogin()
+    {
+        m_rememberMeCheckbox->check();
+    }
+
     void UI::reloadChat()
     {
         clearChatBox();
@@ -387,13 +400,14 @@ namespace prattle
                     m_friendChatTabs->changeText(i, selected);
                     m_friendList->changeItem("* " + selected, selected);
 
-                    if (m_window.hasFocus())
-                        m_window.setTitle(m_title);
+                    //if (m_window.hasFocus())
+                        //m_window.setTitle(m_title);
                 }
             }
         }
 
-        addTextToChatBox(m_chatHistory.find(selected)->second);
+        auto str = selected.substr(0, selected.size() - 3);
+        addTextToChatBox(m_chatHistory.find(str)->second);
     }
 
     void UI::setChatUsername(const std::string& username)
@@ -402,14 +416,16 @@ namespace prattle
         m_userNameLabel->setPosition(m_window.getSize().x - 100 - (40 + 100 + 20) - username.length() * 10, 40);
     }
 
-    void UI::insertNotification(const std::string& username)
+    void UI::insertUnreadMessageNotif(const std::string& username)
     {
         for (unsigned int i = 0; i < m_friendChatTabs->getTabsCount(); i++)
         {
-            if (m_friendChatTabs->getText(i) == username)
+            std::string userTab  = m_friendChatTabs->getText(i);
+
+            if (userTab.substr(0, userTab.size() - 3) == username)
             {
-                m_friendChatTabs->changeText(i, "* " + username);
-                m_friendList->changeItem(username, "* " + username);
+                m_friendChatTabs->changeText(i, "* " + username + userTab.substr(userTab.size() - 3, userTab.size() - 1));
+                m_friendList->changeItem(username, "* " + username + userTab.substr(userTab.size() - 3, userTab.size() - 1));
             }
         }
 
@@ -438,7 +454,7 @@ namespace prattle
                 m_friendChatTabs->select(i);
 
                 if (m_friendChatTabs->getSelected() == friendName
-                    || m_friendChatTabs->getSelected() == friendName.substr(2, friendName.size() - 1))
+                    || m_friendChatTabs->getSelected() == friendName.substr(2, friendName.size() - 4))
                     return;
             }
         }
@@ -456,7 +472,7 @@ namespace prattle
     {
         for(auto& itr : friends)
         {
-            m_friendList->addItem(itr);
+            m_friendList->addItem(itr + "(x)");
         }
 
         m_friendList->show();
@@ -495,6 +511,11 @@ namespace prattle
     std::string UI::getPasswordFieldText()
     {
         return m_passwordField->getText();
+    }
+
+    const ScreenState& UI::getScreenState()
+    {
+        return m_screenState;
     }
 
     void UI::setScreenState(ScreenState state)
