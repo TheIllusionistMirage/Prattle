@@ -352,18 +352,83 @@ namespace prattle
                                         sf::Packet result;
                                         result << ADD_FRIEND_SUCCESS << SERVER << sender;
 
-                                        if (!send(result))
+                                        if (send(result))
                                         {
-                                            LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+                                            LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
                                         }
+                                        else
+                                            LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
 
                                         result.clear();
 
-                                        result << ADD_FRIEND_SUCCESS << SERVER << user << sender;
-                                        if (!send(result))
+                                        /*result << ADD_FRIEND_SUCCESS << SERVER << user << sender;
+                                        if (send(result))
                                         {
-                                            LOG("ERROR :: Failed to send success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+                                            LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
                                         }
+
+                                        else
+                                            LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");*/
+
+                                        result.clear();
+
+                                        sf::Packet notifPacket;
+                                        auto friend_itr = m_clients.find(user);
+
+                                        if (friend_itr != m_clients.end())
+                                        {
+                                            result << ADD_FRIEND_SUCCESS << SERVER << user << sender;
+                                            if (send(result))
+                                            {
+                                                LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+                                            }
+
+                                            else
+                                                LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
+
+                                            notifPacket << NOTIF_ONLINE << SERVER << sender << user;
+
+                                            if(send(notifPacket))
+                                            {
+                                                LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
+                                            }
+
+                                            else
+                                                LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+
+                                            notifPacket.clear();
+
+                                            notifPacket << NOTIF_ONLINE << SERVER << user << sender;
+
+                                            if(send(notifPacket))
+                                            {
+                                                LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
+                                            }
+
+                                            else
+                                                LOG("ERROR :: Error in sending notification to \'" + user + "\' from the server");
+                                        }
+
+                                        /*notifPacket.clear();
+                                        notifPacket << NOTIF_ONLINE << SERVER << user << sender;
+
+                                        if(send(notifPacket))
+                                        {
+                                            LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
+                                        }
+
+                                        else
+                                            LOG("ERROR :: Error in sending notification to \'" + user + "\' from the server");*/
+
+                                        /*result << NOTIF_ONLINE << SERVER << sender << user;
+
+                                        if(send(result))
+                                        {
+                                            LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
+                                        }
+
+                                        else
+                                            LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");*/
                                     }
 
                                     else

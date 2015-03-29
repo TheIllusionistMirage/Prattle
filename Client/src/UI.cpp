@@ -410,6 +410,7 @@ namespace prattle
             m_window.setTitle(m_title);
 
         auto str = selected.substr(0, selected.size() - 3);
+        std::cout << str << std::endl;
         addTextToChatBox(m_chatHistory.find(str)->second);
     }
 
@@ -428,7 +429,8 @@ namespace prattle
             if (userTab.substr(0, userTab.size() - 3) == username)
             {
                 m_friendChatTabs->changeText(i, "* " + username + userTab.substr(userTab.size() - 3, userTab.size() - 1));
-                m_friendList->changeItem(username, "* " + username + userTab.substr(userTab.size() - 3, userTab.size() - 1));
+                //std::cout << userTab + "* " + username + userTab.substr(userTab.size() - 3, userTab.size() - 1) << std::endl;
+                m_friendList->changeItem(userTab, "* " + username + userTab.substr(userTab.size() - 3, userTab.size() - 1));
             }
         }
 
@@ -455,6 +457,7 @@ namespace prattle
             for (unsigned int i = 0; i < m_friendChatTabs->getTabsCount(); i++)
             {
                 m_friendChatTabs->select(i);
+                //std::string str = m_friendChatTabs->getSelected();
 
                 if (m_friendChatTabs->getSelected() == friendName
                     || m_friendChatTabs->getSelected() == friendName.substr(2, friendName.size() - 4))
@@ -468,6 +471,18 @@ namespace prattle
 
     void UI::addNewFriend(const std::string& friendName)
     {
+        for (unsigned int i = 0; i < m_friendList->getItemCount(); i++)
+        {
+            m_friendList->setSelectedItemByIndex(i);
+
+            std::cout << "-123-" + std::string{m_friendList->getSelectedItem()}.substr(0, std::string{m_friendList->getSelectedItem()}.size() - 3) << std::endl;
+            if (std::string{m_friendList->getSelectedItem()}.substr(0, std::string{m_friendList->getSelectedItem()}.size() - 3) == friendName)
+            {
+
+                return;
+            }
+        }
+
         m_friendList->addItem(friendName);
     }
 
@@ -475,6 +490,7 @@ namespace prattle
     {
         for(auto& itr : friends)
         {
+            //std::cout << "fff " + itr + "(x)" << std::endl;;
             m_friendList->addItem(itr + "(x)");
         }
 

@@ -158,7 +158,8 @@ namespace prattle
                         {
                             if (isLoggedIn() &&
                                  getFriendListPtr()->getItemCount() > 0 &&
-                                  getFriendTabPtr()->getTabsCount() > 0)
+                                  getFriendTabPtr()->getTabsCount() > 0 )//&&
+                                   //std::string{getFriendTabPtr()->getSelected()}.substr(0, std::string{getFriendTabPtr()->getSelected()}.size() - 3) == )
                                     reloadChat();
                         } break;
                 }
@@ -181,7 +182,19 @@ namespace prattle
 
                             std::string selectedTab = getFriendTabPtr()->getSelected();
 
-                            //std::cout << "dd" + selectedTab.substr(0, selectedTab.size() - 3) + "dd" << std::endl;
+                            for (unsigned int i = 0; i < getFriendListPtr()->getItemCount(); i++)
+                            {
+                                getFriendListPtr()->setSelectedItemByIndex(i);
+
+                                std::cout << std::string{getFriendListPtr()->getSelectedItem()}.substr(0, std::string{getFriendListPtr()->getSelectedItem()}.size() - 3) << std::endl;
+                                if (std::string{getFriendListPtr()->getSelectedItem()}.substr(0, std::string{getFriendListPtr()->getSelectedItem()}.size() - 3) == sender)
+                                {
+                                    getFriendListPtr()->changeItem(getFriendListPtr()->getSelectedItem(), "* " + getFriendListPtr()->getSelectedItem());
+                                }
+                            }
+
+                            getFriendListPtr()->deselectItem();
+
                             if (selectedTab.substr(0, 2) == "* ")
                             {
                                 //std::cout << "dd" + selectedTab.substr(2, selectedTab.size() - 1) + "dd" << std::endl;
@@ -222,7 +235,7 @@ namespace prattle
                     {
                         if (packet >> source >> receiver >> sender)
                         {
-                            addNewFriend(sender);
+                            addNewFriend(sender + "(x)");
                             m_friends.push_back(sender);
                             m_chatHistory[sender] = "";
                         }
@@ -292,7 +305,7 @@ namespace prattle
 
             update();
 
-            if (getScreenState() == ScreenState::LoginScreen && !isAutoLoginChecked())
+            if (!isAutoLoginChecked())
             {
                 m_username = getUsernameFieldText();
                 m_password = getPasswordFieldText();
@@ -633,7 +646,7 @@ namespace prattle
                     m_friends.push_back(username);
                     m_chatHistory[username] = "";
 
-                    addNewFriend(username);
+                    addNewFriend(username + "(x)");
 
                     m_messageWindow->setSize(400, 60);
                     m_messageWindow->setTitle("Info");
