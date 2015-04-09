@@ -36,13 +36,13 @@ So, intuitively, the chat process can be visualized as below:
 
 ```
 
-The entire communication process is made using a set of five rules in the protocol
+The entire communication process is made using a set of six rules in the protocol
 
 
 
 Protocol
 =========
-
+(Incomplete, rules are added/modified when a feature is implemented)
 
 
 1. Login
@@ -55,7 +55,7 @@ Protocol
     1.3 Packet sent to Client as reply | LOGIN-FAILURE SERVER username details
 
 
-2. Signup Protocols
+2. Signup
 -----------------------------
 
     Packet Type                        | Packet format
@@ -65,7 +65,7 @@ Protocol
     2.3 Packet sent to Client as reply | SIGNUP-FAILURE SERVER username details
 
 
-3. Packet exchange between two (or more) Clients Protocols
+3. Packet exchange between two (or more) Clients
 ----------------------------------------------------------
 
     Packet Type                                  | Packet format
@@ -76,7 +76,7 @@ Protocol
     3.4 Packet sent to Client(sender) as reply   | SENDMSG-FAILURE SERVER sender details
 
 
-4. Searching Database Protocols
+4. Searching Database
 --------------------------------
 
     Packet Type                                    | Packet format
@@ -85,7 +85,7 @@ Protocol
     4.2 Packet sent to Client as reply (found)     | SEARCH-USER-RESULT SERVER username name
     4.3 Packet sent to Client as reply (not found) | SEARCH-USER-RESULT SERVER username
 
-5. Adding friends Protocols
+5. Adding friends
 -----------------------------
 
     Packet Type                            | Packet format
@@ -94,13 +94,13 @@ Protocol
     5.2 Packet sent to Client as reply     | ADD-FRIEND-SUCCESS SERVER username
     5.3 Packet sent to Client as reply     | ADD-FRIEND-FAILURE SERVER username details
 
-6. Notification Protocols
+6. Notification
 -----------------------------
 
-    Packet Type                                                | Packet format
-    -----------------------------------------------------------|-----------------------------------------------
+    Packet Type                                               | Packet format
+    ----------------------------------------------------------|-----------------------------------------------
     6.1.1 Packet sent to Client for a friend connecting       | NOTIF-LOGIN  SERVER username friendname
     6.1.2 Packet sent to Client for a friend disconnecting    | NOTIF-LOGOUT SERVER username friendname
-    6.2.3 Packet sent to Server for currently online friends   | NOTIF-ONLINE username SERVER
-    6.2.4 Packet sent to Client as reply                       | NOTIF-ONLINE SERVER username onlineFriends
+    6.2.3 Packet sent to Server for currently online friends  | NOTIF-ONLINE username SERVER
+    6.2.4 Packet sent to Client as reply                      | NOTIF-ONLINE SERVER username onlineFriends
 
