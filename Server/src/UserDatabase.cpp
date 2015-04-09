@@ -15,14 +15,7 @@ namespace prattle
         dbFile(USER_LIST, std::ios::in | std::ios::out),
         records()
     {
-        if (!dbFile.good())
-        {
-            LOG("FATAL ERROR :: Unable to open the user database" + USER_LIST);
-            throw std::runtime_error("ERROR :: Unable to open the user database " + USER_LIST + " ! Exiting application.");
-        }
-
-        parse_file();
-        dbFile.close();
+        parseFile();
     }
 
     void UserDatabase::resetDatabase()
@@ -32,29 +25,22 @@ namespace prattle
         dbFile.clear();
     }
 
-    bool UserDatabase::isDatabaseOpen()
-    {
-        return dbFile.good() && dbFile.is_open();
-    }
-
     bool UserDatabase::isUserRegistered(const std::string& username)
     {
         return records.find(username) != records.end();
     }
 
-    const Record& UserDatabase::getRecord(const std::string& username)
+    const std::vector<std::string>& UserDatabase::getFriends(const std::string& username)
     {
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
         auto itr = records.find(username);
 
         if (itr == records.end())
         {
-            LOG("FATAL ERROR :: Invalid record exists in database!");
-            throw std::runtime_error("FATAL ERROR :: Invalid record exists in database!");
+            LOG("Invalid username queried at function getFriends()");
+            throw std::runtime_error("Invalid username queried at function getFriends()");
         }
 
-        dbFile.close();
-        return itr->second;
+        return itr->second.friends;
     }
 
     bool UserDatabase::isValidPassword(const std::string& username,const std::string& plain_pwd)
@@ -69,14 +55,6 @@ namespace prattle
 
     bool UserDatabase::addNewUser(const std::string &username,const std::string& plain_pwd)
     {
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
-
-        if(!isDatabaseOpen())
-        {
-            LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
-            throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
-        }
-
         if(isUserRegistered(username))
         {
             return false;
@@ -85,144 +63,100 @@ namespace prattle
         Record newRecord{"", generate_salt()};
         newRecord.hashed_pwd = pwd_hash(plain_pwd, newRecord.salt);
         records.insert({username, newRecord});
-        dbFile.seekp(0, std::ios::end);
 
+        dbFile.open(USER_LIST, std::ios::out | std::ios::ate);
         if(!(dbFile << username << ':' << newRecord.hashed_pwd << ':' << newRecord.salt << ':' << std::endl))
         {
             LOG("FATAL ERROR :: Error in writing a new recored to database " + USER_LIST + "!");
             throw std::runtime_error("Error while writing new record to " + USER_LIST);
         }
 
-        parse_file();
-        dbFile.close();
-
+        parseFile();
         return true;
     }
 
     bool UserDatabase::addNewFriend(const std::string& username, const std::string& friendname)
     {
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
-
-        if(!isDatabaseOpen())
-        {
-            LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
-            throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
-        }
-
         if (isUserRegistered(username) && isUserRegistered(friendname))
         {
-            // Code needs some critics. Instead of adding these users to
-            // each other, this could be done from Server::receive() too.
+            auto record1 = records.find(username);
+            auto record2 = records.find(friendname);
 
-            std::vector<std::string> f_temp = getRecord(username).friends;
-            f_temp.push_back(friendname);
-            std::vector<std::string> u_temp = getRecord(friendname).friends;
-            u_temp.push_back(username);
+            record1->second.friends.push_back(friendname);
+            record2->second.friends.push_back(username);
 
-            Record r_temp1 = {getRecord(username).hashed_pwd,
-                         getRecord(username).salt,
-                          f_temp};
+            updateRecordOnFile(username);
+            updateRecordOnFile(friendname);
 
-            Record r_temp2 = {getRecord(friendname).hashed_pwd,
-                         getRecord(friendname).salt,
-                          u_temp};
-
-            updateRecord(username, r_temp1);
-            updateRecord(friendname, r_temp2);
-            parse_file();
             return true;
         }
-
         else
         {
             LOG("ERROR :: " + username + " is not registered!");
-            dbFile.close();
             return false;
         }
 
-        dbFile.close();
         return false;
     }
 
-    bool UserDatabase::updateRecord(const std::string& username, const Record& record)
+    bool UserDatabase::updateRecordOnFile(const std::string& username)
     {
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
-        resetDatabase();
-
-        if(!isDatabaseOpen())
+        if(dbFile.bad())
         {
             LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
-            return false;
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 
-        std::ofstream tempDbFile("temp_db.dat");
         std::string line;
-        std::string name, hashed_pwd, salt;
-        std::vector<std::string> friends;
-        dbFile.seekg(std::ios::beg);
-        dbFile.seekp(std::ios::beg);
-        std::getline(dbFile,line);
+        dbFile.clear();
+        dbFile.seekg(0, std::ios::end);
+        std::streamsize fsize = dbFile.tellg();
+        dbFile.seekg(0, std::ios::beg);
+        std::size_t recordPostion; //the point where the updated record begins
 
-        for(unsigned int line_num = 1; !dbFile.eof(); std::getline(dbFile, line) , ++line_num)
+        for(std::getline(dbFile,line); !dbFile.eof(); std::getline(dbFile, line))
         {
             auto first_colon = line.find(':', 0);
-
             if(first_colon != std::string::npos && line.substr(0, first_colon) == username)
             {
-                tempDbFile << username << ':' << record.hashed_pwd << ':' << record.salt << ':';
-
-                if (record.friends.size() > 0)
-                {
-                    for (auto &itr : record.friends)
-                    {
-                        tempDbFile << itr << ',';
-                    }
-
-                    tempDbFile << ':' << std::endl;
-                }
+                break;
             }
-
-            else
-            {
-                tempDbFile << line << std::endl;
-            }
+            recordPostion = dbFile.tellg();
         }
 
-        tempDbFile.close();
-        dbFile.close();
-        std::remove(USER_LIST.c_str());
-        std::rename("temp_db.dat", USER_LIST.c_str());
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
-        parse_file();
-        dbFile.close();
+        std::string temp; //stores the rest of the file
+        temp.resize(fsize-recordPostion);
+        dbFile.read(&temp[0], temp.size());
 
-        return true;
-    }
-
-    bool UserDatabase::reloadAllRecords()
-    {
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
-
-        if (!dbFile.good())
+        dbFile.open(USER_LIST, std::ios::out);
+        if(dbFile.bad())
         {
-            LOG("FATAL ERROR :: Unable to open the user database" + USER_LIST);
+            LOG("ERROR writing to file.");
+            std::cerr << "ERROR writing to file\n";
             return false;
-            throw std::runtime_error("ERROR :: Unable to open the user database " + USER_LIST + " ! Exiting application.");
         }
+        dbFile.seekp(recordPostion, std::ios::beg);
+        auto& record = records[username];
+        dbFile << username << ':' << record.hashed_pwd << ':' << record.salt << ':';
+        if (record.friends.size() > 0)
+        {
+            for (auto &itr : record.friends)
+            {
+                dbFile << itr << ',';
+            }
 
-        parse_file();
-        dbFile.close();
-
+            dbFile << ':' << std::endl;
+        }
+        dbFile.write(&temp[0], temp.size());
         return true;
     }
 
-    void UserDatabase::parse_file()
+    void UserDatabase::parseFile()
     {
-        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
+        dbFile.open(USER_LIST, std::ios::in);
         resetDatabase();
 
-        if(!isDatabaseOpen())
+        if(dbFile.bad())
         {
             LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
@@ -280,7 +214,5 @@ namespace prattle
             salt = line.substr(second_colon + 1, third_colon - second_colon - 1);
             records.insert({username, Record{hashed_pwd, salt, friends}});
         }
-
-        dbFile.close();
     }
 }

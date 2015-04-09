@@ -445,8 +445,7 @@ namespace prattle
 
                     // Send a notif to all online friends of itr->first about his status
 
-                    Record itr_record = db.getRecord(itr->first);
-                    auto itr_friends = itr_record.friends;
+                    auto itr_friends = db.getFriends(itr->first);
 
                     for (auto& friendName : itr_friends)
                     {
@@ -503,9 +502,9 @@ namespace prattle
                                     if (db.isValidPassword(sender, plainPassword))
                                     {
                                         sf::Packet loginResult;
-                                        loginResult << LOGIN_SUCCESS << SERVER << sender << sf::Uint32(db.getRecord(sender).friends.size());
+                                        loginResult << LOGIN_SUCCESS << SERVER << sender << sf::Uint32(db.getFriends(sender).size());
 
-                                        for (auto& friendName : db.getRecord(sender).friends)
+                                        for (auto& friendName : db.getFriends(sender))
                                             loginResult << friendName;
 
                                         if ((*itr)->send(loginResult) != sf::Socket::Done)
@@ -536,8 +535,7 @@ namespace prattle
 
                                         //
 
-                                        Record sender_record = db.getRecord(sender);
-                                        auto sender_friends = sender_record.friends;
+                                        auto sender_friends = db.getFriends(sender);
                                         sf::Packet onlinePacket;
 
                                         for (auto& friendName : sender_friends)

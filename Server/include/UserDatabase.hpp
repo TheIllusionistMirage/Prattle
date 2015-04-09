@@ -44,16 +44,6 @@ namespace prattle
 
             UserDatabase();
 
-            void resetDatabase();                               // Reset the database by setting read
-                                                                // and write pointer at the beginning
-
-            bool isDatabaseOpen();                              // Returns true if members.db is open and
-                                                                // is okay for read/write operations.
-
-            bool isUserRegistered(const std::string& username);     // Returns true if 'username' is registered.
-
-            const Record& getRecord(const std::string& username); // Returns the database record for the user 'username'.
-
             bool isValidPassword(const std::string& username,
                                  const std::string& plain_pwd); // Returns true if the username/password
                                                                 // combination is matching an entry in the user database.
@@ -63,14 +53,18 @@ namespace prattle
             bool addNewFriend(const std::string& username,
                               const std::string& friendname);   // Add a friend's name for the person 'username'.
                                                                 // Returns if the addition was successful.
-            bool updateRecord(const std::string& username,
-                              const Record& record);            // Updates the record for the user 'username'.
+            bool isUserRegistered(const std::string& username);     // Returns true if 'username' is registered.
 
-            bool reloadAllRecords();                            // Reload all records from 'members.db'
+            const std::vector<std::string>& getFriends(const std::string& username);
 
         private:
 
-            void                          parse_file();         // Parse the file and read the records.
+            void resetDatabase();                               // Reset the database by setting read
+                                                                // and write pointer at the beginning
+
+            bool updateRecordOnFile(const std::string& username);   // Updates the record for the user 'username' on file.
+
+            void                          parseFile();         // Parse the file and read the records.
             std::fstream                  dbFile;               // The database file (i.e., members.db).
             std::map<std::string, Record> records;              // The map of records built after reading the database.
     };

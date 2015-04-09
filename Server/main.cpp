@@ -3,8 +3,6 @@
 
 int main()
 {
-    std::cout << "Server test" << std::endl;
-
     try
     {
         prattle::Server server;
