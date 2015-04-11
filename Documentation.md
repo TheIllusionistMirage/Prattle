@@ -66,54 +66,54 @@ Request types are case insensitive
 
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
-    1.1 Packet sent to Server          | LOGIN username SERVER password
-    1.2 Packet sent to Client as reply | LOGIN-SUCCESS SERVER username user-details
-    1.3 Packet sent to Client as reply | LOGIN-FAILURE SERVER username details
+    1.1 Packet sent to Server          | login <username> server <password>
+    1.2 Packet sent to Client as reply | login-success server <username> <user-details>
+    1.3 Packet sent to Client as reply | login-failure server <username> <details>
 
 
 **2. Signup**
 
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
-    2.1 Packet sent to Server          | SIGNUP username SERVER password
-    2.2 Packet sent to Client as reply | SIGNUP-SUCCESS SERVER username
-    2.3 Packet sent to Client as reply | SIGNUP-FAILURE SERVER username details
+    2.1 Packet sent to Server          | signup <username> server <password>
+    2.2 Packet sent to Client as reply | signup-success server <username>
+    2.3 Packet sent to Client as reply | signup-failure server <username> <details>
 
 
 **3. Packet exchange between two (or more) Clients**
 
     Packet Type                                  | Packet format
     ---------------------------------------------|-----------------------------------------------
-    3.1 Packet sent to Server                    | SENDMSG sender receiver data
-    3.2 Packet sent to Client(receiver) as reply | SENDMSG SERVER sender receiver data
-    3.3 Packet sent to Client(sender) as reply   | SENDMSG-SUCCESS SERVER sender
-    3.4 Packet sent to Client(sender) as reply   | SENDMSG-FAILURE SERVER sender details
+    3.1 Packet sent to Server                    | sendmsg <sender> <receiver> <data>
+    3.2 Packet sent to Client(receiver) as reply | sendmsg server <sender> <receiver> <data>
+    3.3 Packet sent to Client(sender) as reply   | sendmsg-success server <sender>
+    3.4 Packet sent to Client(sender) as reply   | sendmsg-failure server <sender> <details>
 
 
 **4. Searching Database**
 
     Packet Type                                    | Packet format
     -----------------------------------------------|-----------------------------------------------
-    4.1 Packet sent to Server                      | SEARCH-USER username SEVER name
-    4.2 Packet sent to Client as reply (found)     | SEARCH-USER-RESULT SERVER username name
-    4.3 Packet sent to Client as reply (not found) | SEARCH-USER-RESULT SERVER username
+    4.1 Packet sent to Server                      | search-user <username> SEVER <name>
+    4.2 Packet sent to Client as reply (found)     | search-user-result server <username> <name?>
+    4.3 Packet sent to Client as reply (not found) | search-user-result server <username>
 
 **5. Adding friends**
 
     Packet Type                            | Packet format
     ---------------------------------------|-----------------------------------------------
-    5.1 Packet sent to Server              | ADD-FRIEND username SERVER friendname
-    5.2 Packet sent to Client as reply     | ADD-FRIEND-SUCCESS SERVER username
-    5.3 Packet sent to Client as reply     | ADD-FRIEND-FAILURE SERVER username details
+    5.1 Packet sent to Server              | add-friend <username> server <friendname>
+    5.2 Packet sent to Client as reply     | add-friend-success server <username>
+    5.3 Packet sent to Client as reply     | add-friend-failure server <username> <details>
 
 **6. Notification**
 
     Packet Type                                               | Packet format
-    ----------------------------------------------------------|-----------------------------------------------
-    6.1.1 Packet sent to Client for a friend connecting       | NOTIF-LOGIN  SERVER username friendname
-    6.1.2 Packet sent to Client for a friend disconnecting    | NOTIF-LOGOUT SERVER username friendname
-    6.2.3 Packet sent to Server for currently online friends  | NOTIF-ONLINE username SERVER
-    6.2.4 Packet sent to Client as reply                      | NOTIF-ONLINE SERVER username onlineFriends
+    ----------------------------------------------------------|------------------------------------------------
+    6.1.1 Packet sent to Client for a friend connecting       | notif-login  server <username> <friendname>
+    6.1.2 Packet sent to Client for a friend disconnecting    | notif-LOGOUT server <username> <friendname>
+    6.2.3 Packet sent to Server for currently online friends  | notif-online <username> server
+    6.2.4 Packet sent to Client as reply                      | notif-online server <username> <online friends>
 
 Server-(Server-Controller) Protocol
 -----------------------------------
@@ -132,7 +132,7 @@ After connecting, a packet is sent to complete the procedure :
 ```
 controller_attach <passphrase>
 ``` 
-Where <passphrase> is taken from user.  
+Where \<passphrase> is taken from user.  
 
 **Commands sent to the server**
 
