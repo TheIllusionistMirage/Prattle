@@ -1,7 +1,7 @@
 Contents of this file  
-* Introduction
-* Server-Client Protocol
-* Server-(Server-Controller) Protocol
+* [Introduction](#introduction)
+* [Server-Client Protocol](#server-client-protocol)
+* [Server-(Server-Controller) Protocol](#server-server-controller-protocol)
 
 Introduction
 =============
@@ -138,7 +138,8 @@ controller_attach <passphrase>
 ``` 
 Where <passphrase> is taken from user.  
 
-**Commands sent to the server**  
+**Commands sent to the server**
+
 The request sent to the server is the same as the entered command.  
 For a successful request, the server replies with a packet  
 ```
