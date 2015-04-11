@@ -1,10 +1,12 @@
-Contents of this file  
+Contents of this file
+======================
+
 * [Introduction](#introduction)
 * [Server-Client Protocol](#server-client-protocol)
 * [Server-(Server-Controller) Protocol](#server-server-controller-protocol)
 
 Introduction
-=============
+-------------
 
 A centralized server hosts the chat, it is responsible for :  
 * Communication between clients (through packets)
@@ -50,7 +52,7 @@ The entire communication process is made using a set of six rules in the protoco
 
 
 Server-Client Protocol
-======================
+-----------------------
 
 (Incomplete, rules are added/modified when a feature is implemented)
 Basic packet format :  
@@ -60,8 +62,7 @@ Basic packet format :
 Request types are case insensitive  
 
 
-1. Login
-----------
+**1. Login**
 
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
@@ -70,8 +71,7 @@ Request types are case insensitive
     1.3 Packet sent to Client as reply | LOGIN-FAILURE SERVER username details
 
 
-2. Signup
------------------------------
+**2. Signup**
 
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
@@ -80,8 +80,7 @@ Request types are case insensitive
     2.3 Packet sent to Client as reply | SIGNUP-FAILURE SERVER username details
 
 
-3. Packet exchange between two (or more) Clients
-----------------------------------------------------------
+**3. Packet exchange between two (or more) Clients**
 
     Packet Type                                  | Packet format
     ---------------------------------------------|-----------------------------------------------
@@ -91,8 +90,7 @@ Request types are case insensitive
     3.4 Packet sent to Client(sender) as reply   | SENDMSG-FAILURE SERVER sender details
 
 
-4. Searching Database
---------------------------------
+**4. Searching Database**
 
     Packet Type                                    | Packet format
     -----------------------------------------------|-----------------------------------------------
@@ -100,8 +98,7 @@ Request types are case insensitive
     4.2 Packet sent to Client as reply (found)     | SEARCH-USER-RESULT SERVER username name
     4.3 Packet sent to Client as reply (not found) | SEARCH-USER-RESULT SERVER username
 
-5. Adding friends
------------------------------
+**5. Adding friends**
 
     Packet Type                            | Packet format
     ---------------------------------------|-----------------------------------------------
@@ -109,8 +106,7 @@ Request types are case insensitive
     5.2 Packet sent to Client as reply     | ADD-FRIEND-SUCCESS SERVER username
     5.3 Packet sent to Client as reply     | ADD-FRIEND-FAILURE SERVER username details
 
-6. Notification
------------------------------
+**6. Notification**
 
     Packet Type                                               | Packet format
     ----------------------------------------------------------|-----------------------------------------------
@@ -120,7 +116,7 @@ Request types are case insensitive
     6.2.4 Packet sent to Client as reply                      | NOTIF-ONLINE SERVER username onlineFriends
 
 Server-(Server-Controller) Protocol
-===================================
+-----------------------------------
 
 
 **Local commands for Server-Controller**  
