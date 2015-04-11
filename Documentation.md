@@ -67,8 +67,8 @@ Note : Each word seperated by a space is a different string, thus must be extrac
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
     1.1 Packet sent to Server          | login \<username> server \<password>
-    1.2 Packet sent to Client as reply | login-success server \<username> \<user-details>
-    1.3 Packet sent to Client as reply | login-failure server \<username> \<details>
+    1.2 Packet sent to Client as reply | login_success server \<username> \<user-details>
+    1.3 Packet sent to Client as reply | login_failure server \<username> \<details>
 
 
 **2. Signup**
@@ -76,8 +76,8 @@ Note : Each word seperated by a space is a different string, thus must be extrac
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
     2.1 Packet sent to Server          | signup \<username> server \<password>
-    2.2 Packet sent to Client as reply | signup-success server \<username>
-    2.3 Packet sent to Client as reply | signup-failure server \<username> \<details>
+    2.2 Packet sent to Client as reply | signup_success server \<username>
+    2.3 Packet sent to Client as reply | signup_failure server \<username> \<details>
 
 
 **3. Packet exchange between two (or more) Clients**
@@ -86,34 +86,34 @@ Note : Each word seperated by a space is a different string, thus must be extrac
     ---------------------------------------------|-----------------------------------------------
     3.1 Packet sent to Server                    | sendmsg \<sender> \<receiver> \<data>
     3.2 Packet sent to Client(receiver) as reply | sendmsg server \<sender> \<receiver> \<data>
-    3.3 Packet sent to Client(sender) as reply   | sendmsg-success server \<sender>
-    3.4 Packet sent to Client(sender) as reply   | sendmsg-failure server \<sender> \<details>
+    3.3 Packet sent to Client(sender) as reply   | sendmsg_success server \<sender>
+    3.4 Packet sent to Client(sender) as reply   | sendmsg_failure server \<sender> \<details>
 
 
 **4. Searching Database**
 
     Packet Type                                    | Packet format
     -----------------------------------------------|-----------------------------------------------
-    4.1 Packet sent to Server                      | search-user \<username> server \<name>
-    4.2 Packet sent to Client as reply (found)     | search-user-result server \<username> \<name>
-    4.3 Packet sent to Client as reply (not found) | search-user-result server \<username>
+    4.1 Packet sent to Server                      | search_user \<username> server \<name>
+    4.2 Packet sent to Client as reply (found)     | search_user_result server \<username> \<name>
+    4.3 Packet sent to Client as reply (not found) | search_user_result server \<username>
 
 **5. Adding friends**
 
     Packet Type                            | Packet format
     ---------------------------------------|-----------------------------------------------
-    5.1 Packet sent to Server              | add-friend \<username> server \<friendname>
-    5.2 Packet sent to Client as reply     | add-friend-success server \<username>
-    5.3 Packet sent to Client as reply     | add-friend-failure server \<username> \<details>
+    5.1 Packet sent to Server              | add_friend \<username> server \<friendname>
+    5.2 Packet sent to Client as reply     | add_friend-success server \<username>
+    5.3 Packet sent to Client as reply     | add_friend-failure server \<username> \<details>
 
 **6. Notification**
 
     Packet Type                                               | Packet format
     ----------------------------------------------------------|------------------------------------------------
-    6.1.1 Packet sent to Client for a friend connecting       | notif-login  server \<username> \<friendname>
-    6.1.2 Packet sent to Client for a friend disconnecting    | notif-logout server \<username> \<friendname>
-    6.2.3 Packet sent to Server for currently online friends  | notif-online \<username> server
-    6.2.4 Packet sent to Client as reply                      | notif-online server \<username> \<online friends>
+    6.1.1 Packet sent to Client for a friend connecting       | notif_login  server \<username> \<friendname>
+    6.1.2 Packet sent to Client for a friend disconnecting    | notif_logout server \<username> \<friendname>
+    6.2.3 Packet sent to Server for currently online friends  | notif_online \<username> server
+    6.2.4 Packet sent to Client as reply                      | notif_online server \<username> \<online friends>
 
 Server-(Server-Controller) Protocol
 -----------------------------------
