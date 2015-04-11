@@ -54,12 +54,12 @@ The entire communication process is made using a set of six rules in the protoco
 Server-Client Protocol
 -----------------------
 
-(Incomplete, rules are added/modified when a feature is implemented)
+(Incomplete, rules are added/modified when a feature is implemented)  
 Basic packet format :  
 ```
 <Request type> <sender> <receiver> <other details>
 ```
-Request types are case insensitive  
+Note : Each word seperated by a space is a different string, thus must be extracted individually from the packet.
 
 
 **1. Login**
@@ -111,7 +111,7 @@ Request types are case insensitive
     Packet Type                                               | Packet format
     ----------------------------------------------------------|------------------------------------------------
     6.1.1 Packet sent to Client for a friend connecting       | notif-login  server \<username> \<friendname>
-    6.1.2 Packet sent to Client for a friend disconnecting    | notif-LOGOUT server \<username> \<friendname>
+    6.1.2 Packet sent to Client for a friend disconnecting    | notif-logout server \<username> \<friendname>
     6.2.3 Packet sent to Server for currently online friends  | notif-online \<username> server
     6.2.4 Packet sent to Client as reply                      | notif-online server \<username> \<online friends>
 
@@ -139,7 +139,7 @@ Where \<passphrase> is taken from user.
 The request sent to the server is the same as the entered command.  
 For a successful request, the server replies with a packet  
 ```
-ack \<additional details or queried data>
+ack <additional details or queried data>
 ```
 
 
