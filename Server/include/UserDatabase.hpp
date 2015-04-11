@@ -57,6 +57,8 @@ namespace prattle
 
             const std::vector<std::string>& getFriends(const std::string& username);
 
+            bool removeUser(const std::string& username);
+
         private:
 
             void printAllRecords(); //For debugging purposes

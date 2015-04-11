@@ -778,6 +778,11 @@ namespace prattle
             {
                 handleCommand(packet);
             }
+            else if(status == sf::Socket::Disconnected)
+            {
+                m_selector.remove(*controller);
+                controller.reset(nullptr);
+            }
             else
             {
                 LOG("Unable to receive packet from controller.");
@@ -809,12 +814,25 @@ namespace prattle
             std::string replyStr;
             replyStr += "Uptime : " + std::to_string(m_clock.getElapsedTime().asSeconds()/60.f) + " minutes\n";
             replyStr += "Users logged : " + std::to_string(m_clients.size()) + '\n';
-            replyStr += "New Connections pending : " + std::to_string(newConnections.size()) + '\n';
+            replyStr += "New Connections pending : " + std::to_string(newConnections.size());
             reply << "ack" << replyStr;
+        }
+        else if(request == "remove_user")
+        {
+            std::string user;
+            packet >> user;
+            if(db.removeUser(user))
+            {
+                reply << "ack";
+            }
+            else
+            {
+                reply << "Removing user failed.";
+            }
         }
         else
         {
-            reply << "That command is unavailable.\n";
+            reply << "That command is unavailable.";
         }
         sendController(reply);
     }

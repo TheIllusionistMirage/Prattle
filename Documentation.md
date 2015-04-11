@@ -132,8 +132,7 @@ Server-(Server-Controller) Protocol
 | disconnect           | Disconnect from Server                                        |
 | exit                 | Disconnect (if connected) and exit                            |
 
-After connect a packet is sent to complete the procedure.  
-Packet format :  
+After connecting, a packet is sent to complete the procedure :  
 ```
 controller_attach <passphrase>
 ``` 
@@ -153,6 +152,4 @@ ack <additional details or queried data>
 | show_logged_users  | Prints the usernames of all logged users                      |
 | remove_user <name> | Removes user <name> from the DB                               |
 | print_stats        | Prints stats about the server (uptime, number of users etc.)  |
-| show_record <user> | Prints the record for <user>                                  |
-| broadcast <message>| Sends message <message> to all logged users                   |
-| set_port <port>    | Changes the port to <port> and restart the server             |
+

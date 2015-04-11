@@ -110,13 +110,48 @@ namespace prattle
         }
     }
 
+    bool UserDatabase::removeUser(const std::string& username)
+    {
+        dbFile.open(USER_LIST, std::ios::in | std::ios::out);
+        if(dbFile.bad())
+        {
+            LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
+            throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
+        }
+
+        std::stringstream temp;
+        std::string line;
+        dbFile.seekg(std::ios::beg);
+        dbFile.seekp(std::ios::beg);
+        std::getline(dbFile,line);
+
+        for(unsigned int line_num = 1; !dbFile.eof(); std::getline(dbFile, line) , ++line_num)
+        {
+            auto first_colon = line.find(':', 0);
+
+            if(first_colon != std::string::npos && line.substr(0, first_colon) == username)
+            {
+                continue;
+            }
+            else
+            {
+                temp << line << std::endl;
+            }
+        }
+
+        dbFile.close();
+        dbFile.open(USER_LIST, std::ios::out | std::ios::trunc);
+        dbFile << temp.str();
+        dbFile.close();
+        return true;
+    }
+
     bool UserDatabase::updateRecordOnFile(const std::string& username)
     {
         dbFile.open(USER_LIST, std::ios::in | std::ios::out);
         if(dbFile.bad())
         {
             LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
-            return false;
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 

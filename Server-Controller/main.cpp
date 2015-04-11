@@ -32,7 +32,6 @@ int main()
     {
         if(input.empty())
         {
-            cout << prompt+prompt_suffix;
             continue;
         }
 
@@ -66,11 +65,7 @@ Command            Description
 shutdown           Shutdown the server
 show_logged_users  Prints the usernames of all logged users
 remove_user <name> Removes user <name> from the DB
-print_stats        Prints stats about the server (uptime, number of users etc.)
-show_record <user> Prints the record for <user>
-broadcast <message>Sends message <message> to all logged users
-restart            Restarts the server
-set_port <port>    Changes the port to <port> and restart the server             )";
+print_stats        Prints stats about the server (uptime, number of users etc.))";
 
         }
         else if(command == "connect")
@@ -151,7 +146,7 @@ set_port <port>    Changes the port to <port> and restart the server            
                 if(reply_str != "ack")
                 {
                     cerr << "Operation unsuccessful. Server's reply : \n";
-                    cerr << reply_str;
+                    cerr << reply_str << endl;
                 }
                 else
                 {
@@ -171,6 +166,7 @@ set_port <port>    Changes the port to <port> and restart the server            
             }
         }
 
+//        std::cin.ignore(std::numeric_limits<std::streamsize>::max()); //Ignore anything typed between last prompt and the next
         cout << prompt+prompt_suffix;
     }
     cout << endl;
