@@ -59,8 +59,7 @@ namespace prattle
 
         private:
 
-            void resetDatabase();                               // Reset the database by setting read
-                                                                // and write pointer at the beginning
+            void printAllRecords(); //For debugging purposes
 
             bool updateRecordOnFile(const std::string& username);   // Updates the record for the user 'username' on file.
 

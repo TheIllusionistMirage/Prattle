@@ -18,7 +18,7 @@
 
 namespace prattle
 {
-    /* Protocols */
+    /* Protocol requests */
 
     const std::string SERVER              = "server";
 
@@ -57,6 +57,11 @@ namespace prattle
 
             bool isRunning();                   // Returns true if 'm_running' is true.
 
+        private:
+            void shutdown();                    // Stop listening to incoming connections
+
+            void parseConfigFile();
+
             bool wait();                        // Causes 'm_selector' to wait until one or more sockets are ready to receive.
                                                 // Returns true if a socket is ready.
 
@@ -67,30 +72,25 @@ namespace prattle
 
             bool send(const sf::Packet& packet);// sends a packet (an instance of sf::Packet) to a connected
                                                 // client (an instance of sf::TcpSocket)
-
+            bool sendController(sf::Packet& packet); // send to controller
             void receive();                     // Receive packets from all clients who are either connected or trying to connect.
-
-            void shutdown();                    // Stop listening to incoming connections
-
-        protected:
-            void parseConfigFile();
-
-        private:
+            void handleCommand(sf::Packet& packet); //Handle commands received by controller
             sf::TcpListener m_listener;         // Listens to incoming connections at port OPEN_PORT.
             sf::SocketSelector m_selector;      // Selector class for interacting with multiple sockets.
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;
                                                 // The TcpSockets that act as clients.
             bool m_running;                     // Boolean to indicate the running state of the server.
             UserDatabase db;                    // The user database object that handles or database related tasks.
-            sf::Time timeOut;                   // The timeout limit.
+            sf::Time timeOut;                   // The timeout limit for waiting on packets/connections.
             std::multimap<std::string, std::pair<std::string, sf::Packet>> m_messages;
                                                 // A map to store the messages being sent by online clients to offline clients.
             std::list<std::unique_ptr<sf::TcpSocket>> newConnections;
                                                 // List to store the clients who have established connection
                                                 // with the server but are not ready to send/receive messages yet.
-
+            std::unique_ptr<sf::TcpSocket> controller;           // Server controller, if attached
             int m_server_port;
 
+            sf::Clock m_clock; // Time since server was started
             std::ifstream m_configFile;
 
             //std::string m_globalChat;

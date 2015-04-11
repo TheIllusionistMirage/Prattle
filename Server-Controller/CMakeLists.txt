@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(prattle-server)
+project(prattle-server-controller)
  
 # Specify C++11 flag for g++
 if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -12,11 +12,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/;${CMAKE_MODULE_PATH};$
 # Add sources
 file(GLOB SOURCES
     "${PROJECT_SOURCE_DIR}/main.cpp"
-    "${PROJECT_SOURCE_DIR}/src/*.cpp"
-    "${PROJECT_SOURCE_DIR}/src/SHA256/SHA256.cpp"
 )
-
-file(COPY resources DESTINATION .)
 
 # Find SFML
 if (SFML_OS_WINDOWS AND SFML_COMPILER_MSVC)
@@ -33,6 +29,6 @@ else()
         message("-> Make sure the SFML libraries with the same configuration (Release/Debug, Static/Dynamic) exist.\n")
 endif()
  
-add_executable(prattle-server ${SOURCES})
+add_executable(prattle-server-controller ${SOURCES})
  
-target_link_libraries(prattle-server ${SFML_LIBRARIES})
+target_link_libraries(prattle-server-controller ${SFML_LIBRARIES})

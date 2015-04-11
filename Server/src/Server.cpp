@@ -13,13 +13,10 @@ namespace prattle
 {
     Server::Server(): timeOut(sf::seconds(60))
                     , m_server_port{-1}
-                    , m_configFile{SERVER_CONFIG_FILE, std::ios::in}
+                    , m_configFile{SERVER_CONFIG_FILE, std::ios_base::in}
                     //, m_globalChat{""}
     {
-        if (m_configFile.is_open() && m_configFile.good())
-        {
-            parseConfigFile();
-        }
+        parseConfigFile();
 
         if (m_server_port == -1)
         {
@@ -63,7 +60,7 @@ namespace prattle
     {
         if (m_configFile.is_open() && m_configFile.good())
         {
-            m_configFile.seekg(std::ios::beg);
+            m_configFile.seekg(std::ios_base::beg);
             std::string line;
             std::getline(m_configFile, line);
 
@@ -92,10 +89,16 @@ namespace prattle
                     m_server_port = std::stoi(value);
             }
         }
+        else
+        {
+            std::cerr << "Error reading config file" << std::endl;
+            LOG("Error reading config file");
+        }
     }
 
     void Server::run()
     {
+        m_clock.restart();
         while (isRunning())
         {
             if (wait())
@@ -148,27 +151,27 @@ namespace prattle
     {
         sf::Packet packetCopy{packet};
 
-        std::string protocol;
+        std::string request;
 
-        if (packetCopy >> protocol)
+        if (packetCopy >> request)
         {
-            if ( protocol == LOGIN_SUCCESS       ||
-                  protocol == LOGIN_FAILURE       ||
-                   protocol == SIGNUP_SUCCESS      ||
-                    protocol == SIGNUP_FAILURE      ||
-                     protocol == SEND_MSG            ||
-                      protocol == SEND_MSG_SUCCESS    ||
-                       protocol == SEND_MSG_FAILURE    ||
-                        protocol == SEARCH_USER_RESULTS ||
-                         protocol == ADD_FRIEND_SUCCESS  ||
-                          protocol == ADD_FRIEND_FAILURE  ||
-                           protocol == NOTIF_LOGIN         ||
-                            protocol == NOTIF_LOGOUT        ||
-                             protocol == NOTIF_ONLINE )
+            if ( request == LOGIN_SUCCESS       ||
+                  request == LOGIN_FAILURE       ||
+                   request == SIGNUP_SUCCESS      ||
+                    request == SIGNUP_FAILURE      ||
+                     request == SEND_MSG            ||
+                      request == SEND_MSG_SUCCESS    ||
+                       request == SEND_MSG_FAILURE    ||
+                        request == SEARCH_USER_RESULTS ||
+                         request == ADD_FRIEND_SUCCESS  ||
+                          request == ADD_FRIEND_FAILURE  ||
+                           request == NOTIF_LOGIN         ||
+                            request == NOTIF_LOGOUT        ||
+                             request == NOTIF_ONLINE )
             {
                 std::string sender, username;
-
-                if (packetCopy >> sender >> username)       // NOTE : the sender in this case is ALWAYS the server.
+                // NOTE : the sender in this case is ALWAYS the server because, well, you know the server is sending ...
+                if (packetCopy >> sender >> username)
                 {
                     auto itr = m_clients.find(username);
                     bool result = true;
@@ -177,7 +180,7 @@ namespace prattle
                     {
                         // NOTE : the sender in this case is ALWAYS the server.
                         m_messages.insert(std::make_pair(username, std::make_pair(sender, packetCopy)));
-                        LOG("Messesge for offline user " + username + "Stored in server");
+                        LOG("Messesge for offline user " + username + "stored in server");
                     }
 
                     else
@@ -202,7 +205,7 @@ namespace prattle
 
             else
             {
-                LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried to be executed by the server.");
+                LOG("ERROR :: An unknown request \'" + request + "\' is being tried to be executed by the server.");
                 return false;
             }
         }
@@ -212,6 +215,18 @@ namespace prattle
             LOG("ERROR :: A damaged packet is being tried to be sent by the server.");
             return false;
         }
+    }
+
+    bool Server::sendController(sf::Packet& packet)
+    {
+        if(!controller)
+            return false;
+        auto status = controller->send(packet);
+        if(status != sf::Socket::Done)
+        {
+            LOG("Unable to send packet to controller.");
+        }
+        return status;
     }
 
     void Server::receive()
@@ -226,11 +241,11 @@ namespace prattle
 
                 if (status == sf::Socket::Done)
                 {
-                    std::string protocol;
+                    std::string request;
 
-                    if (packet >> protocol)
+                    if (packet >> request)
                     {
-                        if (protocol == SEND_MSG)
+                        if (request == SEND_MSG)
                         {
                             std::string sender, receiver, data;
 
@@ -290,7 +305,7 @@ namespace prattle
                             }
                         }
 
-                        else if (protocol == SEARCH_USER)
+                        else if (request == SEARCH_USER)
                         {
                             std::string sender, receiver, query;
 
@@ -337,7 +352,7 @@ namespace prattle
                             }
                         }
 
-                        else if (protocol == ADD_FRIEND)
+                        else if (request == ADD_FRIEND)
                         {
                             std::string sender, receiver, user;
 
@@ -451,7 +466,7 @@ namespace prattle
                             }
                         }
 
-                        /*else if (protocol == NOTIF_ONLINE)
+                        /*else if (request == NOTIF_ONLINE)
                         {
                             std::string sender, receiver;
 
@@ -489,7 +504,7 @@ namespace prattle
 
                         else
                         {
-                            LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried be executed by the server.");
+                            LOG("ERROR :: An unknown request \'" + request + "\' is being tried be executed by the server.");
                         }
                     }
 
@@ -552,11 +567,11 @@ namespace prattle
 
                 if (status == sf::Socket::Done)
                 {
-                    std::string protocol;
+                    std::string request;
 
-                    if (packet >> protocol)
+                    if (packet >> request)
                     {
-                        if (protocol == LOGIN)
+                        if (request == LOGIN)
                         {
                             std::string sender, receiver, plainPassword;
 
@@ -634,7 +649,6 @@ namespace prattle
                                             }
                                         }
 
-                                        //
                                     }
 
                                     else
@@ -662,7 +676,7 @@ namespace prattle
                             }
                         }
 
-                        else if (protocol == SIGNUP)
+                        else if (request == SIGNUP)
                         {
                             std::string sender, receiver, plainPassword;
 
@@ -708,10 +722,38 @@ namespace prattle
                                 LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
                             }
                         }
-
+                        else if(request == "controller_attach")
+                        {
+                            sf::Packet reply;
+                            if(controller)
+                            {
+                                reply << "A controller already attached.";
+                                m_selector.remove(**itr);
+                            }
+                            else
+                            {
+                                std::string passphrase;
+                                packet >> passphrase;
+                                if(true/*passphrase == real_passphrase*/)
+                                {
+                                    reply << "ack";
+                                }
+                                else
+                                {
+                                    reply << "Invalid Passphrase !";
+                                    m_selector.remove(**itr);
+                                }
+                            }
+                            controller = std::move(*itr);
+                            itr = newConnections.erase(itr);
+                            if(!sendController(reply))
+                            {
+                                LOG("Well, this is embarrassing, sending reply to controller failed. ");
+                            }
+                        }
                         else
                         {
-                            LOG("ERROR :: An unknown protocol \'" + protocol + "\' is being tried be executed by the server.");
+                            LOG("ERROR :: An unknown request \'" + request + "\' is being tried be executed by the server.");
                         }
                     }
 
@@ -728,11 +770,58 @@ namespace prattle
                 }
             }
         }
+        if(m_selector.isReady(*controller))
+        {
+            sf::Packet packet;
+            auto status = controller->receive(packet);
+            if(status == sf::Socket::Done)
+            {
+                handleCommand(packet);
+            }
+            else
+            {
+                LOG("Unable to receive packet from controller.");
+            }
+        }
     }
-
+    void Server::handleCommand(sf::Packet& packet)
+    {
+        std::string request;
+        packet >> request;
+        sf::Packet reply;
+        packet << request;
+        if(request == "shutdown")
+        {
+            reply << "ack";
+            shutdown();
+        }
+        else if(request == "show_logged_users")
+        {
+            std::string replyStr;
+            for(auto& i : m_clients)
+            {
+                replyStr += i.first + '\n';
+            }
+            reply << "ack" << replyStr;
+        }
+        else if(request == "print_stats")
+        {
+            std::string replyStr;
+            replyStr += "Uptime : " + std::to_string(m_clock.getElapsedTime().asSeconds()/60.f) + " minutes\n";
+            replyStr += "Users logged : " + std::to_string(m_clients.size()) + '\n';
+            replyStr += "New Connections pending : " + std::to_string(newConnections.size()) + '\n';
+            reply << "ack" << replyStr;
+        }
+        else
+        {
+            reply << "That command is unavailable.\n";
+        }
+        sendController(reply);
+    }
     void Server::shutdown()
     {
         m_listener.close();
+        m_running = false;
         LOG("Server successfully shutdown at " + getCurrentTimeAndDate() + " .");
     }
 }

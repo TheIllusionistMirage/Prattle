@@ -1,3 +1,11 @@
+Contents of this file  
+* Introduction
+* Server-Client Protocol
+* Server-(Server-Controller) Protocol
+
+Introduction
+=============
+
 A centralized server hosts the chat, it is responsible for :  
 * Communication between clients (through packets)
 * Handling user login and registration
@@ -5,7 +13,8 @@ A centralized server hosts the chat, it is responsible for :
 
 The clients communicate through the server, i.e. all packets
 shared between clients are first received by the server and
-then sent to the intended receiver.
+then sent to the intended receiver.  
+The server could be controlled or given commands using the "Server-Controller" using the specific protocol.
 
 So, intuitively, the chat process can be visualized as below:
 
@@ -40,9 +49,15 @@ The entire communication process is made using a set of six rules in the protoco
 
 
 
-Protocol
-=========
+Server-Client Protocol
+======================
+
 (Incomplete, rules are added/modified when a feature is implemented)
+Basic packet format :  
+```
+<Request type> <sender> <receiver> <other details>
+```
+Request types are case insensitive  
 
 
 1. Login
@@ -104,3 +119,40 @@ Protocol
     6.2.3 Packet sent to Server for currently online friends  | NOTIF-ONLINE username SERVER
     6.2.4 Packet sent to Client as reply                      | NOTIF-ONLINE SERVER username onlineFriends
 
+Server-(Server-Controller) Protocol
+===================================
+
+
+**Local commands for Server-Controller**  
+
+| Command              | Description                                                   |
+|----------------------|---------------------------------------------------------------|
+| help                 | Print help                                                    |
+| connect <ip> <port>  | Connect to Server at IP <ip> and port <port>                  |
+| disconnect           | Disconnect from Server                                        |
+| exit                 | Disconnect (if connected) and exit                            |
+
+After connect a packet is sent to complete the procedure.  
+Packet format :  
+```
+controller_attach <passphrase>
+``` 
+Where <passphrase> is taken from user.  
+
+**Commands sent to the server**  
+The request sent to the server is the same as the entered command.  
+For a successful request, the server replies with a packet  
+```
+ack <additional details or queried data>
+```
+
+
+| Command            | Description                                                   |
+|--------------------|---------------------------------------------------------------|
+| shutdown           | Shutdown the server                                           |
+| show_logged_users  | Prints the usernames of all logged users                      |
+| remove_user <name> | Removes user <name> from the DB                               |
+| print_stats        | Prints stats about the server (uptime, number of users etc.)  |
+| show_record <user> | Prints the record for <user>                                  |
+| broadcast <message>| Sends message <message> to all logged users                   |
+| set_port <port>    | Changes the port to <port> and restart the server             |
