@@ -57,7 +57,7 @@ Server-Client Protocol
 (Incomplete, rules are added/modified when a feature is implemented)
 Basic packet format :  
 ```
-\<Request type> \<sender> \<receiver> \<other details>
+<Request type> <sender> <receiver> <other details>
 ```
 Request types are case insensitive  
 
@@ -130,9 +130,9 @@ Server-(Server-Controller) Protocol
 
 After connecting, a packet is sent to complete the procedure :  
 ```
-controller_attach \<passphrase>
+controller_attach <passphrase>
 ``` 
-Where \\<passphrase> is taken from user.  
+Where \<passphrase> is taken from user.  
 
 **Commands sent to the server**
 
