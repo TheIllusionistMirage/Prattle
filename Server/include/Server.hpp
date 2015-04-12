@@ -74,7 +74,9 @@ namespace prattle
                                                 // client (an instance of sf::TcpSocket)
             bool sendController(sf::Packet& packet); // send to controller
             void receive();                     // Receive packets from all clients who are either connected or trying to connect.
-            void handleCommand(sf::Packet& packet); //Handle commands received by controller
+            void handleNewConnection();
+            void handleClientRequest(sf::Packet& packet);
+            void receiveCommand(); //Handle commands received by controller
             sf::TcpListener m_listener;         // Listens to incoming connections at port OPEN_PORT.
             sf::SocketSelector m_selector;      // Selector class for interacting with multiple sockets.
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;
