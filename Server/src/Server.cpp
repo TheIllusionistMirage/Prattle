@@ -37,27 +37,17 @@ namespace prattle
         LOG("sf::SocketSelector object now ready to interact with multiple sf::TcpSockets");
 
         m_running = true;
-        LOG("Server now up & running");
-
-        std::cout << "=============================" << std::endl;
-        std::cout << "|      Prattle - v 0.1      |" << std::endl;
-        std::cout << "|     ( Always be near )    |" << std::endl;
-        std::cout << "=============================" << std::endl;
-        std::cout << "|                           |" << std::endl;
-        std::cout << "|          SERVER           |" << std::endl;
-        std::cout << "=============================" << std::endl << std::endl;
-
-        std::cout << "By team Prattle" << std::endl << std::endl;
-
-        std::cout << "--- Server went up at " << getCurrentTimeAndDate() << " ---" << std::endl;
-        std::cout << "--- Listening to incoming connections at port " << m_server_port << " ---" << std::endl << std::endl;
-        std::cout << "--- SERVER LOG ---" << std::endl << std::endl;
-
         LOG("Server went up at : " + getCurrentTimeAndDate());
     }
 
     void Server::parseConfigFile()
     {
+        enum data_type { INT, STRING };
+        //Maps the field name in the config file to (data type, pointer to variable) of the field
+        std::map<std::string, std::pair<data_type,void*>> fields_map;
+        fields_map.insert({"open_port", {INT, &m_server_port}});
+        fields_map.insert({"passphrase_hash", {STRING, &m_ctrlr_pass_hash}});
+
         if (m_configFile.is_open() && m_configFile.good())
         {
             m_configFile.seekg(std::ios_base::beg);
@@ -66,9 +56,6 @@ namespace prattle
 
             for (unsigned int i = 1; !m_configFile.eof(); std::getline(m_configFile, line), i++)
             {
-                std::string field;
-                std::string value;
-
                 if(line[0] == '#' || line.size() < 2)
                     continue;
 
@@ -82,11 +69,28 @@ namespace prattle
                     continue;
                 }
 
+                std::string field;
+                std::string value;
                 field = line.substr(0, first_colon);
                 value = line.substr(first_colon + 1, second_colon - first_colon - 1);
 
-                if (field == "OPEN_PORT")
-                    m_server_port = std::stoi(value);
+                auto mapping = fields_map.find(field);
+                if(mapping == fields_map.end())
+                {
+                    LOG("Warning : Unrecognized field in conifg file, ignoring.");
+                }
+                else
+                {
+                    switch(mapping->second.first)
+                    {
+                    case INT:
+                        *static_cast<int*>(mapping->second.second) = std::stoi(value);
+                        break;
+                    case STRING:
+                        *static_cast<std::string*>(mapping->second.second) = value;
+                        break;
+                    }
+                }
             }
         }
         else
@@ -143,7 +147,7 @@ namespace prattle
         {
             m_selector.add(*newClient);
             newClient->setBlocking(false);
-            newConnections.push_back(std::move(newClient));
+            m_new_connections.push_back(std::move(newClient));
         }
     }
 
@@ -219,14 +223,14 @@ namespace prattle
 
     bool Server::sendController(sf::Packet& packet)
     {
-        if(!controller)
+        if(!m_controller)
             return false;
-        auto status = controller->send(packet);
+        auto status = m_controller->send(packet);
         if(status != sf::Socket::Done)
         {
-            LOG("Unable to send packet to controller.");
+            LOG("Unable to send packet to controller. Status code : " + std::to_string(status));
         }
-        return status;
+        return status == sf::Socket::Done;
     }
 
     void Server::receive()
@@ -557,7 +561,7 @@ namespace prattle
             itr++;
         }
 
-        for(auto itr = newConnections.begin() ; itr != newConnections.end(); )//i++)
+        for(auto itr = m_new_connections.begin() ; itr != m_new_connections.end(); )//i++)
         {
             if (m_selector.isReady(**itr))
             {
@@ -592,7 +596,7 @@ namespace prattle
                                             LOG("ERROR :: Error in sending login acknowledgment to \'" + sender + "\' from the server");
 
                                             m_selector.remove(**itr);
-                                            itr = newConnections.erase(itr);
+                                            itr = m_new_connections.erase(itr);
                                             continue;
                                         }
 
@@ -611,7 +615,7 @@ namespace prattle
 
                                         m_messages.erase(sender);
                                         m_clients.insert(std::make_pair(sender, std::move(*itr)));
-                                        itr = newConnections.erase(itr);
+                                        itr = m_new_connections.erase(itr);
 
                                         //
 
@@ -695,7 +699,7 @@ namespace prattle
                                         }
 
                                         m_selector.remove(**itr);
-                                        itr = newConnections.erase(itr);
+                                        itr = m_new_connections.erase(itr);
                                     }
 
                                     else
@@ -725,31 +729,33 @@ namespace prattle
                         else if(request == "controller_attach")
                         {
                             sf::Packet reply;
-                            if(controller)
+                            if(m_controller)
                             {
-                                reply << "A controller already attached.";
+                                reply << "A controller is already attached.";
                                 m_selector.remove(**itr);
                             }
                             else
                             {
                                 std::string passphrase;
                                 packet >> passphrase;
-                                if(true/*passphrase == real_passphrase*/)
+                                if(sha256(passphrase) == m_ctrlr_pass_hash)
                                 {
                                     reply << "ack";
+                                    m_controller = std::move(*itr);
+                                    sendController(reply);
+                                    LOG("Controller attached.\n Controller IP : " + m_controller->getRemoteAddress().toString());
                                 }
                                 else
                                 {
                                     reply << "Invalid Passphrase !";
+                                    LOG("Wrong passphrase given by controller !");
+                                    m_controller = std::move(*itr);
+                                    sendController(reply);
+                                    m_controller.reset();
                                     m_selector.remove(**itr);
                                 }
                             }
-                            controller = std::move(*itr);
-                            itr = newConnections.erase(itr);
-                            if(!sendController(reply))
-                            {
-                                LOG("Well, this is embarrassing, sending reply to controller failed. ");
-                            }
+                            itr = m_new_connections.erase(itr);
                         }
                         else
                         {
@@ -766,26 +772,27 @@ namespace prattle
                 else if (status == sf::Socket::Disconnected || status == sf::Socket::Error)
                 {
                     m_selector.remove(**itr);
-                    itr = newConnections.erase(itr);
+                    itr = m_new_connections.erase(itr);
                 }
             }
         }
-        if(m_selector.isReady(*controller))
+        if(m_selector.isReady(*m_controller))
         {
             sf::Packet packet;
-            auto status = controller->receive(packet);
+            auto status = m_controller->receive(packet);
             if(status == sf::Socket::Done)
             {
                 handleCommand(packet);
             }
             else if(status == sf::Socket::Disconnected)
             {
-                m_selector.remove(*controller);
-                controller.reset(nullptr);
+                LOG("Controller detached.");
+                m_selector.remove(*m_controller);
+                m_controller.reset(nullptr);
             }
-            else
+            else if(status == sf::Socket::Error)
             {
-                LOG("Unable to receive packet from controller.");
+                LOG("Unable to receive packet from controller. Status code : " + std::to_string(status));
             }
         }
     }
@@ -814,7 +821,7 @@ namespace prattle
             std::string replyStr;
             replyStr += "Uptime : " + std::to_string(m_clock.getElapsedTime().asSeconds()/60.f) + " minutes\n";
             replyStr += "Users logged : " + std::to_string(m_clients.size()) + '\n';
-            replyStr += "New Connections pending : " + std::to_string(newConnections.size());
+            replyStr += "New Connections pending : " + std::to_string(m_new_connections.size());
             reply << "ack" << replyStr;
         }
         else if(request == "remove_user")
@@ -824,6 +831,7 @@ namespace prattle
             if(db.removeUser(user))
             {
                 reply << "ack";
+                LOG("User " + user + " removed from the database.");
             }
             else
             {

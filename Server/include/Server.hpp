@@ -84,15 +84,16 @@ namespace prattle
             sf::Time timeOut;                   // The timeout limit for waiting on packets/connections.
             std::multimap<std::string, std::pair<std::string, sf::Packet>> m_messages;
                                                 // A map to store the messages being sent by online clients to offline clients.
-            std::list<std::unique_ptr<sf::TcpSocket>> newConnections;
+            std::list<std::unique_ptr<sf::TcpSocket>> m_new_connections;
                                                 // List to store the clients who have established connection
                                                 // with the server but are not ready to send/receive messages yet.
-            std::unique_ptr<sf::TcpSocket> controller;           // Server controller, if attached
+            std::unique_ptr<sf::TcpSocket> m_controller;           // Server controller, if attached
+            std::string m_ctrlr_pass_hash;
+
             int m_server_port;
 
             sf::Clock m_clock; // Time since server was started
             std::ifstream m_configFile;
-
             //std::string m_globalChat;
     };
 }

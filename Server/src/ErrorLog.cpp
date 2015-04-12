@@ -21,14 +21,16 @@ namespace prattle
     }
 
     ErrorLog::ErrorLog() :
-        logFile(LOG_FILE, std::ios_base::out | std::ios_base::trunc),
-        lineNo(1)
+        logFile(LOG_FILE, std::ios_base::out | std::ios_base::trunc)
     {
         if (logFile.is_open())
         {
-            logFile << "---  PRATTLE v 0.1  ---" << std::endl;
-            logFile << "--- SERVER LOG FILE ---\n" << std::endl;
-            log("Logger started", __FILE__, __LINE__);
+            std::cout << "Prattle v0.1" << std::endl;
+            std::cout << "Server" << std::endl;
+            std::cout << "Logs : " << std::endl;
+            logFile << "Prattle v0.1" << std::endl;
+            logFile << "Server" << std::endl;
+            logFile << "Logs : " << std::endl;
         }
     }
 
@@ -37,14 +39,13 @@ namespace prattle
         if (stream == "file")
         {
             if (logFile.is_open())
-                logFile << lineNo++ << ".)\n File :" << file << ":\n Line :" << line << "\n --- " << output << "\n";
+                logFile << file << ":" << line << " :\n\t" << output << "\n";
         }
 
         else if (stream == "stdout")
         {
-
-            logFile << lineNo << ".)\n File :" << file << ":\n Line : " << line << "\n --- " << output << " [Also logged to STDOUT]\n";
-            std::cout << lineNo++ << ".)\n File :" << file << ":\n Line :" << line << "\n --- " << output << "\n";
+            logFile << file << ":" << line << " :\n\t" << output << "\n";
+            std::cout <<file << ":" << line << " :\n\t" << output << "\n";
         }
     }
 

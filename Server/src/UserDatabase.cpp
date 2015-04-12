@@ -213,7 +213,7 @@ namespace prattle
             std::string username, hashed_pwd, salt;
             std::vector<std::string> friends;
 
-            if(line[0] == '#') continue; //Comment
+            if(line[0] == '#' || line.empty()) continue; //Comment
             if(line.size() < 2+1+2+1+4+1+0+1) //username+:+pwd+:+salt+:+friends+:
             {
                 LOG("WARNING :: Ignoring line " + std::to_string(line_num) + " at " + USER_LIST + " because of small size." );

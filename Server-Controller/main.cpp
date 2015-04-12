@@ -10,14 +10,14 @@ using std::cerr;
 
 std::vector<std::string> split(const std::string& str)
 {
-    std::vector<std::string> words;
+    std::vector<std::string> tokens;
     std::stringstream ss(str);
-    std::string word;
-    while(ss >> word)
+    std::string token;
+    while(ss >> token)
     {
-        words.push_back(word);
+        tokens.push_back(token);
     }
-    return words;
+    return tokens;
 }
 
 int main()
@@ -27,16 +27,14 @@ int main()
     const std::string prompt_suffix = " > ";
     bool connected = false;
 
-    cout << prompt+prompt_suffix;
-    while(std::getline(std::cin, input))
+    for(cout << prompt+prompt_suffix; std::getline(std::cin, input);
+        cout << prompt+prompt_suffix)
     {
         if(input.empty())
-        {
             continue;
-        }
 
-        auto words = split(input);
-        std::string command = words[0];
+        auto tokens = split(input);
+        std::string command = tokens[0];
         if(command == "exit")
         {
             server_sock.disconnect();
@@ -47,25 +45,24 @@ int main()
             cout << "Server-Controller, by team Prattle." << endl
                   << "Use this to control a Prattle Server." << endl
                   << "Available commands : " << endl;
-            //Raw string, because I'm too lazy
-            cout << R"(Local commands for Server-Controller
+            cout << "Local commands for Server-Controller : " << endl << endl;
 
-Command              Description
------------------------------------------------------------------
-help                 Print help
-connect <ip>:<port>  Connect to Server at IP <ip> and port <port>
-disconnect           Disconnect from Server
-exit                 Disconnect (if connected) and exit
+            cout << "Command                     Description" << endl;
+            cout << "-----------------------------------------------------------------------------" << endl;
+            cout << "help                        Print help" << endl;
+            cout << "connect <ip> <port>         Connect to Server at IP <ip> and port <port>" << endl;
+            cout << "connect <hostname> <port>   Connect to Server at <hostname> e.g. \"localhost\"" << endl;
+            cout << "disconnect                  Disconnect from Server" << endl;
+            cout << "exit                        Disconnect (if connected) and exit" << endl << endl;
 
+            cout << "Commands sent to the server :" << endl << endl;
 
-Commands sent to the server.
-
-Command            Description
--------------------------------------------------------------------------
-shutdown           Shutdown the server
-show_logged_users  Prints the usernames of all logged users
-remove_user <name> Removes user <name> from the DB
-print_stats        Prints stats about the server (uptime, number of users etc.))";
+            cout << "Command            Description" << endl;
+            cout << "-------------------------------------------------------------------------" << endl;
+            cout << "shutdown           Shutdown the server" << endl;
+            cout << "show_logged_users  Prints the usernames of all logged users" << endl;
+            cout << "remove_user <name> Removes user <name> from the DB" << endl;
+            cout << "print_stats        Prints stats about the server (uptime, number of users etc.))" << endl;
 
         }
         else if(command == "connect")
@@ -75,10 +72,10 @@ print_stats        Prints stats about the server (uptime, number of users etc.))
                 cerr << "Invalid Command.\nAlready connected to server at " << server_sock.getRemoteAddress() << endl;
                 continue;
             }
-            if(words.size() < 3)
+            if(tokens.size() < 3)
                 cerr << "Invalid command." << endl;
-            std::string ip = words[1];
-            unsigned short port = std::stoi(words[2]);
+            std::string ip = tokens[1];
+            unsigned short port = std::stoi(tokens[2]);
             auto status = server_sock.connect(ip, port, sf::seconds(60));
             if(status != sf::Socket::Done)
             {
@@ -89,7 +86,7 @@ print_stats        Prints stats about the server (uptime, number of users etc.))
                 sf::Packet connect_packet;
                 std::string passphrase;
                 cout << "Enter the passphrase for this server : ";
-                std::cin >> passphrase;
+                std::getline(std::cin, passphrase);
                 connect_packet << "controller_attach" << passphrase;
                 status = server_sock.send(connect_packet);
                 if(status != sf::Socket::Done)
@@ -124,7 +121,7 @@ print_stats        Prints stats about the server (uptime, number of users etc.))
             if(connected)
             {
                 sf::Packet packet;
-                for(auto& s : words)
+                for(auto& s : tokens)
                 {
                     packet << s;
                 }
@@ -165,9 +162,6 @@ print_stats        Prints stats about the server (uptime, number of users etc.))
                 cerr << "Unrecognized local command and disconnected. Try \"help\"" << endl;
             }
         }
-
-//        std::cin.ignore(std::numeric_limits<std::streamsize>::max()); //Ignore anything typed between last prompt and the next
-        cout << prompt+prompt_suffix;
     }
     cout << endl;
     return 0;
