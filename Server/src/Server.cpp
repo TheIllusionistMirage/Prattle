@@ -25,13 +25,21 @@ namespace prattle
         }
 
         auto status = m_listener.listen(m_server_port);
-        LOG("sf::TcpListener object now listening to port " + std::to_string(m_server_port));
+        for(int i = 1; status != sf::Socket::Done && i <= 5 ; ++i)
+        {
+            sf::Time attempt_delay = sf::seconds(5);
+            LOG("Unable to  bind the listener at port : " + std::to_string(m_server_port)
+                + "\n Retrying in " + std::to_string(int(attempt_delay.asSeconds())) + " seconds. "
+                + "\n Attempt : " + std::to_string(i));
+            sf::sleep(attempt_delay);
+            status = m_listener.listen(m_server_port);
+        }
         if(status != sf::Socket::Done)
         {
-            LOG("FATAL ERROR : Error binding the listener at " + std::to_string(m_server_port));
-            throw std::runtime_error("Fatal error : Error binding the listener at " + std::to_string(m_server_port));
+            throw std::runtime_error("Unable to bind listener.");
         }
 
+        LOG("sf::TcpListener object now listening to port " + std::to_string(m_server_port));
         m_selector.add(m_listener);
         LOG("sf::SocketSelector object now ready to interact with multiple sf::TcpSockets");
 
@@ -237,13 +245,12 @@ namespace prattle
                 }
                 else if (status == sf::Socket::Disconnected)
                 {
-
                     LOG("[" + itr->first + "] left chat on " + getCurrentTimeAndDate());
                     m_selector.remove(*itr->second);
                     //itr = m_clients.erase(itr);
 
                     // Send a notif to all online friends of itr->first about his status
-                    auto itr_friends = db.getFriends(itr->first);
+                    const auto& itr_friends = db.getFriends(itr->first);
                     for (auto& friendName : itr_friends)
                     {
                         auto friend_itr = m_clients.find(friendName);
@@ -266,9 +273,7 @@ namespace prattle
             }
             itr++;
         }
-
         handleNewConnection();
-
         if(m_controller && m_selector.isReady(*m_controller))
         {
             receiveCommand();
@@ -469,7 +474,6 @@ namespace prattle
                     LOG("ERROR while extracting data from packet.");
                 }
             }
-
             /*else if (request == NOTIF_ONLINE)
             {
                 std::string sender, receiver;
@@ -505,13 +509,11 @@ namespace prattle
                     LOG("ERROR :: Damaged packet received by server");
                 }
             }*/
-
             else
             {
                 LOG("ERROR :: Unknown request \'" + request + "\' sent to the server.");
             }
         }
-
         else
         {
             LOG("Damaged packet received.");
