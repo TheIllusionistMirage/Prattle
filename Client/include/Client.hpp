@@ -68,9 +68,6 @@ namespace prattle
 
             bool checkIfWhitespace(const std::string& message);
 
-            void setStatus(Status status);
-            Status getStatus();
-
             virtual bool login() = 0;             // Log in to the Prattle server
             virtual bool signup() = 0;            // Sign up in the Prattle server
             virtual void logout() = 0;            // Log out from the Prattle server
@@ -93,9 +90,6 @@ namespace prattle
             std::vector<std::string> m_friends;     // Store the names of friends
 
         private:
-
-            Status m_status;
-
             sf::TcpSocket m_socket;   // Client socket
 
             struct configuration      // Stores basic configuration info
@@ -104,8 +98,6 @@ namespace prattle
                 int port;
             } m_clientConf;
 
-            //std::string m_ip;         // Server's IP address
-            //int m_port;               // Server's open port
     };
 }
 

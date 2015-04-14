@@ -5,7 +5,6 @@ namespace prattle
     Client::Client() : m_username{""}
                      , m_password{""}
                      , m_friends{}
-                     , m_status{Status::Offline}
                      , m_socket{}
     {
         readConfigFile();

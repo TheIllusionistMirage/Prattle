@@ -274,6 +274,7 @@ namespace prattle
             itr++;
         }
         handleNewConnection();
+
         if(m_controller && m_selector.isReady(*m_controller))
         {
             receiveCommand();
@@ -687,8 +688,8 @@ namespace prattle
                                     LOG("Wrong passphrase given by controller !");
                                     m_controller = std::move(*itr);
                                     sendController(reply);
+                                    m_selector.remove(*m_controller);
                                     m_controller.reset();
-                                    m_selector.remove(**itr);
                                 }
                             }
                             itr = m_new_connections.erase(itr);

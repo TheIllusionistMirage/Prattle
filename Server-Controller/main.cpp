@@ -97,15 +97,26 @@ int main()
                 {
                     sf::Packet connect_reply;
                     status = server_sock.receive(connect_reply);
-                    if(status != sf::Socket::Done)
+                    if(status == sf::Socket::Done)
                     {
-                        cerr << "ERROR while receiving to server. Status code : " << status << endl;
+                        std::string reply;
+                        connect_reply >> reply;
+                        if(reply == "ack")
+                        {
+                            prompt = ip;
+                            connected = true;
+                            cout << "Connected.\n";
+                        }
+                        else
+                        {
+                            cout << "Couldn't connect to server. Sever's reply :\n";
+                            cout << reply << endl;
+                            server_sock.disconnect();
+                        }
                     }
                     else
                     {
-                        prompt = ip;
-                        connected = true;
-                        cout << "Connected.\n";
+                        cerr << "ERROR while receiving from server. Status code : " << status << endl;
                     }
                 }
             }
