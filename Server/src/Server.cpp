@@ -8,6 +8,7 @@
 */
 
 #include "../include/Server.hpp"
+#include <regex>
 
 namespace prattle
 {
@@ -49,12 +50,13 @@ namespace prattle
 
     void Server::parseConfigFile()
     {
+        static std::regex field_pattern("(\\w+):([[:print:]]+):"),
+                            comment_pattern("\\s*#.*");
         enum data_type { INT, STRING };
         //Maps the field name in the config file to (data type, pointer to variable) of the field
         std::map<std::string, std::pair<data_type,void*>> fields_map;
         fields_map.insert({"open_port", {INT, &m_server_port}});
         fields_map.insert({"passphrase_hash", {STRING, &m_ctrlr_pass_hash}});
-
         if (m_configFile.is_open() && m_configFile.good())
         {
             m_configFile.seekg(std::ios_base::beg);
@@ -63,22 +65,21 @@ namespace prattle
 
             for (unsigned int i = 1; !m_configFile.eof(); std::getline(m_configFile, line), i++)
             {
-                if(line[0] == '#' || line.size() < 2)
-                    continue;
-
-                auto first_colon = line.find(':', 0);
-                auto second_colon = line.find(':', first_colon + 1);
-                if(first_colon == std::string::npos
-                   || second_colon == std::string::npos)
-                {
-                    LOG("WARNING :: Invalid configuration value at " + SERVER_CONFIG_FILE + " : " + std::to_string(i));
-                    continue;
-                }
-
                 std::string field;
                 std::string value;
-                field = line.substr(0, first_colon);
-                value = line.substr(first_colon + 1, second_colon - first_colon - 1);
+                std::smatch match;
+                if(line.empty() || std::regex_match(line, comment_pattern))
+                    continue;
+                else if(std::regex_match(line, match, field_pattern))
+                {
+                    field = match[1].str();
+                    value = match[2].str();
+                }
+                else
+                {
+                    LOG("Invalid field in config file :\n\t" + line);
+                    continue;
+                }
 
                 auto mapping = fields_map.find(field);
                 if(mapping == fields_map.end())

@@ -1,13 +1,3 @@
-/**
-
-    Prattle/Client/ErrorLog.hpp
-    ===========================
-
-    Provides a very basic error logging system.The results of the log file can
-    be found in 'server_log.txt' in the directory containing the Server binary.
-
-*/
-
 #ifndef ERRORLOG_HPP
 #define ERRORLOG_HPP
 
@@ -17,9 +7,10 @@
 
 namespace prattle
 {
-    #define LOG(output) ErrorLog::Logger()->log(output, __FILE__, __LINE__)
-    #define STREAM "file"   // <==== Change this as and when required to change the output streams
-                            // - STDOUT- for std output and FILE for file
+    #define LOG(output) prattle::ErrorLog::Logger()->log(output, __FILE__, __LINE__)
+    #define STREAM "stdout" // <== Change this as and when required to change the output streams
+                            // - "stdout" - for std output AND file
+                            // - "file"   - for file
 
     const std::string LOG_FILE = "client_log.txt";    // Error log file
 
@@ -45,7 +36,6 @@ namespace prattle
             ~ErrorLog();
             std::ofstream logFile;
             std::string buffer;
-            unsigned short lineNo;
             static ErrorLog* instance;
     };
 }

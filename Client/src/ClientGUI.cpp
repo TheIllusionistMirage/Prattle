@@ -362,8 +362,6 @@ namespace prattle
                                     m_chatHistory[itr] = "";
                                 }
 
-                                setStatus(Status::Online);
-
                                 blockSocket(false);
                                 setChatUsername(m_username);
                                 initFriendList(m_friends);

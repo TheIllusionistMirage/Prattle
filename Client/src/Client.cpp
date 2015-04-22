@@ -1,4 +1,5 @@
 #include "../include/Client.hpp"
+#include <regex>
 
 namespace prattle
 {
@@ -13,14 +14,19 @@ namespace prattle
     void Client::readConfigFile()
     {
         std::ifstream configFile{CONFIG_FILE, std::ios::in};
-
         if(!configFile.is_open() || !configFile.good())
         {
             LOG("FATAL ERROR :: Error reading from \'" + CONFIG_FILE + "\'.");
             throw std::runtime_error("FATAL ERROR :: Error reading from \'" + CONFIG_FILE + "\'.");
         }
 
-        configFile.seekg(std::ios::beg);
+        static std::regex field_pattern("(\\w+):([[:print:]]+):"),
+                            comment_pattern("\\s*#.*");
+        enum data_type { INT, STRING };
+        //Maps the field name in the config file to (data type, pointer to variable) of the field
+        std::map<std::string, std::pair<data_type,void*>> fields_map;
+        fields_map.insert({"open_port", {INT, &m_client_conf.port}});
+        fields_map.insert({"server_addr", {STRING, &m_client_conf.addr}});
         std::string line;
         std::getline(configFile, line);
 
@@ -28,37 +34,46 @@ namespace prattle
         {
             std::string field;
             std::string value;
-
-            if(line[0] == '#' || line.size() < 2)
+            std::smatch match;
+            if(line.empty() || std::regex_match(line, comment_pattern))
                 continue;
-
-            auto first_colon = line.find(':', 0);
-            auto second_colon = line.find(':', first_colon + 1);
-
-            if(first_colon == std::string::npos
-               || second_colon == std::string::npos)
+            else if(std::regex_match(line, match, field_pattern))
             {
-                LOG("WARNING :: Invalid configuration value at " + CONFIG_FILE + " : " + std::to_string(i));
+                field = match[1].str();
+                value = match[2].str();
+            }
+            else
+            {
+                LOG("Invalid field in config file : \n\t" + line);
                 continue;
             }
 
-            field = line.substr(0, first_colon);
-            value = line.substr(first_colon + 1, second_colon - first_colon - 1);
-
-            if (field == "SERVER_IP")
-                m_clientConf.ip = value;
-
-            else if (field == "OPEN_PORT")
-                m_clientConf.port = std::stoi(value);
+            auto mapping = fields_map.find(field);
+            if(mapping == fields_map.end())
+            {
+                LOG("Warning : Unrecognized field in conifg file, ignoring.");
+            }
+            else
+            {
+                switch(mapping->second.first)
+                {
+                case INT:
+                    *static_cast<int*>(mapping->second.second) = std::stoi(value);
+                    break;
+                case STRING:
+                    *static_cast<std::string*>(mapping->second.second) = value;
+                    break;
+                default:
+                    LOG("Unhandled data type");
+                    break;
+                }
+            }
         }
-
-        configFile.close();
     }
 
     void Client::resetSocket()
     {
         disconnect();
-        setStatus(Status::Offline);
     }
 
     bool Client::checkIfWhitespace(const std::string& message)
@@ -71,16 +86,6 @@ namespace prattle
             }
         }
         return true;
-    }
-
-    void Client::setStatus(Status status)
-    {
-        m_status = status;
-    }
-
-    Status Client::getStatus()
-    {
-        return m_status;
     }
 
     bool Client::send(const sf::Packet& packet)
@@ -472,7 +477,7 @@ namespace prattle
 
     bool Client::isLoggedIn()
     {
-        return m_status == Status::Online;// || m_status == Status::Away;
+        return m_socket.getRemotePort() != 0;
     }
 
     void Client::blockSocket(bool blocking)
@@ -483,12 +488,11 @@ namespace prattle
     void Client::disconnect()
     {
         blockSocket(true);
-        m_status = Status::Offline;
         m_socket.disconnect();
     }
 
     bool Client::connect()
     {
-        return m_socket.connect(m_clientConf.ip, m_clientConf.port, sf::milliseconds(5000)) == sf::Socket::Status::Done;
+        return m_socket.connect(m_client_conf.addr, m_client_conf.port, sf::milliseconds(5000)) == sf::Socket::Status::Done;
     }
 }

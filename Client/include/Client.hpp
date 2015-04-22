@@ -94,9 +94,9 @@ namespace prattle
 
             struct configuration      // Stores basic configuration info
             {
-                std::string ip;
+                std::string addr;
                 int port;
-            } m_clientConf;
+            } m_client_conf;
 
     };
 }
