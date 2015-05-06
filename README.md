@@ -1,7 +1,7 @@
 Prattle
 ===========
 
-![Prattle](Client/resources/images/Prattle_Madly_Orange_logo_small.png)
+![Prattle](Client/resources/images/prattle-logo.png)
 
 **NOTE : The current code, though complete, has minor bugs right now. Branch master is updated only when the code has been improved/modified/updated significantly and is somewhat stable. Please check the [debug][1] branch for the latest changes.**
 
@@ -9,13 +9,13 @@ Prattle is a simple chat program written in C++, using SFML's networking module 
 
 Currently, the features supported are:
 
-* Basic registration
+* Registration (Username and password)
 * Login
 * Chatting in pairs (with multiple persons)
-* Adding Buddies
-* Notifications
+* Adding Friends
+* Simple Notifications (for unread messages)
 * Online Status
-* Autologin
+* Autologin (aka Remember Me facility)
 
 You can view our [to-do list][2] and Prattle's status on Trello.
 
