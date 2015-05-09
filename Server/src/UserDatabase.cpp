@@ -221,9 +221,15 @@ namespace prattle
                 username = record_match[1].str();
                 hashed_pwd = record_match[2].str();
                 salt = record_match[3].str();
-                for(std::size_t i = 4; i < record_match.size(); ++i)
+                
+                //for(std::size_t i = 4; record_match[i].str() != "" ; ++i)
+                //{
+                //    friends.push_back(record_match[i].str());
+                //}
+                std::size_t i = 4;
+                while (record_match[i].str() != "")
                 {
-                    friends.push_back(record_match[i].str());
+                    friends.push_back(record_match[i++].str());
                 }
                 records.insert({username, Record{hashed_pwd, salt, friends}});
             }
