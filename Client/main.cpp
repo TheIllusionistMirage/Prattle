@@ -1,6 +1,6 @@
 #include <iostream>
 #include <exception>
-#include "include/ClientGUI.hpp"
+#include "include/Client.hpp"
 
 using namespace std;
 
@@ -12,7 +12,7 @@ int main()
         cout << "   Prattle Client v0.1   " << endl;
         cout << "=========================" << endl;
 
-        prattle::ClientGUI m_prattleClient;
+        prattle::Client m_prattleClient;
         m_prattleClient.run(0.f);
     }
     catch(std::exception& e)

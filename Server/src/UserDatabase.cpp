@@ -197,8 +197,9 @@ namespace prattle
 
     void UserDatabase::parseFile()
     {
-        static std::regex record_pattern("([\\w.]{3,16}):([0-9a-f]{64}):([[:alnum:]]+):(?:([\\w.]{3,16}),)*:"),
-                            comment_pattern("\\s*#.*");
+        static std::regex record_pattern("
+                ([\\w.]{3,16}):([0-9a-f]{64}):([[:alnum:]]+):(?:([\\w.]{3,16}),)*:"),
+                comment_pattern("\\s*#.*");
 
         dbFile.open(USER_LIST, std::ios_base::in);
         if(dbFile.bad())
@@ -221,7 +222,7 @@ namespace prattle
                 username = record_match[1].str();
                 hashed_pwd = record_match[2].str();
                 salt = record_match[3].str();
-                
+
                 //for(std::size_t i = 4; record_match[i].str() != "" ; ++i)
                 //{
                 //    friends.push_back(record_match[i].str());
