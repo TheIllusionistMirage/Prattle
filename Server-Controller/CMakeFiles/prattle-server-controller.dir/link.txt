@@ -1,1 +1,0 @@
-/bin/c++    -std=c++11 -O2   CMakeFiles/prattle-server-controller.dir/main.cpp.o  -o prattle-server-controller -rdynamic /usr/local/lib/libsfml-network.so /usr/local/lib/libsfml-system.so -Wl,-rpath,/usr/local/lib 
