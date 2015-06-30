@@ -1,0 +1,538 @@
+The system is: Linux - 4.0.4-301.fc22.i686 - i686
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /bin/cc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/3.2.2/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /bin/c++ 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/3.2.2/CompilerIdCXX/a.out"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec3630882890/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec3630882890.dir/build.make CMakeFiles/cmTryCompileExec3630882890.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3630882890.dir/testCCompiler.c.o
+/bin/cc    -o CMakeFiles/cmTryCompileExec3630882890.dir/testCCompiler.c.o   -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTryCompileExec3630882890
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3630882890.dir/link.txt --verbose=1
+/bin/cc       CMakeFiles/cmTryCompileExec3630882890.dir/testCCompiler.c.o  -o cmTryCompileExec3630882890 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec3762655008/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec3762655008.dir/build.make CMakeFiles/cmTryCompileExec3762655008.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o
+/bin/cc    -o CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+Linking C executable cmTryCompileExec3762655008
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3762655008.dir/link.txt --verbose=1
+/bin/cc      -v CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec3762655008 -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/bin/cc
+COLLECT_LTO_WRAPPER=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper
+Target: i686-redhat-linux
+Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,objc,obj-c++,fortran,ada,go,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --disable-libgcj --with-default-libstdcxx-abi=c++98 --with-isl --enable-libmpx --enable-gnu-indirect-function --with-tune=generic --with-arch=i686 --build=i686-redhat-linux
+Thread model: posix
+gcc version 5.1.1 20150422 (Red Hat 5.1.1-1) (GCC) 
+COMPILER_PATH=/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/:/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/
+LIBRARY_PATH=/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3762655008' '-rdynamic' '-mtune=generic' '-march=i686'
+ /usr/libexec/gcc/i686-redhat-linux/5.1.1/collect2 -plugin /usr/libexec/gcc/i686-redhat-linux/5.1.1/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccRvnKQy.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_i386 -export-dynamic -dynamic-linker /lib/ld-linux.so.2 -o cmTryCompileExec3762655008 /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crt1.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crti.o /usr/lib/gcc/i686-redhat-linux/5.1.1/crtbegin.o -L/usr/lib/gcc/i686-redhat-linux/5.1.1 -L/usr/lib/gcc/i686-redhat-linux/5.1.1/../../.. CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/i686-redhat-linux/5.1.1/crtend.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crtn.o
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:"/bin/gmake" "cmTryCompileExec3762655008/fast"]
+  ignore line: [/bin/gmake -f CMakeFiles/cmTryCompileExec3762655008.dir/build.make CMakeFiles/cmTryCompileExec3762655008.dir/build]
+  ignore line: [gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building C object CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/bin/cc    -o CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTryCompileExec3762655008]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3762655008.dir/link.txt --verbose=1]
+  ignore line: [/bin/cc      -v CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec3762655008 -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/bin/cc]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper]
+  ignore line: [Target: i686-redhat-linux]
+  ignore line: [Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,objc,obj-c++,fortran,ada,go,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --disable-libgcj --with-default-libstdcxx-abi=c++98 --with-isl --enable-libmpx --enable-gnu-indirect-function --with-tune=generic --with-arch=i686 --build=i686-redhat-linux]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 5.1.1 20150422 (Red Hat 5.1.1-1) (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/:/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3762655008' '-rdynamic' '-mtune=generic' '-march=i686']
+  link line: [ /usr/libexec/gcc/i686-redhat-linux/5.1.1/collect2 -plugin /usr/libexec/gcc/i686-redhat-linux/5.1.1/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccRvnKQy.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_i386 -export-dynamic -dynamic-linker /lib/ld-linux.so.2 -o cmTryCompileExec3762655008 /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crt1.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crti.o /usr/lib/gcc/i686-redhat-linux/5.1.1/crtbegin.o -L/usr/lib/gcc/i686-redhat-linux/5.1.1 -L/usr/lib/gcc/i686-redhat-linux/5.1.1/../../.. CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/i686-redhat-linux/5.1.1/crtend.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crtn.o]
+    arg [/usr/libexec/gcc/i686-redhat-linux/5.1.1/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/libexec/gcc/i686-redhat-linux/5.1.1/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccRvnKQy.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--no-add-needed] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_i386] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib/ld-linux.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec3762655008] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crt1.o] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crti.o] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/crtbegin.o] ==> ignore
+    arg [-L/usr/lib/gcc/i686-redhat-linux/5.1.1] ==> dir [/usr/lib/gcc/i686-redhat-linux/5.1.1]
+    arg [-L/usr/lib/gcc/i686-redhat-linux/5.1.1/../../..] ==> dir [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../..]
+    arg [CMakeFiles/cmTryCompileExec3762655008.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crtn.o] ==> ignore
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  collapse library dir [/usr/lib/gcc/i686-redhat-linux/5.1.1] ==> [/usr/lib/gcc/i686-redhat-linux/5.1.1]
+  collapse library dir [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../..] ==> [/usr/lib]
+  implicit libs: [c]
+  implicit dirs: [/usr/lib/gcc/i686-redhat-linux/5.1.1;/usr/lib]
+  implicit fwks: []
+
+
+
+
+Detecting C [-std=c11] compiler features compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec773775146/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec773775146.dir/build.make CMakeFiles/cmTryCompileExec773775146.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec773775146.dir/feature_tests.c.o
+/bin/cc   -std=c11 -o CMakeFiles/cmTryCompileExec773775146.dir/feature_tests.c.o   -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/feature_tests.c
+Linking C executable cmTryCompileExec773775146
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec773775146.dir/link.txt --verbose=1
+/bin/cc       CMakeFiles/cmTryCompileExec773775146.dir/feature_tests.c.o  -o cmTryCompileExec773775146 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:1c_restrict
+    Feature record: C_FEATURE:1c_static_assert
+    Feature record: C_FEATURE:1c_variadic_macros
+
+
+Detecting C [-std=c99] compiler features compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec1660284697/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec1660284697.dir/build.make CMakeFiles/cmTryCompileExec1660284697.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1660284697.dir/feature_tests.c.o
+/bin/cc   -std=c99 -o CMakeFiles/cmTryCompileExec1660284697.dir/feature_tests.c.o   -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/feature_tests.c
+Linking C executable cmTryCompileExec1660284697
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1660284697.dir/link.txt --verbose=1
+/bin/cc       CMakeFiles/cmTryCompileExec1660284697.dir/feature_tests.c.o  -o cmTryCompileExec1660284697 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:1c_restrict
+    Feature record: C_FEATURE:0c_static_assert
+    Feature record: C_FEATURE:1c_variadic_macros
+
+
+Detecting C [-std=c90] compiler features compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec3552811098/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec3552811098.dir/build.make CMakeFiles/cmTryCompileExec3552811098.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3552811098.dir/feature_tests.c.o
+/bin/cc   -std=c90 -o CMakeFiles/cmTryCompileExec3552811098.dir/feature_tests.c.o   -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/feature_tests.c
+Linking C executable cmTryCompileExec3552811098
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3552811098.dir/link.txt --verbose=1
+/bin/cc       CMakeFiles/cmTryCompileExec3552811098.dir/feature_tests.c.o  -o cmTryCompileExec3552811098 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:0c_restrict
+    Feature record: C_FEATURE:0c_static_assert
+    Feature record: C_FEATURE:0c_variadic_macros
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec374660009/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec374660009.dir/build.make CMakeFiles/cmTryCompileExec374660009.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec374660009.dir/testCXXCompiler.cxx.o
+/bin/c++     -o CMakeFiles/cmTryCompileExec374660009.dir/testCXXCompiler.cxx.o -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTryCompileExec374660009
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec374660009.dir/link.txt --verbose=1
+/bin/c++        CMakeFiles/cmTryCompileExec374660009.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec374660009 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec4158892736/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec4158892736.dir/build.make CMakeFiles/cmTryCompileExec4158892736.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o
+/bin/c++     -o CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec4158892736
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4158892736.dir/link.txt --verbose=1
+/bin/c++       -v CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec4158892736 -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/bin/c++
+COLLECT_LTO_WRAPPER=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper
+Target: i686-redhat-linux
+Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,objc,obj-c++,fortran,ada,go,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --disable-libgcj --with-default-libstdcxx-abi=c++98 --with-isl --enable-libmpx --enable-gnu-indirect-function --with-tune=generic --with-arch=i686 --build=i686-redhat-linux
+Thread model: posix
+gcc version 5.1.1 20150422 (Red Hat 5.1.1-1) (GCC) 
+COMPILER_PATH=/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/:/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/
+LIBRARY_PATH=/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec4158892736' '-rdynamic' '-shared-libgcc' '-mtune=generic' '-march=i686'
+ /usr/libexec/gcc/i686-redhat-linux/5.1.1/collect2 -plugin /usr/libexec/gcc/i686-redhat-linux/5.1.1/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccyJj1zM.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_i386 -export-dynamic -dynamic-linker /lib/ld-linux.so.2 -o cmTryCompileExec4158892736 /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crt1.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crti.o /usr/lib/gcc/i686-redhat-linux/5.1.1/crtbegin.o -L/usr/lib/gcc/i686-redhat-linux/5.1.1 -L/usr/lib/gcc/i686-redhat-linux/5.1.1/../../.. CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/i686-redhat-linux/5.1.1/crtend.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crtn.o
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:"/bin/gmake" "cmTryCompileExec4158892736/fast"]
+  ignore line: [/bin/gmake -f CMakeFiles/cmTryCompileExec4158892736.dir/build.make CMakeFiles/cmTryCompileExec4158892736.dir/build]
+  ignore line: [gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp']
+  ignore line: [/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building CXX object CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/bin/c++     -o CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTryCompileExec4158892736]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4158892736.dir/link.txt --verbose=1]
+  ignore line: [/bin/c++       -v CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec4158892736 -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/bin/c++]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper]
+  ignore line: [Target: i686-redhat-linux]
+  ignore line: [Configured with: ../configure --enable-bootstrap --enable-languages=c,c++,objc,obj-c++,fortran,ada,go,lto --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-shared --enable-threads=posix --enable-checking=release --enable-multilib --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-plugin --enable-initfini-array --disable-libgcj --with-default-libstdcxx-abi=c++98 --with-isl --enable-libmpx --enable-gnu-indirect-function --with-tune=generic --with-arch=i686 --build=i686-redhat-linux]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 5.1.1 20150422 (Red Hat 5.1.1-1) (GCC) ]
+  ignore line: [COMPILER_PATH=/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/5.1.1/:/usr/libexec/gcc/i686-redhat-linux/:/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/i686-redhat-linux/5.1.1/:/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec4158892736' '-rdynamic' '-shared-libgcc' '-mtune=generic' '-march=i686']
+  link line: [ /usr/libexec/gcc/i686-redhat-linux/5.1.1/collect2 -plugin /usr/libexec/gcc/i686-redhat-linux/5.1.1/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper -plugin-opt=-fresolution=/tmp/ccyJj1zM.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_i386 -export-dynamic -dynamic-linker /lib/ld-linux.so.2 -o cmTryCompileExec4158892736 /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crt1.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crti.o /usr/lib/gcc/i686-redhat-linux/5.1.1/crtbegin.o -L/usr/lib/gcc/i686-redhat-linux/5.1.1 -L/usr/lib/gcc/i686-redhat-linux/5.1.1/../../.. CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/i686-redhat-linux/5.1.1/crtend.o /usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crtn.o]
+    arg [/usr/libexec/gcc/i686-redhat-linux/5.1.1/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/libexec/gcc/i686-redhat-linux/5.1.1/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/libexec/gcc/i686-redhat-linux/5.1.1/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccyJj1zM.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--no-add-needed] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_i386] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib/ld-linux.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec4158892736] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crt1.o] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crti.o] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/crtbegin.o] ==> ignore
+    arg [-L/usr/lib/gcc/i686-redhat-linux/5.1.1] ==> dir [/usr/lib/gcc/i686-redhat-linux/5.1.1]
+    arg [-L/usr/lib/gcc/i686-redhat-linux/5.1.1/../../..] ==> dir [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../..]
+    arg [CMakeFiles/cmTryCompileExec4158892736.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/crtend.o] ==> ignore
+    arg [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../../crtn.o] ==> ignore
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  collapse library dir [/usr/lib/gcc/i686-redhat-linux/5.1.1] ==> [/usr/lib/gcc/i686-redhat-linux/5.1.1]
+  collapse library dir [/usr/lib/gcc/i686-redhat-linux/5.1.1/../../..] ==> [/usr/lib]
+  implicit libs: [stdc++;m;c]
+  implicit dirs: [/usr/lib/gcc/i686-redhat-linux/5.1.1;/usr/lib]
+  implicit fwks: []
+
+
+
+
+Detecting CXX [-std=c++14] compiler features compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec3623569783/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec3623569783.dir/build.make CMakeFiles/cmTryCompileExec3623569783.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3623569783.dir/feature_tests.cxx.o
+/bin/c++    -std=c++14 -o CMakeFiles/cmTryCompileExec3623569783.dir/feature_tests.cxx.o -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTryCompileExec3623569783
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3623569783.dir/link.txt --verbose=1
+/bin/c++        CMakeFiles/cmTryCompileExec3623569783.dir/feature_tests.cxx.o  -o cmTryCompileExec3623569783 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:1cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:1cxx_alias_templates
+    Feature record: CXX_FEATURE:1cxx_alignas
+    Feature record: CXX_FEATURE:1cxx_alignof
+    Feature record: CXX_FEATURE:1cxx_attributes
+    Feature record: CXX_FEATURE:1cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:1cxx_auto_type
+    Feature record: CXX_FEATURE:1cxx_binary_literals
+    Feature record: CXX_FEATURE:1cxx_constexpr
+    Feature record: CXX_FEATURE:1cxx_contextual_conversions
+    Feature record: CXX_FEATURE:1cxx_decltype
+    Feature record: CXX_FEATURE:1cxx_decltype_auto
+    Feature record: CXX_FEATURE:1cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:1cxx_default_function_template_args
+    Feature record: CXX_FEATURE:1cxx_defaulted_functions
+    Feature record: CXX_FEATURE:1cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:1cxx_delegating_constructors
+    Feature record: CXX_FEATURE:1cxx_deleted_functions
+    Feature record: CXX_FEATURE:1cxx_digit_separators
+    Feature record: CXX_FEATURE:1cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:1cxx_explicit_conversions
+    Feature record: CXX_FEATURE:1cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:1cxx_extern_templates
+    Feature record: CXX_FEATURE:1cxx_final
+    Feature record: CXX_FEATURE:1cxx_func_identifier
+    Feature record: CXX_FEATURE:1cxx_generalized_initializers
+    Feature record: CXX_FEATURE:1cxx_generic_lambdas
+    Feature record: CXX_FEATURE:1cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:1cxx_inline_namespaces
+    Feature record: CXX_FEATURE:1cxx_lambdas
+    Feature record: CXX_FEATURE:1cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:1cxx_local_type_template_args
+    Feature record: CXX_FEATURE:1cxx_long_long_type
+    Feature record: CXX_FEATURE:1cxx_noexcept
+    Feature record: CXX_FEATURE:1cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:1cxx_nullptr
+    Feature record: CXX_FEATURE:1cxx_override
+    Feature record: CXX_FEATURE:1cxx_range_for
+    Feature record: CXX_FEATURE:1cxx_raw_string_literals
+    Feature record: CXX_FEATURE:1cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:1cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:1cxx_return_type_deduction
+    Feature record: CXX_FEATURE:1cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:1cxx_rvalue_references
+    Feature record: CXX_FEATURE:1cxx_sizeof_member
+    Feature record: CXX_FEATURE:1cxx_static_assert
+    Feature record: CXX_FEATURE:1cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:1cxx_thread_local
+    Feature record: CXX_FEATURE:1cxx_trailing_return_types
+    Feature record: CXX_FEATURE:1cxx_unicode_literals
+    Feature record: CXX_FEATURE:1cxx_uniform_initialization
+    Feature record: CXX_FEATURE:1cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:1cxx_user_literals
+    Feature record: CXX_FEATURE:1cxx_variable_templates
+    Feature record: CXX_FEATURE:1cxx_variadic_macros
+    Feature record: CXX_FEATURE:1cxx_variadic_templates
+
+
+Detecting CXX [-std=c++11] compiler features compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec3060962588/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec3060962588.dir/build.make CMakeFiles/cmTryCompileExec3060962588.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3060962588.dir/feature_tests.cxx.o
+/bin/c++    -std=c++11 -o CMakeFiles/cmTryCompileExec3060962588.dir/feature_tests.cxx.o -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTryCompileExec3060962588
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3060962588.dir/link.txt --verbose=1
+/bin/c++        CMakeFiles/cmTryCompileExec3060962588.dir/feature_tests.cxx.o  -o cmTryCompileExec3060962588 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:1cxx_alias_templates
+    Feature record: CXX_FEATURE:1cxx_alignas
+    Feature record: CXX_FEATURE:1cxx_alignof
+    Feature record: CXX_FEATURE:1cxx_attributes
+    Feature record: CXX_FEATURE:0cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:1cxx_auto_type
+    Feature record: CXX_FEATURE:0cxx_binary_literals
+    Feature record: CXX_FEATURE:1cxx_constexpr
+    Feature record: CXX_FEATURE:0cxx_contextual_conversions
+    Feature record: CXX_FEATURE:1cxx_decltype
+    Feature record: CXX_FEATURE:0cxx_decltype_auto
+    Feature record: CXX_FEATURE:1cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:1cxx_default_function_template_args
+    Feature record: CXX_FEATURE:1cxx_defaulted_functions
+    Feature record: CXX_FEATURE:1cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:1cxx_delegating_constructors
+    Feature record: CXX_FEATURE:1cxx_deleted_functions
+    Feature record: CXX_FEATURE:0cxx_digit_separators
+    Feature record: CXX_FEATURE:1cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:1cxx_explicit_conversions
+    Feature record: CXX_FEATURE:1cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:1cxx_extern_templates
+    Feature record: CXX_FEATURE:1cxx_final
+    Feature record: CXX_FEATURE:1cxx_func_identifier
+    Feature record: CXX_FEATURE:1cxx_generalized_initializers
+    Feature record: CXX_FEATURE:0cxx_generic_lambdas
+    Feature record: CXX_FEATURE:1cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:1cxx_inline_namespaces
+    Feature record: CXX_FEATURE:1cxx_lambdas
+    Feature record: CXX_FEATURE:0cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:1cxx_local_type_template_args
+    Feature record: CXX_FEATURE:1cxx_long_long_type
+    Feature record: CXX_FEATURE:1cxx_noexcept
+    Feature record: CXX_FEATURE:1cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:1cxx_nullptr
+    Feature record: CXX_FEATURE:1cxx_override
+    Feature record: CXX_FEATURE:1cxx_range_for
+    Feature record: CXX_FEATURE:1cxx_raw_string_literals
+    Feature record: CXX_FEATURE:1cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:0cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:0cxx_return_type_deduction
+    Feature record: CXX_FEATURE:1cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:1cxx_rvalue_references
+    Feature record: CXX_FEATURE:1cxx_sizeof_member
+    Feature record: CXX_FEATURE:1cxx_static_assert
+    Feature record: CXX_FEATURE:1cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:1cxx_thread_local
+    Feature record: CXX_FEATURE:1cxx_trailing_return_types
+    Feature record: CXX_FEATURE:1cxx_unicode_literals
+    Feature record: CXX_FEATURE:1cxx_uniform_initialization
+    Feature record: CXX_FEATURE:1cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:1cxx_user_literals
+    Feature record: CXX_FEATURE:0cxx_variable_templates
+    Feature record: CXX_FEATURE:1cxx_variadic_macros
+    Feature record: CXX_FEATURE:1cxx_variadic_templates
+
+
+Detecting CXX [-std=c++98] compiler features compiled with the following output:
+Change Dir: /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp
+
+Run Build Command:"/bin/gmake" "cmTryCompileExec4273988298/fast"
+/bin/gmake -f CMakeFiles/cmTryCompileExec4273988298.dir/build.make CMakeFiles/cmTryCompileExec4273988298.dir/build
+gmake[1]: Entering directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec4273988298.dir/feature_tests.cxx.o
+/bin/c++    -std=c++98 -o CMakeFiles/cmTryCompileExec4273988298.dir/feature_tests.cxx.o -c /home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTryCompileExec4273988298
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec4273988298.dir/link.txt --verbose=1
+/bin/c++        CMakeFiles/cmTryCompileExec4273988298.dir/feature_tests.cxx.o  -o cmTryCompileExec4273988298 -rdynamic 
+gmake[1]: Leaving directory '/home/koushtav/Documents/Prattle/Server-Controller/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:0cxx_alias_templates
+    Feature record: CXX_FEATURE:0cxx_alignas
+    Feature record: CXX_FEATURE:0cxx_alignof
+    Feature record: CXX_FEATURE:0cxx_attributes
+    Feature record: CXX_FEATURE:0cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:0cxx_auto_type
+    Feature record: CXX_FEATURE:0cxx_binary_literals
+    Feature record: CXX_FEATURE:0cxx_constexpr
+    Feature record: CXX_FEATURE:0cxx_contextual_conversions
+    Feature record: CXX_FEATURE:0cxx_decltype
+    Feature record: CXX_FEATURE:0cxx_decltype_auto
+    Feature record: CXX_FEATURE:0cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:0cxx_default_function_template_args
+    Feature record: CXX_FEATURE:0cxx_defaulted_functions
+    Feature record: CXX_FEATURE:0cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:0cxx_delegating_constructors
+    Feature record: CXX_FEATURE:0cxx_deleted_functions
+    Feature record: CXX_FEATURE:0cxx_digit_separators
+    Feature record: CXX_FEATURE:0cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:0cxx_explicit_conversions
+    Feature record: CXX_FEATURE:0cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:0cxx_extern_templates
+    Feature record: CXX_FEATURE:0cxx_final
+    Feature record: CXX_FEATURE:0cxx_func_identifier
+    Feature record: CXX_FEATURE:0cxx_generalized_initializers
+    Feature record: CXX_FEATURE:0cxx_generic_lambdas
+    Feature record: CXX_FEATURE:0cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:0cxx_inline_namespaces
+    Feature record: CXX_FEATURE:0cxx_lambdas
+    Feature record: CXX_FEATURE:0cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:0cxx_local_type_template_args
+    Feature record: CXX_FEATURE:0cxx_long_long_type
+    Feature record: CXX_FEATURE:0cxx_noexcept
+    Feature record: CXX_FEATURE:0cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:0cxx_nullptr
+    Feature record: CXX_FEATURE:0cxx_override
+    Feature record: CXX_FEATURE:0cxx_range_for
+    Feature record: CXX_FEATURE:0cxx_raw_string_literals
+    Feature record: CXX_FEATURE:0cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:0cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:0cxx_return_type_deduction
+    Feature record: CXX_FEATURE:0cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:0cxx_rvalue_references
+    Feature record: CXX_FEATURE:0cxx_sizeof_member
+    Feature record: CXX_FEATURE:0cxx_static_assert
+    Feature record: CXX_FEATURE:0cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:0cxx_thread_local
+    Feature record: CXX_FEATURE:0cxx_trailing_return_types
+    Feature record: CXX_FEATURE:0cxx_unicode_literals
+    Feature record: CXX_FEATURE:0cxx_uniform_initialization
+    Feature record: CXX_FEATURE:0cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:0cxx_user_literals
+    Feature record: CXX_FEATURE:0cxx_variable_templates
+    Feature record: CXX_FEATURE:0cxx_variadic_macros
+    Feature record: CXX_FEATURE:0cxx_variadic_templates

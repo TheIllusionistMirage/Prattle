@@ -21,11 +21,15 @@ std::vector<std::string> split(const std::string& str)
 }
 
 int main()
-{
+{    
     sf::TcpSocket server_sock;
     std::string input, prompt = "Disconnected";
     const std::string prompt_suffix = " > ";
     bool connected = false;
+    
+    cout << "Server-Controller by team Prattle" << endl;          
+    cout << "\nUse this to control a Prattle Server."
+         << " Type 'help' for displaying supported commands to control the server\n" << endl;
 
     for(cout << prompt+prompt_suffix; std::getline(std::cin, input);
         cout << prompt+prompt_suffix)
@@ -42,7 +46,7 @@ int main()
         }
         else if(command == "help")
         {
-            cout << "Server-Controller, by team Prattle." << endl
+            cout << "Server-Controller by team Prattle\n" << endl
                   << "Use this to control a Prattle Server." << endl
                   << "Available commands : " << endl;
             cout << "Local commands for Server-Controller : " << endl << endl;
