@@ -11,15 +11,15 @@ namespace prattle
     {
         while (m_state != Exit)
         {
-            switch (m_state)
-            {
-                //STUFF !!
-            }
             int repliesCount = m_network.receive();
             while(repliesCount --> 0) //The Goes-To operator (c)
             {
                 Network::Reply reply = m_network.popReply();
                 if (reply.type == Network::)
+            }
+            switch (m_state)
+            {
+                //STUFF !!
             }
         }
     }

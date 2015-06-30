@@ -50,7 +50,7 @@ namespace prattle
 
     void Server::parseConfigFile()
     {
-        static std::regex field_pattern("(\\w+):([[:print:]]+):"),
+        static std::regex field_pattern("(\\w+):([^:]+):"),
                             comment_pattern("\\s*#.*");
         enum data_type { INT, STRING };
         //Maps the field name in the config file to (data type, pointer to variable) of the field

@@ -58,9 +58,10 @@ namespace prattle
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 
-        Record newRecord{"", generate_salt()};
+        Record newRecord{"", generate_salt(), {}};
         newRecord.hashed_pwd = pwd_hash(plain_pwd, newRecord.salt);
         records.insert({username, newRecord});
+
         dbFile.seekp(0, std::ios::end);
 
         if(!(dbFile << username << ':' << newRecord.hashed_pwd << ':' << newRecord.salt << ':' << std::endl))
@@ -197,8 +198,8 @@ namespace prattle
 
     void UserDatabase::parseFile()
     {
-        static std::regex record_pattern("
-                ([\\w.]{3,16}):([0-9a-f]{64}):([[:alnum:]]+):(?:([\\w.]{3,16}),)*:"),
+        static std::regex record_pattern(
+                "([\\w.]{3,16}):([0-9a-f]{64}):([[:alnum:]]+):(?:([\\w.]{3,16}),)*:"),
                 comment_pattern("\\s*#.*");
 
         dbFile.open(USER_LIST, std::ios_base::in);
