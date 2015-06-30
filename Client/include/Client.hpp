@@ -14,14 +14,6 @@
 
 namespace prattle
 {
-    // Constants
-    enum class Status               // Online status
-    {
-        Online,
-        //Away,
-        Offline
-    };
-
     class Client
     {
         public:

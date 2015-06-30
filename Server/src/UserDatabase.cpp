@@ -28,7 +28,7 @@ namespace prattle
 
         if (itr == records.end())
         {
-            LOG("Invalid username queried at function getFriends()");
+            ERR_LOG("Invalid username queried at function getFriends()");
             throw std::runtime_error("Invalid username queried at function getFriends()");
         }
 
@@ -54,7 +54,7 @@ namespace prattle
         dbFile.open(USER_LIST, std::ios::in | std::ios::out);
         if(dbFile.bad())
         {
-            LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
+            ERR_LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 
@@ -66,7 +66,7 @@ namespace prattle
 
         if(!(dbFile << username << ':' << newRecord.hashed_pwd << ':' << newRecord.salt << ':' << std::endl))
         {
-            LOG("FATAL ERROR :: Error in writing a new recored to database " + USER_LIST + "!");
+            ERR_LOG("FATAL ERROR :: Error in writing a new recored to database " + USER_LIST + "!");
             throw std::runtime_error("Error while writing new record to " + USER_LIST);
         }
         dbFile.close();
@@ -91,7 +91,7 @@ namespace prattle
         }
         else
         {
-            LOG("ERROR :: Either " + username + " or " + friendname + " is not registered!");
+            ERR_LOG("ERROR :: Either " + username + " or " + friendname + " is not registered!");
             return false;
         }
 
@@ -117,7 +117,7 @@ namespace prattle
         dbFile.open(USER_LIST, std::ios::in | std::ios::out);
         if(dbFile.bad())
         {
-            LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
+            ERR_LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 
@@ -153,7 +153,7 @@ namespace prattle
         dbFile.open(USER_LIST, std::ios::in | std::ios::out);
         if(dbFile.bad())
         {
-            LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
+            ERR_LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
 
@@ -205,7 +205,7 @@ namespace prattle
         dbFile.open(USER_LIST, std::ios_base::in);
         if(dbFile.bad())
         {
-            LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
+            ERR_LOG("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
             throw std::runtime_error("FATAL ERROR :: Error in parsing " + USER_LIST + "!");
         }
         records.clear();
@@ -224,10 +224,6 @@ namespace prattle
                 hashed_pwd = record_match[2].str();
                 salt = record_match[3].str();
 
-                //for(std::size_t i = 4; record_match[i].str() != "" ; ++i)
-                //{
-                //    friends.push_back(record_match[i].str());
-                //}
                 std::size_t i = 4;
                 while (record_match[i].str() != "")
                 {
@@ -237,50 +233,9 @@ namespace prattle
             }
             else
             {
-                LOG("Invalid record in the database :\n\t" + line);
+                WRN_LOG("Invalid record in the database :\n\t" + line);
                 continue;
             }
-
-//            if(line[0] == '#' || line.empty()) continue; //Comment
-//            if(line.size() < 2+1+2+1+4+1+0+1) //username+:+pwd+:+salt+:+friends+:
-//            {
-//                LOG("WARNING :: Ignoring line " + std::to_string(line_num) + " at " + USER_LIST + " because of small size." );
-//                continue;
-//            }
-//
-//            auto first_colon = line.find(':', 0);
-//            auto second_colon = line.find(':', first_colon + 1);
-//            auto third_colon = line.find(':', second_colon + 1);
-//            auto fourth_colon = line.find(':', third_colon + 1);
-//
-//            if(first_colon == std::string::npos
-//               || second_colon == std::string::npos
-//                || third_colon == std::string::npos
-//                 || first_colon < 2 //size of user name
-//                  || second_colon - first_colon - 1 < 2 //size of password
-//                   || third_colon - second_colon - 1 < 4 //size of salt
-//              )
-//            {
-//                LOG("WARNING :: Invalid record at " + USER_LIST + " : " + std::to_string(line_num));
-//                continue;
-//            }
-//
-//            if (fourth_colon != std::string::npos)
-//            {
-//                auto previous_separator = third_colon;
-//                auto next_separator = line.find(',', previous_separator + 1);
-//
-//                while (next_separator != std::string::npos)
-//                {
-//                    friends.push_back(line.substr(previous_separator + 1, next_separator - previous_separator - 1));
-//                    previous_separator = next_separator;
-//                    next_separator = line.find(',', previous_separator + 1);
-//                }
-//            }
-//
-//            username = line.substr(0, first_colon);
-//            hashed_pwd = line.substr(first_colon + 1, second_colon - first_colon - 1);
-//            salt = line.substr(second_colon + 1, third_colon - second_colon - 1);
         }
         dbFile.close();
     }

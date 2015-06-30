@@ -85,7 +85,7 @@ Note : Each word seperated by a space is a different string, thus must be extrac
     Packet Type                                  | Packet format
     ---------------------------------------------|-----------------------------------------------
     3.1 Sent to Server to send message           | sendmsg \<receiver> \<data>
-    3.2 Sent to Client(receiver)                 | sendmsg server \<sender> \<data>
+    3.2 Sent to Client(receiver)                 | sendmsg \<sender> \<data>
     3.3 Sent to Client(sender) as reply          | sendmsg_success \<receiver> \<djb2 hash of the message>
     3.4 Sent to Client(sender) as reply          | sendmsg_failure \<receiver> \<djb2 hash of the message> \<server message>
 
