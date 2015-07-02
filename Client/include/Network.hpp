@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <chrono>
 
 #include <SFML/Network.hpp>
 
@@ -12,43 +13,46 @@ namespace prattle
 
     class Network
     {
-        typedef std::uint32_t RequestId;
-        enum TaskType
-        {
-            Login,
-            Signup,
-            SendMsg,
-            Search,
-            AddFriend
-        };
-        struct Task
-        {
-            RequestId id;
-            TaskType type;
-            std::chrono::stead_clock::time_point timeStarted;
-        };
-        enum ReplyType
-        {
-            TaskSuccess,
-            TaskError,
-            TaskTimeout,
-            RecievedMessage
-        };
-        struct Reply
-        {
-            RequestId id;
-            ReplyType type;
-            std::vector<string> arguments;
-        };
+        public:
+        
+            typedef std::uint32_t RequestId;
+            enum TaskType
+            {
+                Login,
+                Signup,
+                SendMsg,
+                Search,
+                AddFriend
+            };
+            struct Task
+            {
+                RequestId id;
+                TaskType type;
+                std::chrono::steady_clock::time_point timeStarted;
+            };
+            enum ReplyType
+            {
+                TaskSuccess,
+                TaskError,
+                TaskTimeout,
+                RecievedMessage
+            };
+            struct Reply
+            {
+                RequestId id;
+                ReplyType type;
+                std::vector<std::string> arguments;
+            };
 
     public:
+        
         //Returns the RequestId of the task/request
         RequestId send(TaskType task, const std::vector<std::string>& args);
 
         // This looks if new packets have arrived, if so, it checks their validity,
         // parses and stores 'em in m_replies, returns an int with the number of new replies
         // This also makes a reply for tasks that have timed-out.
-        int receive()
+        int receive();
 
         // Returns a reply (sent by the server)
         // If the reply was a confirmation/error for a task, request id is the id of the *sent* request
@@ -56,18 +60,7 @@ namespace prattle
         const Reply& popReply();
 
     private:
-        struct Task
-        {
-            RequestId id;
-            TaskType type;
-            std::chrono::stead_clock::time_point timeStarted;
-        };
-        struct Reply
-        {
-            RequestId id;
-            ReplyType type;
-            std::vector<string> arguments;
-        };
+        
         //List of tasks which haven't received a reply from server
         std::list<Task> m_tasks;
         //list of replies yet to popReply()'ed

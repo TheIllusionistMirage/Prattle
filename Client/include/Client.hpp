@@ -11,6 +11,9 @@
 #include <iostream>
 #include <SFML/Network.hpp>
 #include "../include/ErrorLog.hpp"
+#include "../include/Network.hpp"
+#include "../include/UserInterface.hpp"
+#include "../include/GraphicalUI.hpp"
 
 namespace prattle
 {
@@ -18,26 +21,38 @@ namespace prattle
     enum class Status               // Online status
     {
         Online,
-        //Away,
         Offline
     };
 
     class Client
     {
         public:
+
             enum State
             {
-                LoginPrompt,
+                Login,
+                Signup,
                 Connecting,
-                ChatHome,
-                ErrorState,
-                Exit,
+                Chatting,
+                Exit
             };
+
+            struct Conf      // Stores basic configuration info
+            {
+                std::string addr;
+                int port;
+                std::string ui;
+            };
+
+        public:
+
             Client();
-            void run();
+            void update();
+            void draw();
+            void run(float);
 
         private:
-            void parseConifgFile();
+            void parseConfigFile();
             void doLogin();
             void doSignup();
             void sendUserMessage();
@@ -47,7 +62,8 @@ namespace prattle
             const std::string m_configFilePath = "resources/config/client.conf";
             State m_state;
             Network m_network;
-            std::unique_ptr<UserInterface> ui;
+            std::shared_ptr<UserInterface> m_ui;
+            Conf m_client_conf;
     };
 }
 

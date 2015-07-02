@@ -1,11 +1,12 @@
-#include "Network.h"
+#include "../include/Network.hpp"
 
-Network::Network()
+namespace prattle
 {
-    //ctor
-}
+    int Network::receive()
+    {
+    }
 
-Network::~Network()
-{
-    //dtor
+    const Network::Reply& Network::popReply()
+    {
+    }
 }
