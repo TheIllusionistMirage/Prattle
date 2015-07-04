@@ -43,7 +43,7 @@ namespace prattle
             // member methods
             GraphicalUI();
             void reset();
-            bool isButtonPressed(tgui::Button::Ptr button);
+            bool isMouseOver(tgui::Widget::Ptr button);
 
             // virtually inherited functions
             void setState(UserInterface::State s) override;
@@ -100,12 +100,13 @@ namespace prattle
             tgui::Label::Ptr   m_connectingText;
 
             Menu::Ptr          m_menu;
-            GraphicList::Ptr   m_friendList;
+            //GraphicList::Ptr   m_friendList;
             tgui::Label::Ptr   m_connectedUser;
             tgui::Button::Ptr  m_logoutButton;
             GraphicTab::Ptr    m_tabs;
             tgui::TextBox::Ptr m_chatBox;
             tgui::TextBox::Ptr m_userInputBox;
+            sf::RectangleShape m_chatWindowBorder;
     };
 }
 

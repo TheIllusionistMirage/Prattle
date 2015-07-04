@@ -36,8 +36,9 @@ namespace prattle
         m_spacing = spacing;
 
         m_itemText = tgui::Label::create();
-        m_itemText->setAutoSize(true);
+        m_itemText->setTextFont(m_font);
         m_itemText->setText(label);
+        m_itemText->setAutoSize(true);
         m_itemText->setTextSize(labelSize);
         m_itemText->setTextColor(labelColor);
 
@@ -56,9 +57,11 @@ namespace prattle
     {
         Widget::initialize(parent);
 
-        if (parent->getGlobalFont())
+        if (parent->getGlobalFont() != nullptr)
         {
-            m_itemText->setTextFont(parent->getGlobalFont());
+            m_font = parent->getGlobalFont();
+            //m_itemText->setTextFont(m_font);
+            m_itemText->initialize(m_parent);
         }
     }
 
@@ -137,4 +140,9 @@ namespace prattle
         m_itemSprite.setTexture(*m_itemTexture);
         m_itemSprite.setTextureRect(sf::IntRect{10 * m_status, 0, 10, 10});
     }
+
+//    void GraphicListItem::setFont(std::shared_ptr<sf::Font> font)
+//    {
+//        m_font = font;
+//    }
 }

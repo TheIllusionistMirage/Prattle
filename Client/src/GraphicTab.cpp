@@ -342,10 +342,12 @@ namespace prattle
         }
     }
 
-    void GraphicTab::setPosition(const sf::Vector2f& position)
+    void GraphicTab::setPosition(const tgui::Layout& position)
     {
-        m_absoluteBounds.left = position.x;
-        m_absoluteBounds.top = position.y;
+        sf::Vector2f p = position.getValue();
+
+        m_absoluteBounds.left = p.x;
+        m_absoluteBounds.top = p.y;
 
         for (unsigned int i = 0; i < m_tabs.size(); i++)
         {

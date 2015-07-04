@@ -60,14 +60,20 @@ namespace prattle
             // remove items when the label of the item to be removed is known
             void removeItem(const std::string& itemName);
 
+            void select(const unsigned int& index);
+
+            const std::string getSelected();
+
             // set the position of the list box.
             virtual void setPosition(const tgui::Layout& position) override;
+
+            const sf::Vector2f getPosition();
 
             // Do stuff if te mouse wheel is moved. This
             // function is called from within TGUI in
             // case of a mouse wheel movement event is
             // registered by the GUI.
-            void mouseWheelMoved(int delta, int x, int y);
+            virtual void mouseWheelMoved(int delta, int x, int y) override;
 
             // Handle mouse movement inside the
             // bounds of the listbox. This method
@@ -82,6 +88,8 @@ namespace prattle
             void setDefaultMaxSize(const sf::Vector2f& size);
 
             void setFont(std::shared_ptr<sf::Font> font);
+
+            const sf::FloatRect getBounds();
 
         private:
 
@@ -113,7 +121,7 @@ namespace prattle
 
             std::shared_ptr<GraphicListItem>  m_selected;           // The currently selected list item.
 
-            std::shared_ptr<sf::Font>         m_font;               // The global font fetched from the tgui::Gui object.
+            //std::shared_ptr<sf::Font>         m_pFont;               // The global font fetched from the tgui::Gui object.
     };
 }
 

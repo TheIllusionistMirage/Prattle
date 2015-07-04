@@ -68,16 +68,19 @@ namespace prattle
     {
         Widget::initialize(parent);
 
-        if (parent->getGlobalFont())
-        {
-            m_font = parent->getGlobalFont();
-        }
+        m_font = parent->getGlobalFont();
+
+//        if( m_font == nullptr)
+//            std::cout << "zxcvxcv" << std::endl;
     }
 
     // the draw function as interhited from tgui::Widget.
     // This is called each frame automatically by TGUI.
     void GraphicList::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
+        if( m_font == nullptr)
+            std::cout << "zxcvxcv" << std::endl;
+
         // draw the panel...
         target.draw(m_boundary, states);
 
@@ -124,13 +127,22 @@ namespace prattle
     {
         // first create a new GraphicListItem object
         // and initialize it with default parameters
+
+//        if( m_font == nullptr)
+//            std::cout << "zxcvxcv" << std::endl;
+
         m_items.push_back(std::make_shared<GraphicListItem>(label,
                                                             m_itemHeight,
                                                             sf::Color::Black,
                                                             m_itemTexturePtr,
                                                             0,
                                                             5));
+
+//        if (m_pFont == nullptr)
+//        std::cout << "n" << std::endl;
+        //m_items.back()->initialize(m_parent);
         m_items.back()->getTextWidget()->setTextFont(m_font);
+        //m_items.back()->setFont(m_font);
 
         // the y-coord of the position is multiplied by 20, well,
         // because each list item is 15 pixels tall and have a
@@ -186,6 +198,11 @@ namespace prattle
         }
     }
 
+    const std::string GraphicList::getSelected()
+    {
+        return m_selected->getTextWidget()->getText();
+    }
+
     // set the position of the list box.
     void GraphicList::setPosition(const tgui::Layout& position)
     {
@@ -198,8 +215,11 @@ namespace prattle
 
         m_boundary.setPosition(p);
 
+        int t = 0;
         for (auto& i : m_items)
-            i->setPosition(p);
+        {
+            i->setPosition(sf::Vector2f{p.x + 10, p.y + 20 * t++});
+        }
 
         m_scrollerUp.setPosition(sf::Vector2f{m_boundary.getPosition().x +
                                  m_boundary.getSize().x - 25,
@@ -211,12 +231,22 @@ namespace prattle
                                    m_boundary.getSize().y - 15});
     }
 
+    const sf::Vector2f GraphicList::getPosition()
+    {
+        return sf::Vector2f{m_boundary.getPosition().x, m_boundary.getPosition().y};
+    }
+
     // Do stuff if te mouse wheel is moved. This
     // function is called from within TGUI in
     // case of a mouse wheel movement event is
     // registered by the GUI.
     void GraphicList::mouseWheelMoved(int delta, int x, int y)
     {
+        if( m_font == nullptr)
+            std::cout << "zxcvxcv" << std::endl;
+
+        std::cout << "---" << std::endl;
+
         // Since a wheel movement occurred either in
         // a upward or downward direction, the
         // scroller for the opposite direction must
@@ -348,6 +378,7 @@ namespace prattle
             if (m_items[i]->mouseOnWidget(x, y))
             {
                 m_items[i]->getTextWidget()->setTextColor(sf::Color::White);
+                m_selected = m_items[i];
             }
 
             else
@@ -402,6 +433,11 @@ namespace prattle
 
     void GraphicList::setFont(std::shared_ptr<sf::Font> font)
     {
-        m_font = font;
+        //m_pFont = font;
+    }
+
+    const sf::FloatRect GraphicList::getBounds()
+    {
+        return m_boundary.getGlobalBounds();
     }
 }

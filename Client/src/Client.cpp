@@ -19,7 +19,6 @@ namespace prattle
             std::cout << "No UI set in config file. Using GUI by default." << std::endl;
             m_ui = std::make_shared<GraphicalUI>();
         }
-
     }
 
     void Client::update()

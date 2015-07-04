@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+#include "../include/GraphicList.hpp"
 
 namespace prattle
 {
@@ -20,17 +21,28 @@ namespace prattle
             virtual void mouseMoved(float x, float y) override;
             virtual void mouseLeftWidget() override;
             virtual void leftMousePressed(float x, float y) override;
+            virtual void mouseWheelMoved(int delta, int x, int y) override;
             bool isFriendListButtonPressed();
-            const sf::Vector2f& getPosition();
-            const sf::Vector2f& getSize();
+            virtual void setPosition(const tgui::Layout& position) override;
+            const sf::Vector2f getPosition();
+            const sf::Vector2f getSize();
+
+            void setFont(std::shared_ptr<sf::Font> font);
+
+            void initList();
+
+            const std::string getSelectedFriend();
+
+            const sf::FloatRect getFriendlistBounds();
 
         private:
 
             sf::Texture m_menuItemTexture;
             std::vector<sf::Sprite> m_menuItemSprites;
             sf::FloatRect m_bounds;
-            std::shared_ptr<sf::Font> m_font;
+            //std::shared_ptr<sf::Font> m_font;
             float m_spacing;
+            GraphicList::Ptr m_friendList;
     };
 }
 

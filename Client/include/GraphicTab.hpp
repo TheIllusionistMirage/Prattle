@@ -25,7 +25,7 @@ namespace prattle
             void addTab(const std::string& tabLabel);
             void focusTab(const unsigned int& tabIndex);
             void removeTab(unsigned int index);
-            void setPosition(const sf::Vector2f& position);
+            virtual void setPosition(const tgui::Layout& position) override;
             const sf::Vector2f getPosition();
             void setSize(const sf::Vector2f& size);
             const sf::Vector2f getSize();

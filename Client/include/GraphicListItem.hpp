@@ -45,6 +45,7 @@ namespace prattle
             tgui::Label::Ptr getTextWidget();
             const sf::FloatRect getBounds();
             void loadTexture(const std::string& file);
+            //void setFont(std::shared_ptr<sf::Font> font);
 
         private:
 
@@ -55,6 +56,7 @@ namespace prattle
             float                        m_spacing;     // The amoutn of space between the graphic and the label.
             unsigned short               m_status;      // The status if the graphic image. In our very specific case
                                                         // it is used to calculate the texture rect of the graphic sprite.
+            //std::shared_ptr<sf::Font>    m_font;
     };
 }
 
