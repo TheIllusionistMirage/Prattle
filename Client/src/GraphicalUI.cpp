@@ -14,7 +14,8 @@ namespace prattle
                                  m_logoutButton{std::make_shared<tgui::Button>()},
                                  m_tabs{std::make_shared<GraphicTab>()},
                                  m_chatBox{std::make_shared<tgui::TextBox>()},
-                                 m_userInputBox{std::make_shared<tgui::TextBox>()},
+                                 m_inputBox{std::make_shared<tgui::TextBox>()},
+                                 m_chatMessage{std::make_shared<tgui::Label>()},
 //                                 m_signupScreenButton{std::make_shared<tgui::Button>()},
 //                                 m_signupButton{std::make_shared<tgui::Button>()},
 //                                 m_connectingText{std::make_shared<tgui::Label>()},
@@ -24,7 +25,7 @@ namespace prattle
                                  //m_chatBox{std::make_shared<tgui::TextBox>()},
                                  //m_userInputBox{std::make_shared<tgui::TextBox>()},
                                  //m_state{UserInterface::State::Login}
-                                 m_state{UserInterface::State::Chatting}
+                                 m_state{UserInterface::State::Login}
     {
         /* Setting the minimum window size for the X window system */
         #if defined(SFML_SYSTEM_LINUX) || defined(SFML_SYSTEM_FREEBSD)
@@ -138,27 +139,6 @@ namespace prattle
         /* chat screen widgets */
 
         m_menu->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 50});
-        //m_menu->setFont(m_gui.getGlobalFont());
-        //m_menu->initList();
-
-//        m_friendList->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50 + 5, tgui::bindTop(m_gui) + m_menu->getSize().y + 50 + 5});
-//        m_friendList->setFont(m_gui.getGlobalFont());
-//        m_friendList->addItem("MyFriend1");
-//        m_friendList->addItem("MyFriend2");
-//        m_friendList->addItem("MyFriend3");
-//        m_friendList->addItem("MyFriend4");
-//        m_friendList->addItem("MyFriend5");
-//        m_friendList->addItem("MyFriend6");
-//        m_friendList->addItem("MyFriend7");
-//        m_friendList->addItem("MyFriend8");
-//        m_friendList->addItem("MyFriend9");
-//        m_friendList->addItem("MyFriend10");
-//        m_friendList->addItem("MyFriend11");
-//        m_friendList->addItem("MyFriend12");
-//        m_friendList->addItem("MyFriend13");
-//        m_friendList->addItem("MyFriend14");
-////        m_friendList->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50 + 5, tgui::bindTop(m_gui) + m_menu->getSize().y + 50 + 5});
-//        //m_friendList->hide();
 
         m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_logoutButton->setText("Logout");
@@ -172,11 +152,29 @@ namespace prattle
         m_connectedUser->setSize(m_connectedUser->getText().getSize() * 7.2, 15);
         m_connectedUser->setPosition(tgui::bindLeft(m_logoutButton) - m_connectedUser->getSize().x - 10, tgui::bindTop(m_logoutButton) + 15 / 1.6);
 
-        m_tabs->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 50 + 100});
+        m_tabs->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 80, tgui::bindTop(m_gui) + 50 + 100});
 
-        m_chatWindowBorder.setFillColor(sf::Color{255, 214, 142});
-        //m_chatWindowBorder.setSize(sf::Vector2f{});
-        //m_chatWindowBorder.setPosition(sf::Vector2f{});
+        m_chatMessage->setText("Select a friend from your friendlist to begin chatting!");
+        m_chatMessage->setTextSize(12);
+        m_chatMessage->setTextColor(sf::Color{70, 66, 66});
+        m_chatMessage->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 2 - 12);
+
+        m_chatBox->setText("");
+        m_chatBox->setTextSize(15);
+        m_chatBox->setReadOnly(true);
+        m_chatBox->setSize(tgui::bindWidth(m_gui) - 110, tgui::bindHeight(m_gui) / 2);
+        m_chatBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_logoutButton) + 94);
+
+        m_inputBox->setText("");
+        m_inputBox->setTextSize(15);
+        m_inputBox->setSize(tgui::bindWidth(m_chatBox), tgui::bindHeight(m_gui) / 8);
+        m_inputBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_chatBox) + 10);
+
+        m_chatWindowBorder = tgui::Picture::create(CHAT_WINDOW_BORDER);
+        //m_chatWindowBorder.setSize(sf::Vector2f{m_chatBox->getSize().x + 20, m_chatBox->getSize().y + m_inputBox->getSize().y + 10 + 20});
+        m_chatWindowBorder->setSize(tgui::bindWidth(m_chatBox) + 20, tgui::bindHeight(m_chatBox) + tgui::bindHeight(m_inputBox) + 30);
+        //m_chatWindowBorder.setPosition(sf::Vector2f{m_chatBox->getPosition().x - 10, m_chatBox->getPosition().y - 10});
+        m_chatWindowBorder->setPosition(tgui::bindLeft(m_chatBox) - 10, tgui::bindTop(m_chatBox) - 10);
 
         // add all widgets to the gui
         m_gui.add(m_loginScreen);
@@ -214,8 +212,10 @@ namespace prattle
         m_chatScreen->add(m_connectedUser);
         m_chatScreen->add(m_logoutButton);
         m_chatScreen->add(m_tabs);
-//        m_chatScreen->add(m_chatBox);
-//        m_chatScreen->add(m_userInputBox);
+        m_chatScreen->add(m_chatMessage);
+        m_chatScreen->add(m_chatWindowBorder);
+        m_chatScreen->add(m_chatBox);
+        m_chatScreen->add(m_inputBox);
 
         m_loginScreen->hide();
         m_signupScreen->hide();
@@ -229,7 +229,15 @@ namespace prattle
 
     void GraphicalUI::reset()
     {
-        m_menu->initList();
+        m_usernameField->setText("");
+        m_passwordField->setText("");
+        m_chatBox->setText("");
+        m_inputBox->setText("");
+
+        m_chatBox->moveToFront();
+        m_inputBox->moveToFront();
+        //m_menu->initList({"Friend 1", "Friend 2", "Friend 3", "Friend 4", "Friend 5", "Friend 6", "Friend 7", "Friend 8", "Friend 9", "Friend 10"});
+        m_menu->moveToFront();
     }
 
     bool GraphicalUI::isMouseOver(tgui::Widget::Ptr widget)
@@ -351,6 +359,7 @@ namespace prattle
                             m_connectingScreen->setSize(static_cast<sf::Vector2f>(m_window.getSize()));
                             m_chatScreen->setSize(static_cast<sf::Vector2f>(m_window.getSize()));
                             m_background->setSize(static_cast<sf::Vector2f>(m_window.getSize()));
+                            m_tabs->update();
                         }
                         break;
 
@@ -378,13 +387,41 @@ namespace prattle
 
                             sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
-                            if (m_menu->getFriendlistBounds().contains(mousePos.x, mousePos.y) && m_menu->getSelectedFriend() != "")
+                            if (m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) && m_menu->getFriendlist()->isVisible() && m_menu->getSelectedFriend() != "")
                             {
-                                m_tabs->addTab(m_menu->getSelectedFriend());
+                                if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
+                                    m_tabs->focusTab(m_menu->getSelectedFriend());
+                                else
+                                    m_tabs->addTab(m_menu->getSelectedFriend());
+
+                                m_menu->getFriendlist()->hide();
                             }
+
+                            if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getBounds().contains(mousePos.x, mousePos.y)))
+                                m_menu->getFriendlist()->hide();
                         }
                         break;
                 }
+            }
+
+            if (!m_menu->getFriendlist()->getItemCount())
+            {
+                m_menu->getFriendlist()->setDefaultMessage("No friends yet!");
+            }
+
+            if (m_tabs->getTabCount() > 0)
+            {
+                m_chatMessage->hide();
+                m_chatBox->show();
+                m_inputBox->show();
+                m_chatWindowBorder->show();
+            }
+            else
+            {
+                m_chatMessage->show();
+                m_chatBox->hide();
+                m_inputBox->hide();
+                m_chatWindowBorder->hide();
             }
         }
 
@@ -403,16 +440,18 @@ namespace prattle
     {
     }
 
-    const std::string& GraphicalUI::getInputText()
+    const std::string GraphicalUI::getInputText()
     {
     }
 
-    const std::string& GraphicalUI::getUsername()
+    const std::string GraphicalUI::getUsername()
     {
+        return m_usernameField->getText();
     }
 
-    const std::string& GraphicalUI::getPassword()
+    const std::string GraphicalUI::getPassword()
     {
+        return m_passwordField->getText();
     }
 
     void GraphicalUI::clearChat()

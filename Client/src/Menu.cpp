@@ -44,49 +44,23 @@ namespace prattle
                                   m_menuItemSprites[0].getGlobalBounds().width + m_menuItemSprites[1].getGlobalBounds().width + m_menuItemSprites[2].getGlobalBounds().width + m_menuItemSprites[3].getGlobalBounds().width + 3 * m_spacing,
                                   m_menuItemSprites[0].getGlobalBounds().height };
 
-        //m_friendList->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50 + 5, tgui::bindTop(m_gui) + m_menu->getSize().y + 50 + 5});
-        //m_friendList->setFont(m_gui.getGlobalFont());
-//        m_friendList->setFont(m_font);
-//
-//        m_friendList->addItem("MyFriend1");
-//        m_friendList->addItem("MyFriend2");
-//        m_friendList->addItem("MyFriend3");
-//        m_friendList->addItem("MyFriend4");
-//        m_friendList->addItem("MyFriend5");
-//        m_friendList->addItem("MyFriend6");
-//        m_friendList->addItem("MyFriend7");
-//        m_friendList->addItem("MyFriend8");
-//        m_friendList->addItem("MyFriend9");
-//        m_friendList->addItem("MyFriend10");
-//        m_friendList->addItem("MyFriend11");
-//        m_friendList->addItem("MyFriend12");
-//        m_friendList->addItem("MyFriend13");
-//        m_friendList->addItem("MyFriend14");
-//        m_friendList->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50 + 5, tgui::bindTop(m_gui) + m_menu->getSize().y + 50 + 5});
-        //m_friendList->hide();
-
-        //temp= std::make_shared<GraphicListItem>();
+        m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
+        m_friendList->hide();
     }
 
-    void Menu::initList()
+    void Menu::init()
+    {
+        m_friendList->setDefaultMessage("No items added");
+    }
+
+    void Menu::initList(const std::vector<std::string> friends)
     {
         m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
-        m_friendList->addItem("MyFriend1");
-        m_friendList->addItem("MyFriend2");
-        m_friendList->addItem("MyFriend3");
-        m_friendList->addItem("MyFriend4");
-        m_friendList->addItem("MyFriend5");
-        m_friendList->addItem("MyFriend6");
-        m_friendList->addItem("MyFriend7");
-        m_friendList->addItem("MyFriend8");
-        m_friendList->addItem("MyFriend9");
-        m_friendList->addItem("MyFriend10");
-        m_friendList->addItem("MyFriend11");
-        m_friendList->addItem("MyFriend12");
-        m_friendList->addItem("MyFriend13");
-        m_friendList->addItem("MyFriend14");
+
+        for (auto& i : friends)
+            m_friendList->addItem(i);
+
         m_friendList->hide();
-        m_friendList->moveToFront();
     }
 
     const std::string Menu::getSelectedFriend()
@@ -94,10 +68,10 @@ namespace prattle
         return m_friendList->getSelected();
     }
 
-    const sf::FloatRect Menu::getFriendlistBounds()
-    {
-        return m_friendList->getBounds();
-    }
+//    GraphicList::Ptr Menu::getFriendlistBounds()
+//    {
+//        return m_friendList->getBounds();
+//    }
 
     void Menu::setFont(std::shared_ptr<sf::Font> font)
     {
@@ -123,7 +97,7 @@ namespace prattle
     {
         //m_friendList->mouseOnWidget(x, y);
 
-        if (m_bounds.contains(x,y) || m_friendList->mouseOnWidget(x, y))
+        if (m_bounds.contains(x,y) || (m_friendList->mouseOnWidget(x, y) && m_friendList->isVisible()))
             return true;
         else
         {
@@ -183,14 +157,27 @@ namespace prattle
 
         if (mouseOnWidget(x, y))
         {
-            m_friendList->leftMousePressed(x, y);
-            //std::cout << m_friendList->getSelected() << std::endl;
+//            if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
+//            {
+//                std::cout << " A " << std::endl;
+//                if (m_friendList->isVisible())
+//                {
+//                    std::cout << " B " << std::endl;
+//                    m_friendList->hide();
+//                }
+//            }
 
             if (m_friendList->isVisible())
-                m_friendList->hide();
+            {
+                m_friendList->leftMousePressed(x, y);
+                //m_friendList->hide();
+                if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
+                    m_friendList->hide();
+            }
 
             else
-                m_friendList->show();
+                if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
+                    m_friendList->show();
         }
     }
 
@@ -210,6 +197,8 @@ namespace prattle
         m_menuItemSprites[1].setPosition(sf::Vector2f{m_menuItemSprites[0].getPosition().x + m_menuItemSprites[0].getGlobalBounds().width + m_spacing, m_menuItemSprites[0].getPosition().y});
         m_menuItemSprites[2].setPosition(sf::Vector2f{m_menuItemSprites[1].getPosition().x + m_menuItemSprites[1].getGlobalBounds().width + m_spacing, m_menuItemSprites[1].getPosition().y});
         m_menuItemSprites[3].setPosition(sf::Vector2f{m_menuItemSprites[2].getPosition().x + m_menuItemSprites[2].getGlobalBounds().width + m_spacing, m_menuItemSprites[2].getPosition().y});
+
+        m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
     }
 
     const sf::Vector2f Menu::getPosition()
@@ -220,5 +209,15 @@ namespace prattle
     const sf::Vector2f Menu::getSize()
     {
         return sf::Vector2f{m_bounds.width, m_bounds.height};
+    }
+
+    GraphicList::Ptr Menu::getFriendlist()
+    {
+        return m_friendList;
+    }
+
+    sf::FloatRect Menu::getBounds()
+    {
+        return m_bounds;
     }
 }

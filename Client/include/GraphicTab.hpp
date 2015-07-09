@@ -24,6 +24,7 @@ namespace prattle
             virtual void leftMousePressed(float x, float y) override;
             void addTab(const std::string& tabLabel);
             void focusTab(const unsigned int& tabIndex);
+            void focusTab(const std::string& tabLabel);
             void removeTab(unsigned int index);
             virtual void setPosition(const tgui::Layout& position) override;
             const sf::Vector2f getPosition();
@@ -35,6 +36,7 @@ namespace prattle
             virtual void update() override;
             bool isTabVisible(const unsigned int& tabIndex);
             const unsigned int getTabCount();
+            bool isTabPresent(const std::string& tabLabel);
 
         private:
 

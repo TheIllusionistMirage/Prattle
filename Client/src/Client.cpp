@@ -19,6 +19,8 @@ namespace prattle
             std::cout << "No UI set in config file. Using GUI by default." << std::endl;
             m_ui = std::make_shared<GraphicalUI>();
         }
+
+        m_network.setIpAndPort(m_client_conf.addr, m_client_conf.port);
     }
 
     void Client::update()
@@ -55,16 +57,46 @@ namespace prattle
 
             case UserInterface::UIEvent::UserLogin:
             {
-                std::cout << "Login attempt" << std::endl;
-                m_ui->setState(UserInterface::State::Connecting);
+                //std::cout << "Login attempt" << std::endl;
+
                 /**/
-                m_ui->setState(UserInterface::State::Chatting);
+                //m_ui->setState(UserInterface::State::Chatting);
+                std::string uname = m_ui->getUsername();
+                std::string paswd = m_ui->getPassword();
+
+                std::cout << uname << " " << paswd << std::endl;
+
+                if (m_network.connect())
+                {
+                    if (!isStringWhitespace(uname) && !isStringWhitespace(paswd))
+                    {
+                        m_ui->setState(UserInterface::State::Connecting);
+
+                        int requestId = m_network.send(Network::TaskType::Login, std::vector<std::string>{uname, paswd});
+
+                        if (requestId != 0)
+                        {
+                            LOG("LOG :: Login attempted on " + getCurrentTimeAndDate() + ". Awaiting server's reply.");
+                        }
+                    }
+                    else
+                    {
+                        m_network.disconnect();
+                        LOG("WARNING :: Attempting to use an empty string for either username or login or both.");
+                    }
+                }
+                else
+                {
+                    LOG("ERROR :: Unable to connect to server! Please check your internet connection for any problems.");
+                    m_network.reset();
+                    m_ui->reset();
+                }
             }
             break;
 
             case UserInterface::UIEvent::UserSignup:
             {
-                std::cout << "Signup attempt" << std::endl;
+                //std::cout << "Signup attempt" << std::endl;
             }
             break;
         }
@@ -79,15 +111,34 @@ namespace prattle
     {
         while (m_state != State::Exit)
         {
-            int repliesCount = m_network.receive();
-            while(repliesCount --> 0) //The Goes-To operator (c)
+            if (m_network.isConnected())
             {
-                Network::Reply reply = m_network.popReply();
-                //if (reply.type == Network::)
-            }
-            switch (m_state)
-            {
-                //STUFF !!
+                int repliesCount = m_network.receive();
+
+                while(repliesCount --> 0) //The Goes-To operator (c)
+                {
+                    Network::Reply reply = m_network.popReply();
+
+                    if (reply.type == Network::ReplyType::TaskSuccess)
+                    {
+                        std::list<Network::Task> tasks = m_network.getPendingTasks();
+
+                        for (auto& i : tasks)
+                            if (reply.id == i.id)
+                            {
+                                m_network.setBlocking(false);
+                                std::cout << "Logged in as " + reply.arguments[0] + " succesffuly." << std::endl;
+
+                                std::cout << "Friendlist:-" << std::endl;
+                                for (auto j = reply.arguments.begin() + 1; j != reply.arguments.end(); j++)
+                                    std::cout << *j << " ";
+                            }
+                    }
+                }
+                switch (m_state)
+                {
+                    //STUFF !!
+                }
             }
 
             update();
@@ -165,4 +216,16 @@ namespace prattle
     {}
     void Client::changeState(State s)
     {}
+
+    bool Client::isStringWhitespace(const std::string& str)
+    {
+        for (auto& i : str)
+        {
+            if (i != ' ' && i != '\t' && i != '\n')
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }

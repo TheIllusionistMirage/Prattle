@@ -29,11 +29,15 @@ namespace prattle
 
             void setFont(std::shared_ptr<sf::Font> font);
 
-            void initList();
+            void initList(const std::vector<std::string> friends);
 
             const std::string getSelectedFriend();
 
-            const sf::FloatRect getFriendlistBounds();
+            GraphicList::Ptr getFriendlist();
+
+            sf::FloatRect getBounds();
+
+            void init();
 
         private:
 

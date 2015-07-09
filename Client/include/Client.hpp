@@ -17,13 +17,6 @@
 
 namespace prattle
 {
-    // Constants
-    enum class Status               // Online status
-    {
-        Online,
-        Offline
-    };
-
     class Client
     {
         public:
@@ -58,6 +51,7 @@ namespace prattle
             void sendUserMessage();
             void processServerReply();
             void changeState(State s);
+            bool isStringWhitespace(const std::string& str);
 
             const std::string m_configFilePath = "resources/config/client.conf";
             State m_state;

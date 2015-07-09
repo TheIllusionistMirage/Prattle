@@ -91,6 +91,10 @@ namespace prattle
 
             const sf::FloatRect getBounds();
 
+            const unsigned int getItemCount();
+
+            void setDefaultMessage(const std::string& message);
+
         private:
 
             sf::RectangleShape                m_boundary;           // The rectangular base of the list.
@@ -122,6 +126,8 @@ namespace prattle
             std::shared_ptr<GraphicListItem>  m_selected;           // The currently selected list item.
 
             //std::shared_ptr<sf::Font>         m_pFont;               // The global font fetched from the tgui::Gui object.
+
+            tgui::Label::Ptr                  m_defaultMessage;
     };
 }
 

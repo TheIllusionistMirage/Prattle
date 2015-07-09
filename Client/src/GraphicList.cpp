@@ -53,6 +53,11 @@ namespace prattle
         // no list items, the scrollers are hidden.
         m_scrollerUpVisible = false;
         m_scrollerDownVisible = false;
+
+        m_defaultMessage = tgui::Label::create();
+//        m_defaultMessage->setTextSize(12);
+//        m_defaultMessage->setTextColor(sf::Color{70, 66, 66});
+//        m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
     }
 
     GraphicList::~GraphicList()
@@ -67,20 +72,15 @@ namespace prattle
     void GraphicList::initialize(tgui::Container *const parent)
     {
         Widget::initialize(parent);
-
         m_font = parent->getGlobalFont();
-
-//        if( m_font == nullptr)
-//            std::cout << "zxcvxcv" << std::endl;
+        m_defaultMessage->setTextFont(m_font);
+        //setDefaultMessage("No Items Added");
     }
 
     // the draw function as interhited from tgui::Widget.
     // This is called each frame automatically by TGUI.
     void GraphicList::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
-        if( m_font == nullptr)
-            std::cout << "zxcvxcv" << std::endl;
-
         // draw the panel...
         target.draw(m_boundary, states);
 
@@ -130,12 +130,13 @@ namespace prattle
 
 //        if( m_font == nullptr)
 //            std::cout << "zxcvxcv" << std::endl;
+        m_defaultMessage->hide();
 
         m_items.push_back(std::make_shared<GraphicListItem>(label,
                                                             m_itemHeight,
                                                             sf::Color::Black,
                                                             m_itemTexturePtr,
-                                                            0,
+                                                            1,
                                                             5));
 
 //        if (m_pFont == nullptr)
@@ -200,7 +201,10 @@ namespace prattle
 
     const std::string GraphicList::getSelected()
     {
-        return m_selected->getTextWidget()->getText();
+        if (m_selected != nullptr)
+            return m_selected->getTextWidget()->getText();
+        else
+            return "";
     }
 
     // set the position of the list box.
@@ -229,6 +233,8 @@ namespace prattle
                                    m_boundary.getSize().x - 25,
                                    m_boundary.getPosition().y +
                                    m_boundary.getSize().y - 15});
+
+        m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
     }
 
     const sf::Vector2f GraphicList::getPosition()
@@ -242,11 +248,6 @@ namespace prattle
     // registered by the GUI.
     void GraphicList::mouseWheelMoved(int delta, int x, int y)
     {
-        if( m_font == nullptr)
-            std::cout << "zxcvxcv" << std::endl;
-
-        std::cout << "---" << std::endl;
-
         // Since a wheel movement occurred either in
         // a upward or downward direction, the
         // scroller for the opposite direction must
@@ -439,5 +440,28 @@ namespace prattle
     const sf::FloatRect GraphicList::getBounds()
     {
         return m_boundary.getGlobalBounds();
+    }
+
+    const unsigned int GraphicList::getItemCount()
+    {
+        return m_items.size();
+    }
+
+    void GraphicList::setDefaultMessage(const std::string& message)
+    {
+        m_defaultMessage->setTextSize(12);
+        m_defaultMessage->setTextFont(m_font);
+        m_defaultMessage->setTextColor(sf::Color{70, 66, 66});
+        m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
+
+        if (getItemCount() == 0)
+        {
+            m_defaultMessage->setText(message);
+            m_defaultMessage->show();
+        }
+        else
+        {
+            m_defaultMessage->hide();
+        }
     }
 }

@@ -38,11 +38,12 @@ namespace prattle
             const std::string MENU_ITEMS = "resources/images/custom/menu_items.png";
             const std::string SCROLLER = "resources/images/custom/scroller.png";
             const std::string ARROWS = "resources/images/custom/tab_arrow.png";
+            const std::string CHAT_WINDOW_BORDER = "resources/images/custom/chat_window_border.png";
 
         public:
             // member methods
             GraphicalUI();
-            void reset();
+            void reset() override;
             bool isMouseOver(tgui::Widget::Ptr button);
 
             // virtually inherited functions
@@ -52,9 +53,9 @@ namespace prattle
 
             void alert(const std::string& message) override;
 
-            const std::string& getInputText() override;
-            const std::string& getUsername() override;
-            const std::string& getPassword() override;
+            const std::string getInputText() override;
+            const std::string getUsername() override;
+            const std::string getPassword() override;
 
             void clearChat() override;
             std::string getChat(const std::string& user) override;
@@ -105,8 +106,9 @@ namespace prattle
             tgui::Button::Ptr  m_logoutButton;
             GraphicTab::Ptr    m_tabs;
             tgui::TextBox::Ptr m_chatBox;
-            tgui::TextBox::Ptr m_userInputBox;
-            sf::RectangleShape m_chatWindowBorder;
+            tgui::TextBox::Ptr m_inputBox;
+            tgui::Picture::Ptr m_chatWindowBorder;
+            tgui::Label::Ptr   m_chatMessage;
     };
 }
 

@@ -44,15 +44,16 @@ namespace prattle
                 };
 
             public:
+                virtual void reset() = 0;
                 virtual void setState(State s) = 0;
                 virtual UIEvent update() = 0;
                 virtual void draw() = 0;
 
                 virtual void alert(const std::string& message) = 0;
 
-                virtual const std::string& getInputText() = 0;
-                virtual const std::string& getUsername() = 0;
-                virtual const std::string& getPassword() = 0;
+                virtual const std::string getInputText() = 0;
+                virtual const std::string getUsername() = 0;
+                virtual const std::string getPassword() = 0;
 
                 virtual void clearChat() = 0;
                 virtual std::string getChat(const std::string& user) = 0;

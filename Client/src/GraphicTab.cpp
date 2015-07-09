@@ -214,7 +214,7 @@ namespace prattle
         m_iconSprites.back().setPosition(sf::Vector2f{m_tabs.back().getPosition().x + m_tabs.back().getSize().x - 15,
                                                       m_absoluteBounds.top + 7});
 
-        m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::Black, m_GLItemTexPtr, 0, 5));
+        m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::Black, m_GLItemTexPtr, 1, 5));
         m_items.back()->getTextWidget()->setTextFont(m_font);
         m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
 
@@ -248,6 +248,62 @@ namespace prattle
 
     void GraphicTab::focusTab(const unsigned int& tabIndex)
     {
+        if (tabIndex == getSelectedTabIndex())
+            return;
+
+        if (tabIndex < getSelectedTabIndex())
+        {
+            select(m_items[tabIndex]->getTextWidget()->getText());
+
+            while (!m_tabVisibility[tabIndex])
+            {
+                for (unsigned int i = 0; i < m_tabs.size(); i++)
+                {
+                    m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x + 2, m_tabs[i].getPosition().y});
+                    m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
+                    m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                }
+
+                m_firstTabVisible--;
+                m_tabVisibility[m_firstTabVisible] = true;
+                m_tabVisibility[m_lastTabVisible] = false;
+                m_lastTabVisible--;
+
+                m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left + m_maxDefaultTabSize.x + 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+            }
+        }
+
+        if (tabIndex > getSelectedTabIndex())
+        {
+            select(m_items[tabIndex]->getTextWidget()->getText());
+
+            while (!m_tabVisibility[tabIndex])
+            {
+                for (unsigned i = 0; i < m_tabs.size(); i++)
+                {
+                    m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x - m_tabs[i].getSize().x - 2, m_tabs[i].getPosition().y});
+                    m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
+                    m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                }
+
+                m_tabVisibility[m_firstTabVisible] = false;
+                m_firstTabVisible++;
+                m_lastTabVisible++;
+                m_tabVisibility[m_lastTabVisible] = true;
+
+                m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left - m_maxDefaultTabSize.x - 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+            }
+        }
+    }
+
+    void GraphicTab::focusTab(const std::string& tabLabel)
+    {
+        int tabIndex;
+
+        for (unsigned int i = 0; i < m_tabs.size(); i++)
+            if (m_items[i]->getTextWidget()->getText() == tabLabel)
+                tabIndex = i;
+
         if (tabIndex == getSelectedTabIndex())
             return;
 
@@ -431,95 +487,107 @@ namespace prattle
 
     void GraphicTab::update()
     {
-        while ((m_firstTabVisible && (m_lastTabVisible == m_tabs.size() - 1)) && ((m_parent->getSize().x - (m_tabs.back().getPosition().x + m_tabs.back().getSize().x)) > m_maxDefaultTabSize.x + 50))
+        if (m_tabs.size())
         {
-            for (unsigned int i = 0; i < m_tabs.size(); i++)
+            while ((m_firstTabVisible && (m_lastTabVisible == m_tabs.size() - 1)) && ((m_parent->getSize().x - (m_tabs.back().getPosition().x + m_tabs.back().getSize().x)) > m_maxDefaultTabSize.x + 50))
             {
-                m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x + 2, m_tabs[i].getPosition().y});
-                m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
-                m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                for (unsigned int i = 0; i < m_tabs.size(); i++)
+                {
+                    m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x + 2, m_tabs[i].getPosition().y});
+                    m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
+                    m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                }
+
+                m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left + m_maxDefaultTabSize.x + 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+                m_firstTabVisible--;
+                m_tabVisibility[m_firstTabVisible] = true;
             }
 
-            m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left + m_maxDefaultTabSize.x + 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
-            m_firstTabVisible--;
-            m_tabVisibility[m_firstTabVisible] = true;
-        }
-
-        while ((m_lastTabVisible == m_tabs.size() - 1) && (((m_tabs.back().getPosition().x + m_tabs.back().getSize().x) > m_parent->getSize().x - 50)))
-        {
-            for (unsigned int i = 0; i < m_tabs.size(); i++)
+            while ((m_lastTabVisible == m_tabs.size() - 1) && (((m_tabs.back().getPosition().x + m_tabs.back().getSize().x) > m_parent->getSize().x - 50)))
             {
-                m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x - m_tabs[i].getSize().x - 2, m_tabs[i].getPosition().y});
-                m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
-                m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                for (unsigned int i = 0; i < m_tabs.size(); i++)
+                {
+                    m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x - m_tabs[i].getSize().x - 2, m_tabs[i].getPosition().y});
+                    m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
+                    m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                }
+
+                m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left - m_maxDefaultTabSize.x - 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+                m_tabVisibility[m_firstTabVisible] = false;
+                m_firstTabVisible++;
             }
 
-            m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left - m_maxDefaultTabSize.x - 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
-            m_tabVisibility[m_firstTabVisible] = false;
-            m_firstTabVisible++;
-        }
-
-        while (!m_firstTabVisible && ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50))
-        {
-            m_lastTabVisible++;
-            m_tabVisibility[m_lastTabVisible] = true;
-        }
-
-        while (!m_firstTabVisible && (((m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x) > m_parent->getSize().x - 50)))
-        {
-            m_tabVisibility[m_lastTabVisible] = false;
-            m_lastTabVisible--;
-        }
-
-        if (m_firstTabVisible && (m_lastTabVisible != m_tabs.size() - 1))
-        {
-            while ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50)
+            while (!m_firstTabVisible && ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50))
             {
                 m_lastTabVisible++;
                 m_tabVisibility[m_lastTabVisible] = true;
+            }
 
-                if (m_lastTabVisible == m_tabs.size() - 1 && ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50))
+            while (!m_firstTabVisible && (((m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x) > m_parent->getSize().x - 50)))
+            {
+                m_tabVisibility[m_lastTabVisible] = false;
+                m_lastTabVisible--;
+            }
+
+            if (m_firstTabVisible && (m_lastTabVisible != m_tabs.size() - 1))
+            {
+                while ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50)
                 {
-                    for (unsigned int i = 0; i < m_tabs.size(); i++)
-                    {
-                        m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x + 2, m_tabs[i].getPosition().y});
-                        m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
-                        m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
-                    }
+                    m_lastTabVisible++;
+                    m_tabVisibility[m_lastTabVisible] = true;
 
-                    m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left + m_maxDefaultTabSize.x + 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+                    if (m_lastTabVisible == m_tabs.size() - 1 && ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50))
+                    {
+                        for (unsigned int i = 0; i < m_tabs.size(); i++)
+                        {
+                            m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x + 2, m_tabs[i].getPosition().y});
+                            m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
+                            m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                        }
+
+                        m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left + m_maxDefaultTabSize.x + 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+                        m_firstTabVisible--;
+                        m_tabVisibility[m_firstTabVisible] = true;
+                    }
+                }
+
+                while ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50)
+                {
                     m_firstTabVisible--;
                     m_tabVisibility[m_firstTabVisible] = true;
-                }
-            }
 
-            while ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50)
-            {
-                m_firstTabVisible--;
-                m_tabVisibility[m_firstTabVisible] = true;
-
-                if (m_firstTabVisible == 0 && ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50))
-                {
-                    for (unsigned int i = 0; i < m_tabs.size(); i++)
+                    if (m_firstTabVisible == 0 && ((m_parent->getSize().x - (m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x)) > m_maxDefaultTabSize.x + 50))
                     {
-                        m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x - m_tabs[i].getSize().x - 2, m_tabs[i].getPosition().y});
-                        m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
-                        m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
-                    }
+                        for (unsigned int i = 0; i < m_tabs.size(); i++)
+                        {
+                            m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x - m_tabs[i].getSize().x - 2, m_tabs[i].getPosition().y});
+                            m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
+                            m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+                        }
 
-                    m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left - m_maxDefaultTabSize.x - 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
-                    m_lastTabVisible--;
-                    m_tabVisibility[m_lastTabVisible] = true;
+                        m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left - m_maxDefaultTabSize.x - 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+                        m_lastTabVisible--;
+                        m_tabVisibility[m_lastTabVisible] = true;
+                    }
                 }
             }
-        }
 
-        m_leftArrow.setPosition(sf::Vector2f{m_tabs[m_firstTabVisible].getPosition().x - 27, m_tabs[m_firstTabVisible].getPosition().y});
-        m_rightArrow.setPosition(sf::Vector2f{m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x + 2, m_tabs[m_lastTabVisible].getPosition().y});
+            m_leftArrow.setPosition(sf::Vector2f{m_tabs[m_firstTabVisible].getPosition().x - 27, m_tabs[m_firstTabVisible].getPosition().y});
+            m_rightArrow.setPosition(sf::Vector2f{m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x + 2, m_tabs[m_lastTabVisible].getPosition().y});
+        }
     }
 
     const unsigned int GraphicTab::getTabCount()
     {
         return m_tabs.size();
+    }
+
+    bool GraphicTab::isTabPresent(const std::string& tabLabel)
+    {
+        for (unsigned int i = 0; i < m_tabs.size(); i++)
+            if (m_items[i]->getTextWidget()->getText() == tabLabel)
+                return true;
+
+        return false;
     }
 }

@@ -537,90 +537,173 @@ namespace prattle
                     {
                         if (request == LOGIN)
                         {
-                            std::string sender, receiver, plainPassword;
-                            if (packet >> sender >> receiver >> plainPassword)
+                            std::string str;
+                            std::vector<std::string> args;
+
+                            while (packet >> str)
+                                args.push_back(str);
+
+                            // args[0] is username, args[1] is password,
+                            // see the protocol docs at https://github.com/TheIllusionistMirage/Prattle/blob/new-logger/Documentation.md
+                            // for more details.
+                            if (db.isValidPassword(args[0], args[1]))
                             {
-                                if (receiver == SERVER)
+                                sf::Packet loginResult;
+
+                                loginResult << LOGIN_SUCCESS << args[0];// << sf::Uint32(db.getFriends(args[0]).size());// << db.getFriends(args[0]);
+
+                                for (auto& friendName : db.getFriends(args[0]))
+                                    loginResult << friendName;
+
+                                if ((*itr)->send(loginResult) != sf::Socket::Done)
                                 {
-                                    if (db.isValidPassword(sender, plainPassword))
-                                    {
-                                        sf::Packet loginResult;
-                                        loginResult << LOGIN_SUCCESS << SERVER << sender << sf::Uint32(db.getFriends(sender).size());
+                                    LOG("ERROR :: Error in sending login acknowledgment to \'" + args[0] + "\' from the server");
 
-                                        for (auto& friendName : db.getFriends(sender))
-                                            loginResult << friendName;
-
-                                        if ((*itr)->send(loginResult) != sf::Socket::Done)
-                                        {
-                                            LOG("ERROR :: Error in sending login acknowledgment to \'" + sender + "\' from the server");
-
-                                            m_selector.remove(**itr);
-                                            itr = m_new_connections.erase(itr);
-                                            continue;
-                                        }
-
-                                        std::cout << "o [" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
-                                        LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
-                                        auto itr_end = m_messages.upper_bound(sender);
-                                        for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
-                                        {
-                                            if ((*itr)->send(itr_2->second.second) != sf::Socket::Done)
-                                            {
-                                                LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + sender + ".");
-                                            }
-                                        }
-                                        m_messages.erase(sender);
-                                        m_clients.insert(std::make_pair(sender, std::move(*itr)));
-                                        itr = m_new_connections.erase(itr);
-
-                                        auto sender_friends = db.getFriends(sender);
-                                        sf::Packet onlinePacket;
-                                        for (auto& friendName : sender_friends)
-                                        {
-                                            auto friend_itr = m_clients.find(friendName);
-
-                                            if (friend_itr != m_clients.end())
-                                            {
-                                                //std::cout << friendName << " is online" << std::endl;
-                                                sf::Packet notifPacket;
-                                                notifPacket << NOTIF_LOGIN << SERVER << friendName << sender;
-                                                if(send(notifPacket))
-                                                {
-                                                    LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
-                                                }
-                                                else
-                                                    LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
-                                                notifPacket.clear();
-                                                notifPacket << NOTIF_ONLINE << SERVER << sender << friendName;
-                                                if(send(notifPacket))
-                                                {
-                                                    LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
-                                                }
-                                                else
-                                                    LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        sf::Packet loginResult;
-                                        std::string details = "ERROR :: The username-password combination is not recognized.";
-                                        loginResult << LOGIN_FAILURE << SERVER << sender << details;
-                                        if (!(*itr)->send(loginResult))
-                                        {
-                                            LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
-                                        }
-                                    }
+                                    m_selector.remove(**itr);
+                                    itr = m_new_connections.erase(itr);
+                                    continue;
                                 }
                                 else
+                                    LOG("Notified " + args[0] + " about login success.");
+
+                                //std::cout << "o [" + args[0] + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
+                                LOG("[" + args[0] + "] joined chat on " + getCurrentTimeAndDate() + " .");
+                                auto itr_end = m_messages.upper_bound(args[0]);
+                                for(auto itr_2 = m_messages.lower_bound(args[0]) ; itr_2 != itr_end ; ++itr_2)
                                 {
-                                    LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                                    if ((*itr)->send(itr_2->second.second) != sf::Socket::Done)
+                                    {
+                                        LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + args[0] + ".");
+                                    }
+//                                    else
+//                                        LOG("Notified " + args[0] + " about login success.");
                                 }
+
+                                m_messages.erase(args[0]);
+                                m_clients.insert(std::make_pair(args[0], std::move(*itr)));
+                                itr = m_new_connections.erase(itr);
+
+                                /*auto sender_friends = db.getFriends(args[0]);
+                                sf::Packet onlinePacket;
+                                for (auto& friendName : sender_friends)
+                                {
+                                    auto friend_itr = m_clients.find(friendName);
+
+                                    if (friend_itr != m_clients.end())
+                                    {
+                                        //std::cout << friendName << " is online" << std::endl;
+                                        sf::Packet notifPacket;
+                                        notifPacket << NOTIF_LOGIN << SERVER << friendName << sender;
+                                        if(send(notifPacket))
+                                        {
+                                            LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
+                                        }
+                                        else
+                                            LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
+                                        notifPacket.clear();
+                                        notifPacket << NOTIF_ONLINE << SERVER << sender << friendName;
+                                        if(send(notifPacket))
+                                        {
+                                            LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
+                                        }
+                                        else
+                                            LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+                                    }
+                                }*/
                             }
                             else
                             {
-                                LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                                sf::Packet loginResult;
+                                std::string details = "ERROR :: The username-password combination is not recognized.";
+                                loginResult << LOGIN_FAILURE << details;
+                                if (!(*itr)->send(loginResult))
+                                {
+                                    LOG("ERROR :: Unable to notify \'" + args[0] + "\' about invalid username-password combination they used to login.");
+                                }
                             }
+//                            if (packet >> sender >> receiver >> plainPassword)
+//                            {
+//                                if (receiver == SERVER)
+//                                {
+//                                    if (db.isValidPassword(sender, plainPassword))
+//                                    {
+//                                        sf::Packet loginResult;
+//                                        loginResult << LOGIN_SUCCESS << SERVER << sender << sf::Uint32(db.getFriends(sender).size());
+//
+//                                        for (auto& friendName : db.getFriends(sender))
+//                                            loginResult << friendName;
+//
+//                                        if ((*itr)->send(loginResult) != sf::Socket::Done)
+//                                        {
+//                                            LOG("ERROR :: Error in sending login acknowledgment to \'" + sender + "\' from the server");
+//
+//                                            m_selector.remove(**itr);
+//                                            itr = m_new_connections.erase(itr);
+//                                            continue;
+//                                        }
+//
+//                                        std::cout << "o [" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
+//                                        LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
+//                                        auto itr_end = m_messages.upper_bound(sender);
+//                                        for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
+//                                        {
+//                                            if ((*itr)->send(itr_2->second.second) != sf::Socket::Done)
+//                                            {
+//                                                LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + sender + ".");
+//                                            }
+//                                        }
+//                                        m_messages.erase(sender);
+//                                        m_clients.insert(std::make_pair(sender, std::move(*itr)));
+//                                        itr = m_new_connections.erase(itr);
+//
+//                                        auto sender_friends = db.getFriends(sender);
+//                                        sf::Packet onlinePacket;
+//                                        for (auto& friendName : sender_friends)
+//                                        {
+//                                            auto friend_itr = m_clients.find(friendName);
+//
+//                                            if (friend_itr != m_clients.end())
+//                                            {
+//                                                //std::cout << friendName << " is online" << std::endl;
+//                                                sf::Packet notifPacket;
+//                                                notifPacket << NOTIF_LOGIN << SERVER << friendName << sender;
+//                                                if(send(notifPacket))
+//                                                {
+//                                                    LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
+//                                                }
+//                                                else
+//                                                    LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
+//                                                notifPacket.clear();
+//                                                notifPacket << NOTIF_ONLINE << SERVER << sender << friendName;
+//                                                if(send(notifPacket))
+//                                                {
+//                                                    LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
+//                                                }
+//                                                else
+//                                                    LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+//                                            }
+//                                        }
+//                                    }
+//                                    else
+//                                    {
+//                                        sf::Packet loginResult;
+//                                        std::string details = "ERROR :: The username-password combination is not recognized.";
+//                                        loginResult << LOGIN_FAILURE << SERVER << sender << details;
+//                                        if (!(*itr)->send(loginResult))
+//                                        {
+//                                            LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
+//                                        }
+//                                    }
+//                                }
+//                                else
+//                                {
+//                                    LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+//                                }
+//                            }
+//                            else
+//                            {
+//                                LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+//                            }
                         }
                         else if (request == SIGNUP)
                         {

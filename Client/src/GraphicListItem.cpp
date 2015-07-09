@@ -124,7 +124,8 @@ namespace prattle
 
     tgui::Label::Ptr GraphicListItem::getTextWidget()
     {
-        return m_itemText;
+        if (m_itemText != nullptr)
+            return m_itemText;
     }
 
     const sf::FloatRect GraphicListItem::getBounds()
