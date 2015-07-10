@@ -1,4 +1,4 @@
-#include "TeeStream.hpp"
+#include "../include/TeeStream.hpp"
 
 namespace prattle
 {
