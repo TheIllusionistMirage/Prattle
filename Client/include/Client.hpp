@@ -56,7 +56,7 @@ namespace prattle
             const std::string m_configFilePath = "resources/config/client.conf";
             State m_state;
             Network m_network;
-            std::shared_ptr<UserInterface> m_ui;
+            std::unique_ptr<UserInterface> m_ui;
             Conf m_client_conf;
     };
 }

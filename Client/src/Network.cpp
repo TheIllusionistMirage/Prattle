@@ -8,21 +8,24 @@ namespace prattle
                          m_idCounter{0},
                          m_connected{false}
     {
-        //m_socket.setBlocking(false);
-        m_socket.setBlocking(true);
+        m_socket.setBlocking(false);
+        //m_socket.setBlocking(true);
     }
 
     void Network::reset()
     {
         disconnect();
-        //m_socket.setBlocking(false);
-        m_socket.setBlocking(true);
+        m_socket.setBlocking(false);
+        //m_socket.setBlocking(true);
         m_connected = false;
     }
 
     bool Network::connect()
     {
-        return m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD)) == sf::Socket::Status::Done;
+        while (!(m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD)) == sf::Socket::Status::Done));
+            m_connected = true;
+            return true;
+
 //        std::cout << m_addr << " " << m_port << std::endl;
 //        sf::Socket::Status s = m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD));
 //
@@ -148,5 +151,19 @@ namespace prattle
         Reply r = m_replies.back();
         m_replies.pop_back();
         return r;
+    }
+
+    const Network::Task Network::popTask()
+    {
+        Task t = m_tasks.back();
+        m_tasks.pop_back();
+        return t;
+    }
+
+    const Network::Task Network::removeTask(RequestId taskId)
+    {
+        for (auto itr = m_tasks.begin(); itr != m_tasks.end(); itr++)
+            if ((*itr).id == taskId)
+                m_tasks.erase(itr);
     }
 }

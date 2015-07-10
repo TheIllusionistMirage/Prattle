@@ -9,7 +9,7 @@ namespace prattle
         parseConfigFile();
 
         if (m_client_conf.ui == "gui")
-            m_ui = std::make_shared<GraphicalUI>();
+            m_ui = std::unique_ptr<GraphicalUI>{new GraphicalUI{}};
 
         else if (m_client_conf.ui == "cli")
             { /**/ }
@@ -17,7 +17,7 @@ namespace prattle
         else
         {
             std::cout << "No UI set in config file. Using GUI by default." << std::endl;
-            m_ui = std::make_shared<GraphicalUI>();
+            m_ui = std::unique_ptr<GraphicalUI>{new GraphicalUI{}};
         }
 
         m_network.setIpAndPort(m_client_conf.addr, m_client_conf.port);
@@ -37,6 +37,15 @@ namespace prattle
             case UserInterface::UIEvent::Closed:
             {
                 m_state = State::Exit;
+                m_network.receive();
+                m_network.disconnect();
+            }
+            break;
+
+            case UserInterface::UIEvent::Disconnect:
+            {
+                m_network.disconnect();
+                m_state = State::Login;
             }
             break;
 
@@ -126,7 +135,8 @@ namespace prattle
                         for (auto& i : tasks)
                             if (reply.id == i.id)
                             {
-                                m_network.setBlocking(false);
+                                m_network.popTask();
+
                                 std::cout << "Logged in as " + reply.arguments[0] + " succesffuly." << std::endl;
 
                                 std::cout << "Friendlist:-" << std::endl;

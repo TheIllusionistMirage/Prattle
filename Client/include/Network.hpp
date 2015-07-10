@@ -113,6 +113,10 @@ namespace prattle
         // otherwise it is the request id of the *received*
         const Reply popReply();
 
+        const Task popTask();
+
+        const Task removeTask(RequestId taskId);
+
     private:
 
         //List of tasks which haven't received a reply from server

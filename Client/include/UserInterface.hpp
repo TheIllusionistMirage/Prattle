@@ -40,7 +40,8 @@ namespace prattle
                     Search,
                     AddFriend,
                     None,
-                    Closed
+                    Closed,
+                    Disconnect
                 };
 
             public:

@@ -553,7 +553,7 @@ namespace prattle
                                 loginResult << LOGIN_SUCCESS << args[0];// << sf::Uint32(db.getFriends(args[0]).size());// << db.getFriends(args[0]);
 
                                 for (auto& friendName : db.getFriends(args[0]))
-                                    loginResult << friendName;
+                                    {loginResult << friendName; std::cout << friendName << " ";}
 
                                 if ((*itr)->send(loginResult) != sf::Socket::Done)
                                 {
@@ -564,10 +564,13 @@ namespace prattle
                                     continue;
                                 }
                                 else
+                                {
+                                    LOG("[" + args[0] + "] joined chat on " + getCurrentTimeAndDate() + " .");
                                     LOG("Notified " + args[0] + " about login success.");
+                                }
 
                                 //std::cout << "o [" + args[0] + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
-                                LOG("[" + args[0] + "] joined chat on " + getCurrentTimeAndDate() + " .");
+                                //LOG("[" + args[0] + "] joined chat on " + getCurrentTimeAndDate() + " .");
                                 auto itr_end = m_messages.upper_bound(args[0]);
                                 for(auto itr_2 = m_messages.lower_bound(args[0]) ; itr_2 != itr_end ; ++itr_2)
                                 {

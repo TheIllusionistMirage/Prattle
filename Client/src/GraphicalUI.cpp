@@ -145,7 +145,7 @@ namespace prattle
         m_logoutButton->setTextSize(15);
         m_logoutButton->setSize(100, 30);
         m_logoutButton->setPosition(tgui::bindRight(m_gui) - m_logoutButton->getSize().x - 20, tgui::bindTop(m_gui) + 50 + 50 / 3);
-        m_logoutButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
+        //m_logoutButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
 
         m_connectedUser->setText("Username goes here");
         m_connectedUser->setTextSize(12);
@@ -384,6 +384,9 @@ namespace prattle
 
                             if (isMouseOver(m_signupButton))
                                 return UserInterface::UIEvent::UserSignup;
+
+                            if (isMouseOver(m_logoutButton))
+                                return UserInterface::UIEvent::Disconnect;
 
                             sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
