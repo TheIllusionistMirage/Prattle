@@ -132,6 +132,8 @@ namespace prattle
                                 std::cout << "Friendlist:-" << std::endl;
                                 for (auto j = reply.arguments.begin() + 1; j != reply.arguments.end(); j++)
                                     std::cout << *j << " ";
+
+                                m_ui->setState(UserInterface::State::Chatting);
                             }
                     }
                 }

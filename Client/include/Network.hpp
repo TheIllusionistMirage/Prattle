@@ -96,6 +96,8 @@ namespace prattle
 
         bool isConnected();
 
+        void createTask(TaskType type, std::vector<std::string> args);
+
         std::list<Task> getPendingTasks();
 
         //Returns the RequestId of the task/request
@@ -109,7 +111,7 @@ namespace prattle
         // Returns a reply (sent by the server)
         // If the reply was a confirmation/error for a task, request id is the id of the *sent* request
         // otherwise it is the request id of the *received*
-        const Reply& popReply();
+        const Reply popReply();
 
     private:
 

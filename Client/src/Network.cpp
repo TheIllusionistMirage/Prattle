@@ -22,25 +22,25 @@ namespace prattle
 
     bool Network::connect()
     {
-        std::cout << m_addr << " " << m_port << std::endl;
-        //return m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD)) == sf::Socket::Status::Done;
-        sf::Socket::Status s = m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD));
-
-        if (s == sf::Socket::Status::Done)
-        {
-            m_connected = true;
-            return true;
-        }
-        else if (s == sf::Socket::Status::Error)
-        {
-            std::cout << "E" << std::endl;
-            return false;
-        }
-        else if (s == sf::Socket::Status::NotReady)
-        {
-            std::cout << "N" << std::endl;
-            return false;
-        }
+        return m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD)) == sf::Socket::Status::Done;
+//        std::cout << m_addr << " " << m_port << std::endl;
+//        sf::Socket::Status s = m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD));
+//
+//        if (s == sf::Socket::Status::Done)
+//        {
+//            m_connected = true;
+//            return true;
+//        }
+//        else if (s == sf::Socket::Status::Error)
+//        {
+//            std::cout << "E" << std::endl;
+//            return false;
+//        }
+//        else if (s == sf::Socket::Status::NotReady)
+//        {
+//            std::cout << "N" << std::endl;
+//            return false;
+//        }
     }
 
     void Network::disconnect()
@@ -143,8 +143,10 @@ namespace prattle
         return m_replies.size();
     }
 
-    const Network::Reply& Network::popReply()
+    const Network::Reply Network::popReply()
     {
-        return m_replies.back();
+        Reply r = m_replies.back();
+        m_replies.pop_back();
+        return r;
     }
 }
