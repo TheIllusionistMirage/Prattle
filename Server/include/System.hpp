@@ -13,7 +13,7 @@
 #include <string>
 #include <random>
 #include "../include/SHA256/SHA256.h"
-#include "../include/ErrorLog.hpp"
+#include "../include/Logger.hpp"
 
 namespace prattle
 {

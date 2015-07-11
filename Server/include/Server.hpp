@@ -12,7 +12,6 @@
 
 #include <list>
 #include <memory>
-#include <chrono>
 #include <SFML/Network.hpp>
 #include "../include/System.hpp"
 #include "../include/UserDatabase.hpp"
@@ -51,41 +50,6 @@ namespace prattle
 
     class Server
     {
-        public:
-
-            typedef std::uint32_t RequestId;
-
-            enum TaskType
-            {
-                Login,
-                Signup,
-                SendMsg,
-                Search,
-                AddFriend
-            };
-
-            struct Task
-            {
-                RequestId id;
-                TaskType type;
-                std::chrono::steady_clock::time_point timeStarted;
-            };
-
-            enum ReplyType
-            {
-                TaskSuccess,
-                TaskError,
-                TaskTimeout,
-                RecievedMessage
-            };
-
-            struct Reply
-            {
-                RequestId id;
-                ReplyType type;
-                std::vector<std::string> arguments;
-            };
-
         public:
             Server();
 
