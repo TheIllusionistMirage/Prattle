@@ -75,7 +75,7 @@ Note : Each word seperated by a space is a different string, thus must be extrac
 
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
-    2.1 Sent to Server to signup       | signup \<username> server \<password>
+    2.1 Sent to Server to signup       | signup \<username> \<password>
     2.2 Sent to Client as reply        | signup_success
     2.3 Sent to Client as reply        | signup_failure \<server message>
 
@@ -111,7 +111,7 @@ TODO: Limit and/or "paginate" the matches
 
     Packet Type                                               | Packet format
     ----------------------------------------------------------|------------------------------------------------
-    6.1 Sent to Client to notify                              | status_online \<friend who came online> ...
+    6.1 Sent to Client to notify                              | status_online \<friend who came online>
     6.2 Sent to Client to notify                              | status_offline \<friend who went offline>
 
 
