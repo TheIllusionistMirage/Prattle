@@ -98,8 +98,6 @@ namespace prattle
 
         void createTask(TaskType type, std::vector<std::string> args);
 
-        std::list<Task> getPendingTasks();
-
         //Returns the RequestId of the task/request
         RequestId send(TaskType task, const std::vector<std::string>& args);
 

@@ -130,9 +130,7 @@ namespace prattle
 
                     if (reply.type == Network::ReplyType::TaskSuccess)
                     {
-                        std::list<Network::Task> tasks = m_network.getPendingTasks();
-
-                        for (auto& i : tasks)
+                            auto& i = m_network.popReply();
                             if (reply.id == i.id)
                             {
                                 m_network.popTask();

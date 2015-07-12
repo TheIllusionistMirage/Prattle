@@ -98,11 +98,6 @@ namespace prattle
         return 0;
     }
 
-    std::list<Network::Task> Network::getPendingTasks()
-    {
-        return m_tasks;
-    }
-
     int Network::receive()
     {
         sf::Packet packet;

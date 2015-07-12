@@ -111,8 +111,8 @@ TODO: Limit and/or "paginate" the matches
 
     Packet Type                                               | Packet format
     ----------------------------------------------------------|------------------------------------------------
-    6.1 Sent to Client to notify                              | status_online \<username> \<number of friends who went online> \<friend1> \<friend2> ...
-    6.2 Sent to Client to notify                              | status_offline \username> \<number of friends who went offline> \<friend1> \<friend2> ...
+    6.1 Sent to Client to notify                              | status_online \<friend who came online> ...
+    6.2 Sent to Client to notify                              | status_offline \<friend who went offline>
 
 
 

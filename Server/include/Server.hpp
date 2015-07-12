@@ -41,9 +41,8 @@ namespace prattle
     const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
     const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
 
-    const std::string NOTIF_LOGIN         = "notif_login";
-    const std::string NOTIF_LOGOUT        = "notif_logout";
-    const std::string NOTIF_ONLINE        = "notif_online";
+    const std::string STATUS_ONLINE       = "status_online";
+    const std::string STATUS_OFFLINE      = "status_offline";
 
     // Class Server which is the main component for Prattle's Server. It controls
     // the overall chat process as described in the beginning of this file.
@@ -70,12 +69,12 @@ namespace prattle
             void addNewClient();                // Adds a connected client (a sf::TcpSocket) to the list of currently connected
                                                 // clients 'm_clients'.
 
-            bool send(const sf::Packet& packet);// sends a packet (an instance of sf::Packet) to a connected
+            bool send(const sf::Packet& packet, const std::string& username);// sends a packet (an instance of sf::Packet) to a connected
                                                 // client (an instance of sf::TcpSocket)
             bool sendController(sf::Packet& packet); // send to controller
             void receive();                     // Receive packets from all clients who are either connected or trying to connect.
             void handleNewConnection();
-            void handleClientRequest(sf::Packet& packet);
+            void handleClientRequest(sf::Packet& packet, const std::string& sender);
             void receiveCommand(); //Handle commands received by controller
             sf::TcpListener m_listener;         // Listens to incoming connections at port OPEN_PORT.
             sf::SocketSelector m_selector;      // Selector class for interacting with multiple sockets.
@@ -84,7 +83,7 @@ namespace prattle
             bool m_running;                     // Boolean to indicate the running state of the server.
             UserDatabase db;                    // The user database object that handles or database related tasks.
             sf::Time timeOut;                   // The timeout limit for waiting on packets/connections.
-            std::multimap<std::string, std::pair<std::string, sf::Packet>> m_messages;
+            std::multimap<std::string, sf::Packet> m_messages;
                                                 // A map to store the messages being sent by online clients to offline clients.
             std::list<std::unique_ptr<sf::TcpSocket>> m_new_connections;
                                                 // List to store the clients who have established connection
