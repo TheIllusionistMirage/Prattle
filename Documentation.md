@@ -95,8 +95,9 @@ Note : Each word seperated by a space is a different string, thus must be extrac
     Packet Type                                    | Packet format
     -----------------------------------------------|-----------------------------------------------
     4.1 Sent to Server to search a user            | search_user \<name>
-    4.2 Sent to Client as reply (found)            | search_user_result \<name>
-    4.3 Sent to Client as reply (not found)        | search_user_result \<name>
+    4.2 Sent to Client as reply (found)            | search_user_result \<number of matches> \<name1> \<name2> ...
+    4.3 Sent to Client as reply (not found)        | search_user_result 0
+TODO: Limit and/or "paginate" the matches
 
 **5. Adding friends**
 
