@@ -104,8 +104,8 @@ TODO: Limit and/or "paginate" the matches
     Packet Type                            | Packet format
     ---------------------------------------|-----------------------------------------------
     5.1 Sent to Server                     | add_friend \<friendname>
-    5.2 Sent to Client as reply            | add_friend-success \<friendname>
-    5.3 Sent to Client as reply            | add_friend-failure \<friendname> \<server message>
+    5.2 Sent to Client as reply            | add_friend_success \<friendname>
+    5.3 Sent to Client as reply            | add_friend_failure \<friendname> \<server message>
 
 **6. Status **
 
