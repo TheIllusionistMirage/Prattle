@@ -169,10 +169,10 @@ namespace prattle
             //Check expired tasks
             for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
             {
-                auto timeElapsed = std::chrono::steady_clock::now() - i->timeStarted;
-                if (std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count() > m_defaultTaskTimeout)
+                auto d = std::chrono::steady_clock::now() - i->timeStarted;
+                if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
                 {
-                    LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id));
+                    LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id) + "Time elapsed: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
                     i = std::prev(m_tasks.erase(i));
                 }
             }
