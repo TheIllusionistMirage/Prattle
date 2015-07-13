@@ -174,7 +174,6 @@ namespace prattle
                 if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
                     m_friendList->hide();
             }
-
             else
                 if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
                     m_friendList->show();

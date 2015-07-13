@@ -62,7 +62,7 @@ Request format :
 The client-request-id is sent back to the client, it is only specific to the client and couldn't be used by the server.  
 Response format:
 ```
-<Response-type> <request-id of request> <other-stuff>
+<Response-type> <request-id of corresponding request> <other-stuff>
 ```
 Note : Each word seperated by a space is a different string, thus must be extracted individually from the packet.
 
@@ -91,8 +91,8 @@ Note : Each word seperated by a space is a different string, thus must be extrac
     ---------------------------------------------|-----------------------------------------------
     3.1 Sent to Server to send message           | sendmsg \<req id> \<receiver> \<data>
     3.2 Sent to Client(receiver)                 | sendmsg \<sender> \<data>
-    3.3 Sent to Client(sender) as reply          | sendmsg_success \<req id> \<receiver>
-    3.4 Sent to Client(sender) as reply          | sendmsg_failure \<req id> \<receiver> \<server message>
+    3.3 Sent to Client(sender) as reply          | sendmsg_success \<req id>
+    3.4 Sent to Client(sender) as reply          | sendmsg_failure \<req id> \<server message>
 
 
 **4. Searching Database**
@@ -110,7 +110,8 @@ TODO: Limit and/or "paginate" the matches
     ---------------------------------------|-----------------------------------------------
     5.1 Sent to Server                     | add_friend \<req id> \<friendname>
     5.2 Sent to Client as reply            | add_friend_success \<req id> \<friendname>
-    5.3 Sent to Client as reply            | add_friend_failure \<req id> \<friendname> \<server message>
+    5.3 Sent to Client (friend)            | add_new_friend \<friendname>
+    5.4 Sent to Client as reply            | add_friend_failure \<req id> \<friendname> \<server message>
 
 **6. Status **
 
@@ -157,3 +158,4 @@ ack <additional details or queried data>
 | remove_user \<name> | Removes user \<name> from the DB
 | print_stats         | Prints stats about the server (uptime, number of users etc.)  |
 
+Note: Communication between Server-Controller and Server is assumed synchronous

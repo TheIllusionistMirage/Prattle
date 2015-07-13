@@ -97,7 +97,6 @@ namespace prattle
                     {
                         m_tabs[i].setTexture(m_tabTexture);
                     }
-
                     else
                     {
                         if (m_selected != m_items[i]->getTextWidget()->getText())
@@ -108,7 +107,6 @@ namespace prattle
                     {
                         m_iconSprites[i].setTextureRect(sf::IntRect{0, 0, 10, 10});
                     }
-
                     else
                         m_iconSprites[i].setTextureRect(sf::IntRect{10, 0, 10, 10});
                 }
@@ -129,7 +127,6 @@ namespace prattle
                         select(m_items[i]->getTextWidget()->getText());
                         m_tabs[i].setTexture(m_tabTexture);
                     }
-
                     else
                     {
                         if (m_selected != m_items[i]->getTextWidget()->getText())
@@ -196,7 +193,6 @@ namespace prattle
             m_tabs.back().setTexture(m_tabActiveTexture);
             deselect();
         }
-
         else
         {
             m_firstTabVisible = 0;

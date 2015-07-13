@@ -30,7 +30,8 @@ namespace prattle
                 Exit
             };
 
-            struct Conf      // Stores basic configuration info
+            // Stores basic configuration info
+            struct Configuration
             {
                 std::string addr;
                 int port;
@@ -42,7 +43,7 @@ namespace prattle
             Client();
             void update();
             void draw();
-            void run(float);
+            void run();
 
         private:
             void parseConfigFile();
@@ -55,9 +56,12 @@ namespace prattle
 
             const std::string m_configFilePath = "resources/config/client.conf";
             State m_state;
+
             Network m_network;
+            Network::RequestId m_loginReqId;
+
             std::unique_ptr<UserInterface> m_ui;
-            Conf m_client_conf;
+            Configuration m_clientConf;
     };
 }
 

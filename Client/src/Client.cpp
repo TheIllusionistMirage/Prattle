@@ -8,105 +8,77 @@ namespace prattle
     {
         parseConfigFile();
 
-        if (m_client_conf.ui == "gui")
+        if (m_clientConf.ui == "gui")
             m_ui = std::unique_ptr<GraphicalUI>{new GraphicalUI{}};
-
-        else if (m_client_conf.ui == "cli")
-            { /**/ }
-
+//        else if (m_clientConf.ui == "cli")
+            //m_ui = std::unique_ptr<decltype(m_ui)>(nullptr);
         else
         {
-            std::cout << "No UI set in config file. Using GUI by default." << std::endl;
+            LOG("No UI set in config file. Using GUI by default.");
             m_ui = std::unique_ptr<GraphicalUI>{new GraphicalUI{}};
         }
 
-        m_network.setIpAndPort(m_client_conf.addr, m_client_conf.port);
+    }
+
+    void Client::run()
+    {
+        while (m_state != State::Exit)
+        {
+            update();
+            draw();
+        }
     }
 
     void Client::update()
     {
-        UserInterface::UIEvent e = m_ui->update();
+        int updates = m_network.receive();
+        while (updates --> 0)
+        {
+            auto reply = m_network.popReply();
+            if (reply.id == m_loginReqId)
+            {
+                if (reply.type == Network::Reply::TaskSuccess)
+                    m_ui->setState(UserInterface::State::Chatting);
+                else
+                    std::cout << "Boo!" << std::endl;
+            }
+        }
 
+        //UI Event
+        UserInterface::UIEvent e = m_ui->update();
         switch (e)
         {
             case UserInterface::UIEvent::AddFriend:
-            {
-            }
             break;
-
             case UserInterface::UIEvent::Closed:
             {
                 m_state = State::Exit;
-                m_network.receive();
-                m_network.disconnect();
             }
             break;
-
             case UserInterface::UIEvent::Disconnect:
             {
-                m_network.disconnect();
+                m_network.send(Network::Task::Type::Logout);
                 m_state = State::Login;
             }
             break;
-
             case UserInterface::UIEvent::MessageSent:
-            {
-            }
             break;
-
             case UserInterface::UIEvent::None:
-            {
-            }
             break;
-
             case UserInterface::UIEvent::Search:
-            {
-            }
             break;
-
             case UserInterface::UIEvent::UserLogin:
             {
-                //std::cout << "Login attempt" << std::endl;
-
-                /**/
-                //m_ui->setState(UserInterface::State::Chatting);
-                std::string uname = m_ui->getUsername();
-                std::string paswd = m_ui->getPassword();
-
-                std::cout << uname << " " << paswd << std::endl;
-
-                if (m_network.connect())
-                {
-                    if (!isStringWhitespace(uname) && !isStringWhitespace(paswd))
-                    {
-                        m_ui->setState(UserInterface::State::Connecting);
-
-                        int requestId = m_network.send(Network::TaskType::Login, std::vector<std::string>{uname, paswd});
-
-                        if (requestId != 0)
-                        {
-                            LOG("LOG :: Login attempted on " + getCurrentTimeAndDate() + ". Awaiting server's reply.");
-                        }
-                    }
-                    else
-                    {
-                        m_network.disconnect();
-                        LOG("WARNING :: Attempting to use an empty string for either username or login or both.");
-                    }
-                }
-                else
-                {
-                    LOG("ERROR :: Unable to connect to server! Please check your internet connection for any problems.");
-                    m_network.reset();
-                    m_ui->reset();
-                }
+//                m_ui->setState(UserInterface::State::Chatting);
+                m_loginReqId = m_network.send(Network::Task::Login, {
+                               m_clientConf.addr,
+                               std::to_string(m_clientConf.port),
+                               m_ui->getUsername(),
+                               m_ui->getPassword()} );
             }
             break;
-
             case UserInterface::UIEvent::UserSignup:
-            {
-                //std::cout << "Signup attempt" << std::endl;
-            }
+                std::cout << "Signup" << std::endl;
             break;
         }
     }
@@ -116,45 +88,6 @@ namespace prattle
         m_ui->draw();
     }
 
-    void Client::run(float dt)
-    {
-        while (m_state != State::Exit)
-        {
-            if (m_network.isConnected())
-            {
-                int repliesCount = m_network.receive();
-
-                while(repliesCount --> 0) //The Goes-To operator (c)
-                {
-                    Network::Reply reply = m_network.popReply();
-
-                    if (reply.type == Network::ReplyType::TaskSuccess)
-                    {
-                            auto& i = m_network.popReply();
-                            if (reply.id == i.id)
-                            {
-                                m_network.popTask();
-
-                                std::cout << "Logged in as " + reply.arguments[0] + " succesffuly." << std::endl;
-
-                                std::cout << "Friendlist:-" << std::endl;
-                                for (auto j = reply.arguments.begin() + 1; j != reply.arguments.end(); j++)
-                                    std::cout << *j << " ";
-
-                                m_ui->setState(UserInterface::State::Chatting);
-                            }
-                    }
-                }
-                switch (m_state)
-                {
-                    //STUFF !!
-                }
-            }
-
-            update();
-            draw();
-        }
-    }
     void Client::parseConfigFile()
     {
         std::ifstream configFile{m_configFilePath, std::ios::in};
@@ -170,12 +103,12 @@ namespace prattle
 
         //Maps the field name in the config file to (data type, pointer to variable) of the field
         std::map<std::string, std::pair<DataType,void*>> fieldsMap;
-        fieldsMap.insert({"open_port", {INT, &m_client_conf.port}});
-        fieldsMap.insert({"server_addr", {STRING, &m_client_conf.addr}});
-        fieldsMap.insert({"ui", {STRING, &m_client_conf.ui}});
+        fieldsMap.insert({"open_port", {INT, &m_clientConf.port}});
+        fieldsMap.insert({"server_addr", {STRING, &m_clientConf.addr}});
+        fieldsMap.insert({"ui", {STRING, &m_clientConf.ui}});
+
         std::string line;
         std::getline(configFile, line);
-
         for (unsigned int i = 1; !configFile.eof(); std::getline(configFile, line), i++)
         {
             std::string field;

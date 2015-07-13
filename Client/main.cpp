@@ -13,7 +13,7 @@ int main()
         cout << "=========================" << endl;
 
         prattle::Client m_prattleClient;
-        m_prattleClient.run(0.f);
+        m_prattleClient.run();
     }
     catch(std::exception& e)
     {

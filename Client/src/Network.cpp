@@ -1,164 +1,191 @@
 #include "../include/Network.hpp"
+#include <cassert>
 
 namespace prattle
 {
-    Network::Network() : m_addr{""} ,
-                         m_port{-1} ,
-                         m_socket{} ,
-                         m_idCounter{0},
-                         m_connected{false}
+    Network::Network() :
+        m_idCounter{0}
     {
         m_socket.setBlocking(false);
-        //m_socket.setBlocking(true);
     }
 
     void Network::reset()
     {
-        disconnect();
-        m_socket.setBlocking(false);
-        //m_socket.setBlocking(true);
-        m_connected = false;
-    }
-
-    bool Network::connect()
-    {
-        while (!(m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD)) == sf::Socket::Status::Done));
-            m_connected = true;
-            return true;
-
-//        std::cout << m_addr << " " << m_port << std::endl;
-//        sf::Socket::Status s = m_socket.connect(m_addr, m_port, sf::milliseconds(DEFAULT_TIMEOUT_PERIOD));
-//
-//        if (s == sf::Socket::Status::Done)
-//        {
-//            m_connected = true;
-//            return true;
-//        }
-//        else if (s == sf::Socket::Status::Error)
-//        {
-//            std::cout << "E" << std::endl;
-//            return false;
-//        }
-//        else if (s == sf::Socket::Status::NotReady)
-//        {
-//            std::cout << "N" << std::endl;
-//            return false;
-//        }
-    }
-
-    void Network::disconnect()
-    {
         m_socket.disconnect();
+        m_tasks.clear();
+        m_replies.clear();
+        //m_idCounter = 0;
     }
-
-    void Network::setBlocking(bool blocking)
+    Network::RequestId Network::generateId()
     {
-        m_socket.setBlocking(blocking);
+        return ++m_idCounter;
     }
-
-    void Network::setIpAndPort(const std::string& ip, const unsigned int port)
+    Network::RequestId Network::send(Task::Type task, const std::vector<std::string>& args)
     {
-        m_addr = ip;
-        m_port = port;
+        //If task is not Login or Signup and the socket is disconnected, return InvalidRequest
+        if(task != Task::Type::Login && task != Task::Type::Signup && m_socket.getRemotePort() == 0)
+            return InvalidRequest;
+
+        switch(task)
+        {
+            case Task::Type::Login:
+            {
+                if (args.size() != 4)
+                    throw std::invalid_argument("Wrong number of arguments provided for task: Login");
+                if (!m_tasks.empty())
+                    LOG("Warning: Trying to login to a new server but the task list is not empty. It is cleared.");
+                m_tasks.clear();
+                if (!m_replies.empty())
+                    LOG("Warning: Trying to login to a new server but the replies stack is not empty. It is cleared.");
+                m_replies.clear();
+
+                m_tasks.push_front(Task{
+                                  generateId(),
+                                  Task::Type::Login,
+                                  std::chrono::steady_clock::now()});
+                auto port = static_cast<unsigned short>(std::strtoul(args[1].c_str(), nullptr, 0));
+                m_connectManifest.address = args[0];
+                m_connectManifest.port = port;
+                m_connectManifest.username = args[2];
+                m_connectManifest.password = args[3];
+            }
+            break;
+            default:
+                LOG("BOOM ! You've hit a mine.");
+            break;
+        }
+        return 0;
     }
 
     bool Network::isConnected()
     {
-        return m_connected;
-    }
-
-    Network::RequestId Network::send(TaskType task, const std::vector<std::string>& args)
-    {
-        sf::Packet loginPacket;
-
-        if (task == TaskType::Login)
-            loginPacket << LOGIN;
-
-        else if (task == TaskType::Signup)
-            loginPacket << SIGNUP;
-
-        else if (task == TaskType::SendMsg)
-            loginPacket << SEND_MSG;
-
-        else if (task == TaskType::Search)
-            loginPacket << SEARCH_USER;
-
-        else if (task == TaskType::AddFriend)
-            loginPacket << ADD_FRIEND;
-
-        for (auto& i : args)
-            loginPacket << i;
-
-        if (m_socket.send(loginPacket) == sf::Socket::Status::Done)
-        {
-            m_tasks.push_back(Task{m_idCounter++, task, std::chrono::steady_clock::now()});
-            return m_idCounter;
-        }
-
-        return 0;
+        return m_socket.getRemotePort() != 0;
     }
 
     int Network::receive()
     {
-        sf::Packet packet;
-
-        if (m_socket.receive(packet) == sf::Socket::Status::Done)
+        if (m_socket.getRemotePort() == 0) //if not connected
         {
-            std::string protocol, str;
-            std::vector<std::string> args;
-
-            if (packet >> protocol)
+            //if either login or signup is a task
+            if (m_tasks.size() == 1 && (m_tasks.front().type == Task::Login || m_tasks.front().type == Task::Signup))
             {
-                while (packet >> str)
-                    args.push_back(str);
-
-                if (protocol == LOGIN_SUCCESS || protocol == LOGIN_FAILURE)
+                auto status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
+                if (status == sf::Socket::Done)
                 {
-                    for (auto& j : m_tasks)
-                        if (j.type == Login)
-                            m_replies.push_back(Reply{j.id, (protocol == LOGIN_SUCCESS ? TaskSuccess : TaskError), args});
+                    sf::Packet reqPacket;
+                    if (m_tasks.front().type == Task::Login)
+                        reqPacket << LOGIN;
+                    else
+                        reqPacket << SIGNUP;
+                    reqPacket << m_tasks.front().id << m_connectManifest.username
+                                << m_connectManifest.password;
+
+                    int tries = 5;
+                    do
+                    {
+                        status = m_socket.send(reqPacket);
+                        --tries;
+                    } while (status == sf::Socket::Partial && tries >= 0);
+
+                    if (status == sf::Socket::Done)
+                    {
+                        m_replies.push_back(Reply{
+                                            m_tasks.front().id,
+                                            Reply::Type::TaskSuccess,
+                                            {} });
+                        m_tasks.clear();
+                        assert(m_replies.size() == 1);
+                    }
+                    else
+                    {
+                        LOG("Error in sending request packet. Status code: " + std::to_string(status));
+                        m_replies.push_back(Reply{
+                                            m_tasks.front().id,
+                                            Reply::Type::TaskError,
+                                            {} });
+                        m_tasks.clear();
+                    }
+
+                    if (m_tasks.front().type == Task::Signup)
+                        m_socket.disconnect();
+                }
+                else if (status == sf::Socket::Error)
+                {
+                    LOG("Error in connecting. Status code: " + std::to_string(status));
+                    m_replies.push_back(Reply{
+                                        m_tasks.front().id,
+                                        Reply::Type::TaskError,
+                                        {} });
+                    m_tasks.clear();
                 }
             }
-            else
-                LOG("ERROR :: Damaged packet received from server.");
+            assert(m_tasks.size() <= 1);
         }
-
-        else if (m_socket.receive(packet) == sf::Socket::Status::Error)
-            LOG("ERROR :: Unable to receive from the server.");
-
-        for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
+        else //connected
         {
-            //if (std:: std::chrono::steady_clock::now() - (*i).timeStarted > DEFAULT_TIMEOUT_PERIOD / 1000)
-            std::chrono::steady_clock::duration timeElapsed = std::chrono::steady_clock::now() - (*i).timeStarted;
-
-            if (double(timeElapsed.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den > DEFAULT_TIMEOUT_PERIOD / 1000)
+            sf::Packet response;
+            auto status = m_socket.receive(response);
+            if (status == sf::Socket::Done)
             {
-                LOG("LOG :: Task timed out. Please try again.");
-                m_tasks.erase(i);
+                std::string reply;
+                response >> reply;
+                if (reply == LOGIN_FAILURE || reply == LOGIN_SUCCESS)
+                {
+                    std::string temp;
+                    response >> temp;
+                    RequestId rid = static_cast<RequestId>(std::strtoul(temp.c_str(), nullptr, 0));
+                    auto comparator = [&](const Task& t) { return t.id == rid; };
+                    auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
+                    if(res != m_tasks.end() && res->type == Task::Login)
+                    {
+                        m_replies.push_back(Reply{
+                                            rid,
+                                            (reply == LOGIN_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
+                                            {} });
+                        auto& vec = m_replies.back().args;
+                        while (response >> temp)
+                            vec.push_back(temp);
+                        m_tasks.erase(res);
+                    }
+                    else
+                    {
+                        LOG("Invalid response from server");
+                    }
+                }
+            }
+            else if (status == sf::Socket::Error)
+            {
+                LOG("Error while receiving from socket.");
+            }
+            else if (status == sf::Socket::Disconnected)
+            {
+                LOG("Disconnected.");
+//                m_replies.push_back(Reply{
+//                                    0,
+//                                    Reply::Type::Disconnected,
+//                                    {} });
+            }
+
+            //Check expired tasks
+            for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
+            {
+                auto timeElapsed = std::chrono::steady_clock::now() - i->timeStarted;
+                if (std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count() > m_defaultTaskTimeout)
+                {
+                    LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id));
+                    i = std::prev(m_tasks.erase(i));
+                }
             }
         }
 
         return m_replies.size();
     }
 
-    const Network::Reply Network::popReply()
+    Network::Reply Network::popReply()
     {
         Reply r = m_replies.back();
         m_replies.pop_back();
         return r;
     }
 
-    const Network::Task Network::popTask()
-    {
-        Task t = m_tasks.back();
-        m_tasks.pop_back();
-        return t;
-    }
-
-    const Network::Task Network::removeTask(RequestId taskId)
-    {
-        for (auto itr = m_tasks.begin(); itr != m_tasks.end(); itr++)
-            if ((*itr).id == taskId)
-                m_tasks.erase(itr);
-    }
 }

@@ -306,7 +306,6 @@ namespace prattle
                     }
                 }
             }
-
             // Else, if scrolling upwards...
             else
             {
@@ -381,7 +380,6 @@ namespace prattle
                 m_items[i]->getTextWidget()->setTextColor(sf::Color::White);
                 m_selected = m_items[i];
             }
-
             else
                 m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
         }
