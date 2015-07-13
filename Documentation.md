@@ -55,11 +55,15 @@ Server-Client Protocol
 -----------------------
 
 (Incomplete, rules are added/modified when a feature is implemented)  
-Basic request's packet format :
+Request format :
 ```
 <Request-type> <client-request-id> <other-stuff>
 ```
 The client-request-id is sent back to the client, it is only specific to the client and couldn't be used by the server.  
+Response format:
+```
+<Response-type> <request-id of request> <other-stuff>
+```
 Note : Each word seperated by a space is a different string, thus must be extracted individually from the packet.
 
 
@@ -112,8 +116,8 @@ TODO: Limit and/or "paginate" the matches
 
     Packet Type                                               | Packet format
     ----------------------------------------------------------|------------------------------------------------
-    6.1 Sent to Client to notify                              | status_online \<req id> \<friend who came online>
-    6.2 Sent to Client to notify                              | status_offline \<req id> \<friend who went offline>
+    6.1 Sent to Client to notify                              | status_online \<friend who came online>
+    6.2 Sent to Client to notify                              | status_offline \<friend who went offline>
 
 
 
