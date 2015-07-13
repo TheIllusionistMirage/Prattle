@@ -164,24 +164,25 @@ namespace prattle
         bool result = true;
         if (itr == m_clients.end())
         {
-            m_messages.insert(std::make_pair(username, packet));
-            DBG_LOG("Messesge for offline user " + username + "stored in server");
-        }
-        else
-        {
             std::string reply;
             packet_ >> reply;
             if(reply == SEND_MSG)
             {
-                DBG_LOG("Messege for online user " + username + " sent");
-                if (itr->second->send(packet_) != sf::Socket::Done)
-                {
-                    ERR_LOG("ERROR :: Error in sending packet to" + username);
-                    result = false;
-                }
+                m_messages.insert(std::make_pair(username, packet));
+                DBG_LOG("Messesge for offline user " + username + "stored in server");
             }
             else
                 WRN_LOG("Warning: Attempted to send packet to offline user.");
+        }
+        else
+        {
+            if (itr->second->send(packet_) != sf::Socket::Done)
+            {
+                ERR_LOG("ERROR :: Error in sending packet to" + username);
+                result = false;
+            }
+            else
+                DBG_LOG("Messege for online user " + username + " sent");
         }
         return result;
     }
@@ -254,8 +255,8 @@ namespace prattle
         {
             if (request == SEND_MSG)
             {
-                std::string receiver, data;
-                if (packet >> receiver >> data)
+                std::string rid,  receiver, data;
+                if (packet >> rid >> receiver >> data)
                 {
                     sf::Packet newPacket;
                     newPacket << SEND_MSG << sender << data;
@@ -265,7 +266,7 @@ namespace prattle
 
                         sf::Packet replyPacket;
                         std::string details = "ERROR :: Packet from \'" + sender + "\' was not sent to \'" + receiver + "\'.";
-                        replyPacket << SEND_MSG_FAILURE << djb2_hash(data) << details;
+                        replyPacket << SEND_MSG_FAILURE << rid << details;
                         if (!send(replyPacket, sender))
                         {
                             ERR_LOG("ERROR :: Error in notifying \'" + sender + "\' about message transmission's failure.");
@@ -274,7 +275,7 @@ namespace prattle
                     else
                     {
                         sf::Packet replyPacket;
-                        replyPacket << SEND_MSG_SUCCESS << djb2_hash(data);
+                        replyPacket << SEND_MSG_SUCCESS << rid;
                         if (!send(replyPacket, sender))
                         {
                             ERR_LOG("ERROR :: Error in notifying \'" + sender + "\' about message transmission's success.");
@@ -292,8 +293,8 @@ namespace prattle
             }
             else if (request == SEARCH_USER)
             {
-                std::string query;
-                if (packet >> query)
+                std::string rid, query;
+                if (packet >> rid >> query)
                 {
                     //searchDatabase(query);
                     // This part is a WIP. For now only the exact match for query
@@ -301,7 +302,7 @@ namespace prattle
                     if (db.isUserRegistered(query))
                     {
                         sf::Packet searchResult;
-                        searchResult << SEARCH_USER_RESULTS << 1 << query;
+                        searchResult << SEARCH_USER_RESULTS << rid << 1 << query;
                         if (!send(searchResult, sender))
                         {
                             ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
@@ -310,7 +311,7 @@ namespace prattle
                     else
                     {
                         sf::Packet searchResult;
-                        searchResult << SEARCH_USER_RESULTS << 0;
+                        searchResult << SEARCH_USER_RESULTS << rid << 0;
                         if (!send(searchResult, sender))
                         {
                             ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
@@ -324,69 +325,69 @@ namespace prattle
             }
             else if (request == ADD_FRIEND)
             {
-                std::string user;
-                if (db.isUserRegistered(user))
+                std::string rid, user;
+                if (packet >> rid >> user)
                 {
-                    db.addNewFriend(sender, user);
-                    sf::Packet result;
-                    result << ADD_FRIEND_SUCCESS;
-                    if (send(result, sender))
+                    if (db.isUserRegistered(user))
                     {
-                        DBG_LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+                        db.addNewFriend(sender, user);
+                        sf::Packet result;
+                        result << ADD_FRIEND_SUCCESS << rid;
+                        if (send(result, sender))
+                        {
+                            DBG_LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+                        }
+                        else
+                            ERR_LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+
+
+                        result.clear();
+                        auto friend_itr = m_clients.find(user);
+                        if (friend_itr != m_clients.end()) //if the friend is online
+                        {
+                            //Notify `sender` of his new friend
+                            result << ADD_NEW_FRIEND << sender;
+                            if (send(result, user))
+                            {
+                                DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+                            }
+                            else
+                                ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
+
+                            //Notify both of each other's online presence
+                            sf::Packet statusPacket;
+                            statusPacket << STATUS_ONLINE << user;
+                            if(send(statusPacket, sender))
+                            {
+                                DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
+                            }
+                            else
+                                ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
+
+                            statusPacket.clear();
+                            statusPacket << STATUS_ONLINE << sender;
+                            if(send(statusPacket, user))
+                            {
+                                DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
+                            }
+                            else
+                                ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
+                        }
                     }
                     else
-                        ERR_LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
-                    result.clear();
-
-                    /*result << ADD_FRIEND_SUCCESS << SERVER << user << sender;
-                    if (send(result))
                     {
-                        LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
-                    }
-
-                    else
-                        ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");*/
-                    //result.clear();
-
-                    sf::Packet statusPacket;
-                    auto friend_itr = m_clients.find(user);
-                    if (friend_itr != m_clients.end())
-                    {
-                        result << ADD_FRIEND_SUCCESS << sender;
-                        if (send(result, user))
+                        sf::Packet result;
+                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
+                        result << ADD_FRIEND_FAILURE << rid << details;
+                        if (!send(result, sender))
                         {
-                            DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+                            ERR_LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
                         }
-                        else
-                            ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
-
-                        statusPacket << STATUS_ONLINE << user;
-                        if(send(statusPacket, sender))
-                        {
-                            DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
-                        }
-                        else
-                            ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
-
-                        statusPacket.clear();
-                        statusPacket << STATUS_ONLINE << sender;
-                        if(send(statusPacket, user))
-                        {
-                            DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
-                        }
-                        else
-                            ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
                     }
                 }
                 else
                 {
-                    sf::Packet result;
-                    std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
-                    result << ADD_FRIEND_FAILURE << details;
-                    if (!send(result, sender))
-                    {
-                        ERR_LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
-                    }
+                    ERR_LOG("ERROR while extracting data from packet.");
                 }
             }
             else
@@ -415,13 +416,13 @@ namespace prattle
                     {
                         if (request == LOGIN)
                         {
-                            std::string sender, plainPassword;
-                            if (packet >> sender >> plainPassword)
+                            std::string rid, sender, plainPassword;
+                            if (packet >> rid >> sender >> plainPassword)
                             {
                                 if (db.isValidPassword(sender, plainPassword))
                                 {
                                     sf::Packet loginResult;
-                                    loginResult << LOGIN_SUCCESS << SERVER << sender << sf::Uint32(db.getFriends(sender).size());
+                                    loginResult << LOGIN_SUCCESS << rid << SERVER << sender << sf::Uint32(db.getFriends(sender).size());
 
                                     for (auto& friendName : db.getFriends(sender))
                                         loginResult << friendName;
@@ -480,7 +481,7 @@ namespace prattle
                                 {
                                     sf::Packet loginResult;
                                     std::string details = "ERROR :: The username-password combination is not recognized.";
-                                    loginResult << LOGIN_FAILURE << SERVER << sender << details;
+                                    loginResult << LOGIN_FAILURE << rid << SERVER << sender << details;
                                     if (!(*itr)->send(loginResult))
                                     {
                                         ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
@@ -494,13 +495,13 @@ namespace prattle
                         }
                         else if (request == SIGNUP)
                         {
-                            std::string sender, plainPassword;
-                            if (packet >> sender >> plainPassword)
+                            std::string rid, sender, plainPassword;
+                            if (packet >> rid >> sender >> plainPassword)
                             {
                                 if (db.addNewUser(sender, plainPassword))
                                 {
                                     sf::Packet signupResult;
-                                    signupResult << SIGNUP_SUCCESS << SERVER << sender;
+                                    signupResult << SIGNUP_SUCCESS << rid << SERVER << sender;
 
                                     if ((*itr)->send(signupResult) != sf::Socket::Done)
                                     {
@@ -513,7 +514,7 @@ namespace prattle
                                 {
                                     sf::Packet signupResult;
                                     std::string details = "ERROR :: The username \'" + sender + "\' exists.";
-                                    signupResult << SIGNUP_FAILURE << details;
+                                    signupResult << SIGNUP_FAILURE << rid << details;
                                     if (!send(signupResult, sender))
                                     {
                                         ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about unsuccessful attempt to sign up");
