@@ -54,11 +54,12 @@ The entire communication process is made using a set of six rules in the protoco
 Server-Client Protocol
 -----------------------
 
-(Incomplete, rules are added/modified when a feature is implemented)
-Basic packet format :
+(Incomplete, rules are added/modified when a feature is implemented)  
+Basic request's packet format :
 ```
-<Request type> <sender> <receiver> <other details>
+<Request-type> <client-request-id> <other-stuff>
 ```
+The client-request-id is sent back to the client, it is only specific to the client and couldn't be used by the server.  
 Note : Each word seperated by a space is a different string, thus must be extracted individually from the packet.
 
 
@@ -66,53 +67,53 @@ Note : Each word seperated by a space is a different string, thus must be extrac
 
     Packet Type and description        | Packet format
     -----------------------------------|-----------------------------------------------
-    1.1 Sent to Server to login        | login \<username> \<password>
-    1.2 Sent to Client as reply        | login_success \<number of friends> \<friend1> \<friend2> ...
-    1.3 Sent to Client as reply        | login_failure \<server message>
+    1.1 Sent to Server to login        | login \<req id> \<username> \<password>
+    1.2 Sent to Client as reply        | login_success \<req id> \<number of friends> \<friend1> \<friend2> ...
+    1.3 Sent to Client as reply        | login_failure \<req id> \<server message>
 
 
 **2. Signup**
 
     Packet Type                        | Packet format
     -----------------------------------|-----------------------------------------------
-    2.1 Sent to Server to signup       | signup \<username> \<password>
-    2.2 Sent to Client as reply        | signup_success
-    2.3 Sent to Client as reply        | signup_failure \<server message>
+    2.1 Sent to Server to signup       | signup \<req id> \<username> \<password>
+    2.2 Sent to Client as reply        | signup_success \<req id>
+    2.3 Sent to Client as reply        | signup_failure \<req id> \<server message>
 
 
 **3. Message sending between two (or more) Clients**
 
     Packet Type                                  | Packet format
     ---------------------------------------------|-----------------------------------------------
-    3.1 Sent to Server to send message           | sendmsg \<receiver> \<data>
-    3.2 Sent to Client(receiver)                 | sendmsg server \<sender> \<data>
-    3.3 Sent to Client(sender) as reply          | sendmsg_success \<receiver> \<djb2 hash of the message>
-    3.4 Sent to Client(sender) as reply          | sendmsg_failure \<receiver> \<djb2 hash of the message> \<server message>
+    3.1 Sent to Server to send message           | sendmsg \<req id> \<receiver> \<data>
+    3.2 Sent to Client(receiver)                 | sendmsg server \<req id> \<sender> \<data>
+    3.3 Sent to Client(sender) as reply          | sendmsg_success \<req id> \<receiver>
+    3.4 Sent to Client(sender) as reply          | sendmsg_failure \<req id> \<receiver> \<server message>
 
 
 **4. Searching Database**
 
     Packet Type                                    | Packet format
     -----------------------------------------------|-----------------------------------------------
-    4.1 Sent to Server to search a user            | search_user \<name>
-    4.2 Sent to Client as reply (found)            | search_user_result \<number of matches> \<name1> \<name2> ...
-    4.3 Sent to Client as reply (not found)        | search_user_result 0
+    4.1 Sent to Server to search a user            | search_user \<req id> \<name>
+    4.2 Sent to Client as reply (found)            | search_user_result \<req id> \<number of matches> \<name1> \<name2> ...
+    4.3 Sent to Client as reply (not found)        | search_user_result \<req id> 0
 TODO: Limit and/or "paginate" the matches
 
 **5. Adding friends**
 
     Packet Type                            | Packet format
     ---------------------------------------|-----------------------------------------------
-    5.1 Sent to Server                     | add_friend \<friendname>
-    5.2 Sent to Client as reply            | add_friend_success \<friendname>
-    5.3 Sent to Client as reply            | add_friend_failure \<friendname> \<server message>
+    5.1 Sent to Server                     | add_friend \<req id> \<friendname>
+    5.2 Sent to Client as reply            | add_friend_success \<req id> \<friendname>
+    5.3 Sent to Client as reply            | add_friend_failure \<req id> \<friendname> \<server message>
 
 **6. Status **
 
     Packet Type                                               | Packet format
     ----------------------------------------------------------|------------------------------------------------
-    6.1 Sent to Client to notify                              | status_online \<friend who came online>
-    6.2 Sent to Client to notify                              | status_offline \<friend who went offline>
+    6.1 Sent to Client to notify                              | status_online \<req id> \<friend who came online>
+    6.2 Sent to Client to notify                              | status_offline \<req id> \<friend who went offline>
 
 
 
