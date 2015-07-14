@@ -26,6 +26,7 @@ namespace prattle
         if(task != Task::Type::Login && task != Task::Type::Signup && m_socket.getRemotePort() == 0)
             return InvalidRequest;
 
+        RequestId rid = InvalidRequest;
         switch(task)
         {
             case Task::Type::Login:
@@ -40,7 +41,7 @@ namespace prattle
                 m_replies.clear();
 
                 m_tasks.push_front(Task{
-                                  generateId(),
+                                  rid = generateId(),
                                   Task::Type::Login,
                                   std::chrono::steady_clock::now()});
                 auto port = static_cast<unsigned short>(std::strtoul(args[1].c_str(), nullptr, 0));
@@ -54,7 +55,7 @@ namespace prattle
                 LOG("BOOM ! You've hit a mine.");
             break;
         }
-        return 0;
+        return rid;
     }
 
     bool Network::isConnected()
@@ -78,7 +79,7 @@ namespace prattle
                     else
                         reqPacket << SIGNUP;
                     reqPacket << m_tasks.front().id << m_connectManifest.username
-                                << m_connectManifest.password;
+                              << m_connectManifest.password;
 
                     int tries = 5;
                     do
@@ -89,7 +90,7 @@ namespace prattle
 
                     if (status == sf::Socket::Done)
                     {
-                        m_replies.push_back(Reply{
+                        m_replies.push_front(Reply{
                                             m_tasks.front().id,
                                             Reply::Type::TaskSuccess,
                                             {} });
@@ -99,7 +100,7 @@ namespace prattle
                     else
                     {
                         LOG("Error in sending request packet. Status code: " + std::to_string(status));
-                        m_replies.push_back(Reply{
+                        m_replies.push_front(Reply{
                                             m_tasks.front().id,
                                             Reply::Type::TaskError,
                                             {} });
@@ -112,7 +113,7 @@ namespace prattle
                 else if (status == sf::Socket::Error)
                 {
                     LOG("Error in connecting. Status code: " + std::to_string(status));
-                    m_replies.push_back(Reply{
+                    m_replies.push_front(Reply{
                                         m_tasks.front().id,
                                         Reply::Type::TaskError,
                                         {} });
@@ -138,11 +139,11 @@ namespace prattle
                     auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
                     if(res != m_tasks.end() && res->type == Task::Login)
                     {
-                        m_replies.push_back(Reply{
+                        m_replies.push_front(Reply{
                                             rid,
                                             (reply == LOGIN_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
                                             {} });
-                        auto& vec = m_replies.back().args;
+                        auto& vec = m_replies.front().args;
                         while (response >> temp)
                             vec.push_back(temp);
                         m_tasks.erase(res);
@@ -160,7 +161,7 @@ namespace prattle
             else if (status == sf::Socket::Disconnected)
             {
                 LOG("Disconnected.");
-//                m_replies.push_back(Reply{
+//                m_replies.push_front(Reply{
 //                                    0,
 //                                    Reply::Type::Disconnected,
 //                                    {} });
@@ -172,7 +173,11 @@ namespace prattle
                 auto d = std::chrono::steady_clock::now() - i->timeStarted;
                 if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
                 {
-                    LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id) + "Time elapsed: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
+                    LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id) + " Time elapsed: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
+                    m_replies.push_front(Reply{
+                                        i->id,
+                                        Reply::Type::TaskTimeout,
+                                        {} });
                     i = std::prev(m_tasks.erase(i));
                 }
             }

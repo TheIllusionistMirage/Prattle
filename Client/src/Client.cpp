@@ -35,6 +35,9 @@ namespace prattle
         while (updates --> 0)
         {
             auto reply = m_network.popReply();
+            std::cout << reply.id << std::endl;
+            std::cout << m_loginReqId << std::endl;
+            std::cout << reply.type << std::endl;
             if (reply.id == m_loginReqId)
             {
                 if (reply.type == Network::Reply::TaskSuccess)
@@ -69,7 +72,7 @@ namespace prattle
             break;
             case UserInterface::UIEvent::UserLogin:
             {
-//                m_ui->setState(UserInterface::State::Chatting);
+                m_ui->setState(UserInterface::State::Connecting);
                 m_loginReqId = m_network.send(Network::Task::Login, {
                                m_clientConf.addr,
                                std::to_string(m_clientConf.port),

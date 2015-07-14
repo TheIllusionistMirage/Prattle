@@ -117,8 +117,8 @@ namespace prattle
         Reply popReply();
 
     private:
-        // The default timeout period (in ms) : 5000 ms (or 5s)
-        const unsigned int m_defaultTaskTimeout = 5000;
+        // The default timeout period (in ms) : 10000 ms (or 10s)
+        const unsigned int m_defaultTaskTimeout = 10000;
 
         //Stores data for either a Login or Signup task, used to connect in multiple steps
         struct
