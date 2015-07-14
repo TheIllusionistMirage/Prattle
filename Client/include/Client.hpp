@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <SFML/Network.hpp>
-#include "../include/ErrorLog.hpp"
+#include "../include/Logger.hpp"
 #include "../include/Network.hpp"
 #include "../include/UserInterface.hpp"
 #include "../include/GraphicalUI.hpp"

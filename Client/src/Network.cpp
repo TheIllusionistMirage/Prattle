@@ -32,14 +32,14 @@ namespace prattle
         {
             case Task::Type::Login:
             {
-                LOG("Task Login added.");
+                DBG_LOG("Task Login added.");
                 if (args.size() != 4)
                     throw std::invalid_argument("Wrong number of arguments provided for task: Login");
                 if (!m_tasks.empty())
-                    LOG("Warning: Trying to login to a new server but the task list is not empty. It is cleared.");
+                    WRN_LOG("Warning: Trying to login to a new server but the task list is not empty. It is cleared.");
                 m_tasks.clear();
                 if (!m_replies.empty())
-                    LOG("Warning: Trying to login to a new server but the replies stack is not empty. It is cleared.");
+                    WRN_LOG("Warning: Trying to login to a new server but the replies stack is not empty. It is cleared.");
                 m_replies.clear();
 
                 m_tasks.push_front(Task{
@@ -59,7 +59,7 @@ namespace prattle
                 m_connected = false;
                 break;
             default:
-                LOG("Task not defined yet.");
+                ERR_LOG("Unhandled task");
             break;
         }
         return rid;
@@ -80,12 +80,11 @@ namespace prattle
                 auto status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
                 if (status == sf::Socket::Done)
                 {
-                    LOG("Connected to server");
+                    DBG_LOG("Connected to server");
                     sf::Packet reqPacket;
                     if (m_tasks.front().type == Task::Login)
                     {
                         reqPacket << LOGIN;
-                        LOG("Login");
                     }
                     else
                         reqPacket << SIGNUP;
@@ -106,7 +105,7 @@ namespace prattle
                     }
                     else
                     {
-                        LOG("Error in sending request packet. Status code: " + std::to_string(status));
+                        ERR_LOG("Error in sending request packet. Status code: " + std::to_string(status));
                         m_replies.push_front(Reply{
                                             m_tasks.front().id,
                                             Reply::Type::TaskError,
@@ -120,15 +119,13 @@ namespace prattle
                 }
                 else if (status == sf::Socket::Error)
                 {
-                    LOG("Error in connecting. Status code: " + std::to_string(status));
+                    ERR_LOG("Error in connecting. Status code: " + std::to_string(status));
                     m_replies.push_front(Reply{
                                         m_tasks.front().id,
                                         Reply::Type::TaskError,
                                         {} });
                     m_tasks.clear();
                 }
-                else
-                    LOG("Nu-uh not yet. Status Code: " + std::to_string(status));
             }
             assert(m_tasks.size() <= 1);
         }
@@ -145,7 +142,7 @@ namespace prattle
                     std::string temp;
                     response >> temp;
                     RequestId rid = static_cast<RequestId>(std::strtoul(temp.c_str(), nullptr, 0));
-                    auto comparator = [&](const Task& t) { return t.id == rid; };
+                    const auto comparator = [&](const Task& t) { return t.id == rid; };
                     auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
                     if(res != m_tasks.end() && res->type == Task::Login)
                     {
@@ -160,19 +157,19 @@ namespace prattle
                     }
                     else
                     {
-                        LOG("Invalid response from server");
+                        ERR_LOG("Invalid response from server");
                     }
                 }
                 else
-                    LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
+                    ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
             }
             else if (status == sf::Socket::Error)
             {
-                LOG("Error while receiving from socket.");
+                ERR_LOG("Error while receiving from socket.");
             }
             else if (status == sf::Socket::Disconnected)
             {
-                LOG("Disconnected.");
+                DBG_LOG("Disconnected.");
                 m_connected = false;
             }
 
@@ -182,7 +179,7 @@ namespace prattle
                 auto d = std::chrono::steady_clock::now() - i->timeStarted;
                 if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
                 {
-                    LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id) + " Time elapsed: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
+                    DBG_LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id) + " Time elapsed: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
                     m_replies.push_front(Reply{
                                         i->id,
                                         Reply::Type::TaskTimeout,

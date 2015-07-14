@@ -12,7 +12,7 @@
 #define SYSTEM_HPP
 
 #include <string>
-#include "../include/ErrorLog.hpp"
+#include "../include/Logger.hpp"
 
 namespace prattle
 {

@@ -23,6 +23,7 @@ int main()
         prattle::TeeStream tee(std::cerr, logFile);
         prattle::Logger::getLogger()->setStream(&tee);
         prattle::Logger::getLogger()->setLoggingLevel(prattle::Logger::Debug);
+
         prattle::Server server;
 
         //If POSIX compliant OS

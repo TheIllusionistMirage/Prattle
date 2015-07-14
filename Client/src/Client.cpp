@@ -15,7 +15,7 @@ namespace prattle
             //m_ui = std::unique_ptr<decltype(m_ui)>(nullptr);
         else
         {
-            LOG("No UI set in config file. Using GUI by default.");
+            ERR_LOG("No UI set in config file. Using GUI by default.");
             m_ui = std::unique_ptr<GraphicalUI>{new GraphicalUI{}};
         }
 
@@ -106,7 +106,7 @@ namespace prattle
         std::ifstream configFile{m_configFilePath, std::ios::in};
         if (!configFile.is_open() || !configFile.good())
         {
-            LOG("FATAL ERROR :: Error reading from \'" + m_configFilePath + "\'.");
+            ERR_LOG("FATAL ERROR :: Error reading from \'" + m_configFilePath + "\'.");
             throw std::runtime_error("FATAL ERROR :: Error reading from \'" + m_configFilePath + "\'.");
         }
 
@@ -136,14 +136,14 @@ namespace prattle
             }
             else
             {
-                LOG("Invalid field in config file : \n\t" + line);
+                WRN_LOG("Invalid field in config file : \n\t" + line);
                 continue;
             }
 
             auto mapping = fieldsMap.find(field);
             if(mapping == fieldsMap.end())
             {
-                LOG("Warning : Unrecognized field in conifg file, ignoring.");
+                WRN_LOG("Warning : Unrecognized field in conifg file, ignoring.");
             }
             else
             {
@@ -156,7 +156,7 @@ namespace prattle
                     *static_cast<std::string*>(mapping->second.second) = value;
                     break;
                 default:
-                    LOG("Unhandled data type");
+                    WRN_LOG("Unhandled data type");
                     break;
                 }
             }
