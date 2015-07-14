@@ -130,6 +130,8 @@ namespace prattle
 
         RequestId generateId();
 
+        bool m_connected;
+
         //List of tasks which haven't received a reply from server
         std::list<Task> m_tasks;
         //list of replies yet to popReply()'ed

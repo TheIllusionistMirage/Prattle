@@ -35,15 +35,19 @@ namespace prattle
         while (updates --> 0)
         {
             auto reply = m_network.popReply();
-            std::cout << reply.id << std::endl;
-            std::cout << m_loginReqId << std::endl;
-            std::cout << reply.type << std::endl;
             if (reply.id == m_loginReqId)
             {
                 if (reply.type == Network::Reply::TaskSuccess)
+                {
                     m_ui->setState(UserInterface::State::Chatting);
+                    m_state = State::Chatting;
+                }
                 else
-                    std::cout << "Boo!" << std::endl;
+                {
+                    //todo: look at the reply and display the specific error/issue in the ui
+                    std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
+                    m_state = State::Exit;
+                }
             }
         }
 
@@ -60,6 +64,7 @@ namespace prattle
             break;
             case UserInterface::UIEvent::Disconnect:
             {
+                m_ui->setState(UserInterface::State::Login);
                 m_network.send(Network::Task::Type::Logout);
                 m_state = State::Login;
             }
@@ -73,6 +78,7 @@ namespace prattle
             case UserInterface::UIEvent::UserLogin:
             {
                 m_ui->setState(UserInterface::State::Connecting);
+                m_state = State::Connecting;
                 m_loginReqId = m_network.send(Network::Task::Login, {
                                m_clientConf.addr,
                                std::to_string(m_clientConf.port),

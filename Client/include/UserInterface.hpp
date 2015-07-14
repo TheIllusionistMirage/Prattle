@@ -52,9 +52,9 @@ namespace prattle
 
                 virtual void alert(const std::string& message) = 0;
 
-                virtual const std::string getInputText() = 0;
-                virtual const std::string getUsername() = 0;
-                virtual const std::string getPassword() = 0;
+                virtual std::string getInputText() = 0;
+                virtual std::string getUsername() = 0;
+                virtual std::string getPassword() = 0;
 
                 virtual void clearChat() = 0;
                 virtual std::string getChat(const std::string& user) = 0;

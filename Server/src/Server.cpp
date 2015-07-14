@@ -407,7 +407,6 @@ namespace prattle
         {
             if (m_selector.isReady(**itr))
             {
-                DBG_LOG("Request from a new connection");
                 sf::Packet packet;
                 auto status = (*itr)->receive(packet);
                 if (status == sf::Socket::Done)
@@ -417,6 +416,7 @@ namespace prattle
                     {
                         if (request == LOGIN)
                         {
+                            DBG_LOG("Login attempt by a new connection.");
                             std::string rid, sender, plainPassword;
                             if (packet >> rid >> sender >> plainPassword)
                             {

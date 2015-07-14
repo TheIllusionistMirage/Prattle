@@ -23,6 +23,9 @@
 // Warning
 #define WRN_LOG(output) prattle::Logger::getLogger()->warn(output, __FILE__, __LINE__)
 
+// Macro which makes the identifier/symbol x as a string
+#define SYM_STR(X) (#X)
+
 namespace prattle
 {
     // Class Logger which provides methods to log errors,

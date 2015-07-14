@@ -63,7 +63,7 @@ namespace prattle
         m_friendList->hide();
     }
 
-    const std::string Menu::getSelectedFriend()
+    std::string Menu::getSelectedFriend()
     {
         return m_friendList->getSelected();
     }
@@ -200,12 +200,12 @@ namespace prattle
         m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
     }
 
-    const sf::Vector2f Menu::getPosition()
+    sf::Vector2f Menu::getPosition()
     {
         return sf::Vector2f{m_bounds.left, m_bounds.top};
     }
 
-    const sf::Vector2f Menu::getSize()
+    sf::Vector2f Menu::getSize()
     {
         return sf::Vector2f{m_bounds.width, m_bounds.height};
     }

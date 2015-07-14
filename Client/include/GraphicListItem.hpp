@@ -40,10 +40,10 @@ namespace prattle
             bool mouseOnWidget(float x, float y);
             virtual Widget::Ptr clone() override;
             virtual void setPosition(const tgui::Layout& position) override;
-            const sf::Vector2f getPosition();
+            sf::Vector2f getPosition();
             void setStatus(unsigned short status);
             tgui::Label::Ptr getTextWidget();
-            const sf::FloatRect getBounds();
+            sf::FloatRect getBounds();
             void loadTexture(const std::string& file);
             //void setFont(std::shared_ptr<sf::Font> font);
 

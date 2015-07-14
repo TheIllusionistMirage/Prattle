@@ -111,7 +111,7 @@ namespace prattle
         m_itemText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing, p.y);
     }
 
-    const sf::Vector2f GraphicListItem::getPosition()
+    sf::Vector2f GraphicListItem::getPosition()
     {
         return sf::Vector2f{m_bounds.left, m_bounds.top};
     }
@@ -128,7 +128,7 @@ namespace prattle
             return m_itemText;
     }
 
-    const sf::FloatRect GraphicListItem::getBounds()
+    sf::FloatRect GraphicListItem::getBounds()
     {
         return m_bounds;
     }

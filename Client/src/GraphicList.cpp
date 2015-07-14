@@ -199,7 +199,7 @@ namespace prattle
         }
     }
 
-    const std::string GraphicList::getSelected()
+    std::string GraphicList::getSelected()
     {
         if (m_selected != nullptr)
             return m_selected->getTextWidget()->getText();
@@ -237,7 +237,7 @@ namespace prattle
         m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
     }
 
-    const sf::Vector2f GraphicList::getPosition()
+    sf::Vector2f GraphicList::getPosition()
     {
         return sf::Vector2f{m_boundary.getPosition().x, m_boundary.getPosition().y};
     }
@@ -435,12 +435,12 @@ namespace prattle
         //m_pFont = font;
     }
 
-    const sf::FloatRect GraphicList::getBounds()
+    sf::FloatRect GraphicList::getBounds()
     {
         return m_boundary.getGlobalBounds();
     }
 
-    const unsigned int GraphicList::getItemCount()
+    unsigned int GraphicList::getItemCount()
     {
         return m_items.size();
     }

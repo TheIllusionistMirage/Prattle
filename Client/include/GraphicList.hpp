@@ -62,12 +62,12 @@ namespace prattle
 
             void select(const unsigned int& index);
 
-            const std::string getSelected();
+            std::string getSelected();
 
             // set the position of the list box.
             virtual void setPosition(const tgui::Layout& position) override;
 
-            const sf::Vector2f getPosition();
+            sf::Vector2f getPosition();
 
             // Do stuff if te mouse wheel is moved. This
             // function is called from within TGUI in
@@ -89,9 +89,9 @@ namespace prattle
 
             void setFont(std::shared_ptr<sf::Font> font);
 
-            const sf::FloatRect getBounds();
+            sf::FloatRect getBounds();
 
-            const unsigned int getItemCount();
+            unsigned int getItemCount();
 
             void setDefaultMessage(const std::string& message);
 

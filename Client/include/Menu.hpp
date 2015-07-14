@@ -24,14 +24,14 @@ namespace prattle
             virtual void mouseWheelMoved(int delta, int x, int y) override;
             bool isFriendListButtonPressed();
             virtual void setPosition(const tgui::Layout& position) override;
-            const sf::Vector2f getPosition();
-            const sf::Vector2f getSize();
+            sf::Vector2f getPosition();
+            sf::Vector2f getSize();
 
             void setFont(std::shared_ptr<sf::Font> font);
 
             void initList(const std::vector<std::string> friends);
 
-            const std::string getSelectedFriend();
+            std::string getSelectedFriend();
 
             GraphicList::Ptr getFriendlist();
 

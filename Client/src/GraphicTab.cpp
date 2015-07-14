@@ -409,7 +409,7 @@ namespace prattle
         }
     }
 
-    const sf::Vector2f GraphicTab::getPosition()
+    sf::Vector2f GraphicTab::getPosition()
     {
         return sf::Vector2f{m_absoluteBounds.left, m_absoluteBounds.top};
     }
@@ -432,7 +432,7 @@ namespace prattle
 //            ;
     }
 
-    const sf::Vector2f GraphicTab::getSize()
+    sf::Vector2f GraphicTab::getSize()
     {
         return sf::Vector2f{m_absoluteBounds.width, m_absoluteBounds.height};
     }
@@ -458,7 +458,7 @@ namespace prattle
         }
     }
 
-    const unsigned int GraphicTab::getSelectedTabIndex()
+    unsigned int GraphicTab::getSelectedTabIndex()
     {
         for (unsigned int i = 0; i < m_tabs.size(); i++)
         {
@@ -573,7 +573,7 @@ namespace prattle
         }
     }
 
-    const unsigned int GraphicTab::getTabCount()
+    unsigned int GraphicTab::getTabCount()
     {
         return m_tabs.size();
     }

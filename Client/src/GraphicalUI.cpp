@@ -443,16 +443,16 @@ namespace prattle
     {
     }
 
-    const std::string GraphicalUI::getInputText()
+    std::string GraphicalUI::getInputText()
     {
     }
 
-    const std::string GraphicalUI::getUsername()
+    std::string GraphicalUI::getUsername()
     {
         return m_usernameField->getText();
     }
 
-    const std::string GraphicalUI::getPassword()
+    std::string GraphicalUI::getPassword()
     {
         return m_passwordField->getText();
     }

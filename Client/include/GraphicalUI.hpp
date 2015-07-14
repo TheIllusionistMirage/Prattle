@@ -53,9 +53,9 @@ namespace prattle
 
             void alert(const std::string& message) override;
 
-            const std::string getInputText() override;
-            const std::string getUsername() override;
-            const std::string getPassword() override;
+            std::string getInputText() override;
+            std::string getUsername() override;
+            std::string getPassword() override;
 
             void clearChat() override;
             std::string getChat(const std::string& user) override;

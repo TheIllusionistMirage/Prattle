@@ -4,6 +4,7 @@
 namespace prattle
 {
     Network::Network() :
+        m_connected(false),
         m_idCounter{0}
     {
         m_socket.setBlocking(false);
@@ -31,6 +32,7 @@ namespace prattle
         {
             case Task::Type::Login:
             {
+                LOG("Task Login added.");
                 if (args.size() != 4)
                     throw std::invalid_argument("Wrong number of arguments provided for task: Login");
                 if (!m_tasks.empty())
@@ -51,8 +53,12 @@ namespace prattle
                 m_connectManifest.password = args[3];
             }
             break;
+            case Task::Type::Logout:
+                m_socket.disconnect();
+                m_connected = false;
+                break;
             default:
-                LOG("BOOM ! You've hit a mine.");
+                LOG("Task not defined yet.");
             break;
         }
         return rid;
@@ -60,12 +66,12 @@ namespace prattle
 
     bool Network::isConnected()
     {
-        return m_socket.getRemotePort() != 0;
+        return m_connected;
     }
 
     int Network::receive()
     {
-        if (m_socket.getRemotePort() == 0) //if not connected
+        if (!isConnected())
         {
             //if either login or signup is a task
             if (m_tasks.size() == 1 && (m_tasks.front().type == Task::Login || m_tasks.front().type == Task::Signup))
@@ -73,14 +79,19 @@ namespace prattle
                 auto status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
                 if (status == sf::Socket::Done)
                 {
+                    LOG("Connected to server");
                     sf::Packet reqPacket;
                     if (m_tasks.front().type == Task::Login)
+                    {
                         reqPacket << LOGIN;
+                        LOG("Login");
+                    }
                     else
                         reqPacket << SIGNUP;
-                    reqPacket << m_tasks.front().id << m_connectManifest.username
+                    reqPacket << std::to_string(m_tasks.front().id) << m_connectManifest.username
                               << m_connectManifest.password;
 
+                    //Try sending the login request
                     int tries = 5;
                     do
                     {
@@ -90,12 +101,7 @@ namespace prattle
 
                     if (status == sf::Socket::Done)
                     {
-                        m_replies.push_front(Reply{
-                                            m_tasks.front().id,
-                                            Reply::Type::TaskSuccess,
-                                            {} });
-                        m_tasks.clear();
-                        assert(m_replies.size() == 1);
+                        m_connected = true;
                     }
                     else
                     {
@@ -105,6 +111,7 @@ namespace prattle
                                             Reply::Type::TaskError,
                                             {} });
                         m_tasks.clear();
+                        m_socket.disconnect();
                     }
 
                     if (m_tasks.front().type == Task::Signup)
@@ -119,6 +126,8 @@ namespace prattle
                                         {} });
                     m_tasks.clear();
                 }
+                else
+                    LOG("Nu-uh not yet. Status Code: " + std::to_string(status));
             }
             assert(m_tasks.size() <= 1);
         }
@@ -153,6 +162,8 @@ namespace prattle
                         LOG("Invalid response from server");
                     }
                 }
+                else
+                    LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
             }
             else if (status == sf::Socket::Error)
             {
@@ -161,10 +172,7 @@ namespace prattle
             else if (status == sf::Socket::Disconnected)
             {
                 LOG("Disconnected.");
-//                m_replies.push_front(Reply{
-//                                    0,
-//                                    Reply::Type::Disconnected,
-//                                    {} });
+                m_connected = false;
             }
 
             //Check expired tasks

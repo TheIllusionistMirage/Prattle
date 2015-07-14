@@ -27,15 +27,15 @@ namespace prattle
             void focusTab(const std::string& tabLabel);
             void removeTab(unsigned int index);
             virtual void setPosition(const tgui::Layout& position) override;
-            const sf::Vector2f getPosition();
+            sf::Vector2f getPosition();
             void setSize(const sf::Vector2f& size);
-            const sf::Vector2f getSize();
+            sf::Vector2f getSize();
             void select(const std::string& tabLabel);
-            const unsigned int getSelectedTabIndex();
+            unsigned int getSelectedTabIndex();
             void deselect();
             virtual void update() override;
             bool isTabVisible(const unsigned int& tabIndex);
-            const unsigned int getTabCount();
+            unsigned int getTabCount();
             bool isTabPresent(const std::string& tabLabel);
 
         private:
