@@ -57,8 +57,9 @@ namespace prattle
 
             bool isRunning();                   // Returns true if 'm_running' is true.
 
+            //Shutdown the server
+            void shutdown();
         private:
-            void shutdown();                    // Stop listening to incoming connections
 
             void parseConfigFile();
 

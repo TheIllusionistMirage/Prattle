@@ -128,7 +128,8 @@ namespace prattle
             }
             sf::sleep(sf::milliseconds(1));
         }
-        shutdown();
+        m_listener.close();
+        DBG_LOG("Server successfully shutdown at " + getCurrentTimeAndDate() + " .");
     }
 
     bool Server::isRunning()
@@ -643,8 +644,6 @@ namespace prattle
     }
     void Server::shutdown()
     {
-        m_listener.close();
         m_running = false;
-        DBG_LOG("Server successfully shutdown at " + getCurrentTimeAndDate() + " .");
     }
 }
