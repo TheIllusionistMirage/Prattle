@@ -55,6 +55,7 @@ namespace prattle
             break;
             case Task::Type::Logout:
                 m_socket.disconnect();
+                reset();
                 m_connected = false;
                 break;
             default:

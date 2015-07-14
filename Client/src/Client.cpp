@@ -4,7 +4,8 @@
 
 namespace prattle
 {
-    Client::Client()
+    Client::Client() :
+        m_state(State::Login)
     {
         parseConfigFile();
 
@@ -77,6 +78,9 @@ namespace prattle
             break;
             case UserInterface::UIEvent::UserLogin:
             {
+                if (m_state != State::Login)
+                    break;
+
                 m_ui->setState(UserInterface::State::Connecting);
                 m_state = State::Connecting;
                 m_loginReqId = m_network.send(Network::Task::Login, {
