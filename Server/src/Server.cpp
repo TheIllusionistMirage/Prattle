@@ -407,7 +407,7 @@ namespace prattle
         {
             if (m_selector.isReady(**itr))
             {
-                DBG_LOG("Request from a new connection")
+                DBG_LOG("Request from a new connection");
                 sf::Packet packet;
                 auto status = (*itr)->receive(packet);
                 if (status == sf::Socket::Done)
