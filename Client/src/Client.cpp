@@ -32,68 +32,90 @@ namespace prattle
 
     void Client::update()
     {
-        int updates = m_network.receive();
-        while (updates --> 0)
+        //Poll network
+        int networkUpdates = m_network.receive();
+        while (networkUpdates --> 0) //The Goes-To operator. See § 5.20/1 of the C++11 standard.
         {
             auto reply = m_network.popReply();
-            if (reply.id == m_loginReqId)
+            switch (m_state)
             {
-                if (reply.type == Network::Reply::TaskSuccess)
-                {
-                    m_ui->setState(UserInterface::State::Chatting);
-                    m_state = State::Chatting;
-                }
-                else
-                {
-                    //todo: look at the reply and display the specific error/issue in the ui
-                    std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
-                    m_state = State::Exit;
-                }
-            }
-        }
-
-        //UI Event
-        UserInterface::UIEvent e = m_ui->update();
-        switch (e)
-        {
-            case UserInterface::UIEvent::AddFriend:
-            break;
-            case UserInterface::UIEvent::Closed:
-            {
-                m_state = State::Exit;
-            }
-            break;
-            case UserInterface::UIEvent::Disconnect:
-            {
-                m_ui->setState(UserInterface::State::Login);
-                m_network.send(Network::Task::Type::Logout);
-                m_state = State::Login;
-            }
-            break;
-            case UserInterface::UIEvent::MessageSent:
-            break;
-            case UserInterface::UIEvent::None:
-            break;
-            case UserInterface::UIEvent::Search:
-            break;
-            case UserInterface::UIEvent::UserLogin:
-            {
-                if (m_state != State::Login)
+                case State::Login:
+                case State::Signup:
+                    //Not expecting any thing from network in these states
+                    WRN_LOG("Received an unexpected network reply in Login/Signup state.");
                     break;
-
-                m_ui->setState(UserInterface::State::Connecting);
-                m_state = State::Connecting;
-                m_loginReqId = m_network.send(Network::Task::Login, {
-                               m_clientConf.addr,
-                               std::to_string(m_clientConf.port),
-                               m_ui->getUsername(),
-                               m_ui->getPassword()} );
+                case State::Connecting:
+                    if (reply.id == m_loginReqId)
+                    {
+                        if (reply.type == Network::Reply::TaskSuccess)
+                        {
+                            m_ui->setState(UserInterface::State::Chatting);
+                            m_state = State::Chatting;
+                        }
+                        else
+                        {
+                            //todo: look at the reply and display the specific error/issue through the ui
+                            std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
+                            m_state = State::Exit;
+                        }
+                    }
+                    else
+                        WRN_LOG("Received an unexpected network reply in state connecting.");
+                    break;
+                case State::Chatting:
+                    // Code goes here ! (And I mean a lot of it.
+                    break;
+                case State::Exit:
+                    //This should never happen
+                    WRN_LOG("lolz ur codz r broke.");
+                    break;
             }
-            break;
-            case UserInterface::UIEvent::UserSignup:
-                std::cout << "Signup" << std::endl;
-            break;
         }
+
+        //Poll/update UI
+        auto event = m_ui->update();
+        switch (m_state)
+        {
+            case State::Login:
+                if (event == UserInterface::UIEvent::UserLogin)
+                {
+                    m_ui->setState(UserInterface::State::Connecting);
+                    m_state = State::Connecting;
+                    m_loginReqId = m_network.send(Network::Task::Login, {
+                                   m_clientConf.addr,
+                                   std::to_string(m_clientConf.port),
+                                   m_ui->getUsername(),
+                                   m_ui->getPassword() });
+
+                }
+                else if (event != UserInterface::UIEvent::Closed)
+                    WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + std::to_string(event));
+                break;
+            case State::Signup:
+                break;
+            case State::Connecting:
+            case State::Chatting:
+                switch (event)
+                {
+                    case UserInterface::UIEvent::Disconnect:
+                        m_ui->setState(UserInterface::State::Login);
+                        m_network.send(Network::Task::Type::Logout);
+                        m_state = State::Login;
+                        break;
+                    case UserInterface::UIEvent::Closed:
+                        break;
+                    default:
+                        WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");
+                }
+                break;
+            case State::Exit:
+                //This should never happen
+                WRN_LOG("lolz ur codz r broke.");
+                break;
+        }
+        //Whatever state the application is in, Closing always follows exiting
+        if (event == UserInterface::UIEvent::Closed)
+            m_state = State::Exit;
     }
 
     void Client::draw()
