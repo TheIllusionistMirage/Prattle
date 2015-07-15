@@ -16,6 +16,8 @@ namespace prattle
                                  m_chatBox{std::make_shared<tgui::TextBox>()},
                                  m_inputBox{std::make_shared<tgui::TextBox>()},
                                  m_chatMessage{std::make_shared<tgui::Label>()},
+                                // m_alertBox{std::make_shared<tgui::ChildWindow>()},
+                                 m_alertMessage{std::make_shared<tgui::Label>()},
 //                                 m_signupScreenButton{std::make_shared<tgui::Button>()},
 //                                 m_signupButton{std::make_shared<tgui::Button>()},
 //                                 m_connectingText{std::make_shared<tgui::Label>()},
@@ -60,6 +62,15 @@ namespace prattle
         m_logo->setSmooth(true);
         m_logo->setSize(tgui::bindWidth(m_gui) / 2, tgui::bindWidth(m_gui) / (2 * 1.333333333));
         m_logo->setPosition(tgui::bindRight(m_gui) / 2.2, tgui::bindHeight(m_gui) / 5);
+
+        m_alertMessage->setTextColor(sf::Color::White);
+
+        m_alertBox = tgui::ChildWindow::create(DEFAULT_TGUI_THEME);
+        m_alertBox->setTitle("Alert");
+        m_alertBox->hide();
+        m_alertBox->add(m_alertMessage);
+        m_alertBox->connect("Closed", &GraphicalUI::closeAlert, this);
+        m_gui.add(m_alertBox);
 
         /* initialization of widgets for the login screen */
 
@@ -443,6 +454,18 @@ namespace prattle
 
     void GraphicalUI::alert(const std::string& message)
     {
+        m_alertMessage->setText(message);
+        m_alertBox->setSize(m_alertMessage->getSize().x + 100, m_alertMessage->getSize().y + 100);
+        m_alertMessage->setPosition(50, 50);
+        m_alertBox->setPosition(tgui::bindWidth(m_gui) / 2 - m_alertBox->getSize().x / 2,
+                                tgui::bindHeight(m_gui) / 2 - m_alertBox->getSize().y / 2);
+        m_alertBox->show();
+        m_alertBox->moveToFront();
+
+        for (auto w : m_gui.getWidgets())
+            w->disable();
+
+        m_alertBox->enable();
     }
 
     std::string GraphicalUI::getInputText()
@@ -469,5 +492,25 @@ namespace prattle
 
     void GraphicalUI::addToChatArea(const std::string& text)
     {
+    }
+
+    bool GraphicalUI::isStringWhitespace(const std::string& str)
+    {
+        for (auto& i : str)
+        {
+            if (i != ' ' && i != '\t' && i != '\n')
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void GraphicalUI::closeAlert()
+    {
+        m_alertBox->hide();
+
+        for (auto w : m_gui.getWidgets())
+            w->enable();
     }
 }

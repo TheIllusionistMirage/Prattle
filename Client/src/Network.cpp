@@ -70,7 +70,7 @@ namespace prattle
         return m_connected;
     }
 
-    int Network::receive()
+    int Network::update()
     {
         if (!isConnected())
         {
@@ -125,6 +125,7 @@ namespace prattle
                                         Reply::Type::TaskError,
                                         {} });
                     m_tasks.clear();
+                    DBG_LOG("All tasks cleared");
                 }
             }
             assert(m_tasks.size() <= 1);
