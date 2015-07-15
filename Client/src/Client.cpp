@@ -67,55 +67,58 @@ namespace prattle
                     break;
                 case State::Exit:
                     //This should never happen
-                    WRN_LOG("lolz ur codz r broke.");
+                    WRN_LOG("LOLZ, this should never have happened. Go pray to the Flying Spaghetti Monster :p");
                     break;
             }
         }
 
         //Poll/update UI
         auto event = m_ui->update();
-        switch (m_state)
+        if (event != UserInterface::UIEvent::None)
         {
-            case State::Login:
-                if (event == UserInterface::UIEvent::UserLogin)
-                {
-                    m_ui->setState(UserInterface::State::Connecting);
-                    m_state = State::Connecting;
-                    m_loginReqId = m_network.send(Network::Task::Login, {
-                                   m_clientConf.addr,
-                                   std::to_string(m_clientConf.port),
-                                   m_ui->getUsername(),
-                                   m_ui->getPassword() });
+            switch (m_state)
+            {
+                case State::Login:
+                    if (event == UserInterface::UIEvent::UserLogin)
+                    {
+                        m_ui->setState(UserInterface::State::Connecting);
+                        m_state = State::Connecting;
+                        m_loginReqId = m_network.send(Network::Task::Login, {
+                                       m_clientConf.addr,
+                                       std::to_string(m_clientConf.port),
+                                       m_ui->getUsername(),
+                                       m_ui->getPassword() });
 
-                }
-                else if (event != UserInterface::UIEvent::Closed)
-                    WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + std::to_string(event));
-                break;
-            case State::Signup:
-                break;
-            case State::Connecting:
-            case State::Chatting:
-                switch (event)
-                {
-                    case UserInterface::UIEvent::Disconnect:
-                        m_ui->setState(UserInterface::State::Login);
-                        m_network.send(Network::Task::Type::Logout);
-                        m_state = State::Login;
-                        break;
-                    case UserInterface::UIEvent::Closed:
-                        break;
-                    default:
-                        WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");
-                }
-                break;
-            case State::Exit:
-                //This should never happen
-                WRN_LOG("lolz ur codz r broke.");
-                break;
+                    }
+                    else if (event != UserInterface::UIEvent::Closed)
+                        WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + std::to_string(event));
+                    break;
+                case State::Signup:
+                    break;
+                case State::Connecting:
+                case State::Chatting:
+                    switch (event)
+                    {
+                        case UserInterface::UIEvent::Disconnect:
+                            m_ui->setState(UserInterface::State::Login);
+                            m_network.send(Network::Task::Type::Logout);
+                            m_state = State::Login;
+                            break;
+                        case UserInterface::UIEvent::Closed:
+                            break;
+                        default:
+                            WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");
+                    }
+                    break;
+                case State::Exit:
+                    //This should never happen
+                    WRN_LOG("lolz ur codz r broke.");
+                    break;
+            }
+            //Whatever state the application is in, Closing always follows exiting
+            if (event == UserInterface::UIEvent::Closed)
+                m_state = State::Exit;
         }
-        //Whatever state the application is in, Closing always follows exiting
-        if (event == UserInterface::UIEvent::Closed)
-            m_state = State::Exit;
     }
 
     void Client::draw()

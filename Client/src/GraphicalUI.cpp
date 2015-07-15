@@ -426,6 +426,8 @@ namespace prattle
                 m_inputBox->hide();
                 m_chatWindowBorder->hide();
             }
+
+            return UIEvent::None;
         }
 
         if (!m_window.isOpen())
