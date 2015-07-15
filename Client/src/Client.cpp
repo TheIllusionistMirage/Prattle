@@ -33,7 +33,7 @@ namespace prattle
     void Client::update()
     {
         //Poll network
-        int networkUpdates = m_network.receive();
+        int networkUpdates = m_network.update();
         while (networkUpdates --> 0) //The Goes-To operator. See § 5.20/1 of the C++11 standard.
         {
             auto reply = m_network.popReply();
@@ -55,8 +55,14 @@ namespace prattle
                         else
                         {
                             //todo: look at the reply and display the specific error/issue through the ui
-                            std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
-                            m_state = State::Exit;
+                            //std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
+                            //m_state = State::Exit;
+
+                            m_ui->alert("Unable to login!");
+                            m_ui->setState(UserInterface::State::Login);
+                            m_state = State::Login;
+                            m_network.reset();
+                            m_state = State::Login;
                         }
                     }
                     else
@@ -81,14 +87,19 @@ namespace prattle
                 case State::Login:
                     if (event == UserInterface::UIEvent::UserLogin)
                     {
-                        m_ui->setState(UserInterface::State::Connecting);
-                        m_state = State::Connecting;
-                        m_loginReqId = m_network.send(Network::Task::Login, {
-                                       m_clientConf.addr,
-                                       std::to_string(m_clientConf.port),
-                                       m_ui->getUsername(),
-                                       m_ui->getPassword() });
-
+                        if (!m_ui->isStringWhitespace(m_ui->getUsername()) &&
+                             !m_ui->isStringWhitespace(m_ui->getPassword()))
+                        {
+                            m_ui->setState(UserInterface::State::Connecting);
+                            m_state = State::Connecting;
+                            m_loginReqId = m_network.send(Network::Task::Login, {
+                                           m_clientConf.addr,
+                                           std::to_string(m_clientConf.port),
+                                           m_ui->getUsername(),
+                                           m_ui->getPassword() });
+                        }
+                        else
+                            m_ui->alert("Can't leave either login field blank!");
                     }
                     else if (event != UserInterface::UIEvent::Closed)
                         WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + std::to_string(event));
@@ -112,7 +123,7 @@ namespace prattle
                     break;
                 case State::Exit:
                     //This should never happen
-                    WRN_LOG("lolz ur codz r broke.");
+                    WRN_LOG("We should've prayed to the Flying Spaghetti Monster harder, sorry.");
                     break;
             }
             //Whatever state the application is in, Closing always follows exiting
@@ -197,16 +208,4 @@ namespace prattle
     {}
     void Client::changeState(State s)
     {}
-
-    bool Client::isStringWhitespace(const std::string& str)
-    {
-        for (auto& i : str)
-        {
-            if (i != ' ' && i != '\t' && i != '\n')
-            {
-                return false;
-            }
-        }
-        return true;
-    }
 }
