@@ -19,7 +19,7 @@ int main()
     }
     catch(std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        ERR_LOG(std::string("Exception occurred.\nwhat(): ") + e.what());
     }
 
     return 0;

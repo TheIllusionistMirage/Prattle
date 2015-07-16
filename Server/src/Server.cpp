@@ -548,7 +548,7 @@ namespace prattle
                                     reply << "ack";
                                     m_controller = std::move(*itr);
                                     sendController(reply);
-                                    DBG_LOG("Controller attached.\n Controller IP : " + m_controller->getRemoteAddress().toString());
+                                    DBG_LOG("Controller attached.\nController IP : " + m_controller->getRemoteAddress().toString());
                                 }
                                 else
                                 {
@@ -603,7 +603,10 @@ namespace prattle
                 {
                     replyStr += i.first + '\n';
                 }
-                replyStr.resize(replyStr.size()-1); //remove the last newline
+                if (replyStr.size())
+                    replyStr.erase(replyStr.size()-1); //remove the last newline
+//                else
+//                    replyStr = "None.";
                 reply << "ack" << replyStr;
             }
             else if(request == "print_stats")

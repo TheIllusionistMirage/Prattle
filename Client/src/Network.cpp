@@ -47,7 +47,7 @@ namespace prattle
                                   rid = generateId(),
                                   Task::Type::Login,
                                   std::chrono::steady_clock::now()});
-                auto port = static_cast<unsigned short>(std::strtoul(args[1].c_str(), nullptr, 0));
+                unsigned short port = std::stoi(args[1]);
                 m_connectManifest.address = args[0];
                 m_connectManifest.port = port;
                 m_connectManifest.username = args[2];
@@ -70,7 +70,7 @@ namespace prattle
                                   rid = generateId(),
                                   Task::Type::Signup,
                                   std::chrono::steady_clock::now()});
-                auto port = static_cast<unsigned short>(std::strtoul(args[1].c_str(), nullptr, 0));
+                unsigned short port = std::stoi(args[1]);
                 m_connectManifest.address = args[0];
                 m_connectManifest.port = port;
                 m_connectManifest.username = args[2];
@@ -177,7 +177,7 @@ namespace prattle
             {
                 std::string reply, temp;
                 response >> reply >> temp;
-                RequestId rid = static_cast<RequestId>(std::strtoul(temp.c_str(), nullptr, 0));
+                RequestId rid = std::stoi(temp);
 
                 const auto comparator = [&](const Task& t) { return t.id == rid; };
                 auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);

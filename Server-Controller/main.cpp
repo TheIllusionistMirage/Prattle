@@ -21,18 +21,18 @@ std::vector<std::string> split(const std::string& str)
 }
 
 int main()
-{    
+{
     sf::TcpSocket server_sock;
     std::string input, prompt = "Disconnected";
-    const std::string prompt_suffix = " > ";
+    const std::string prompt_suffix = "> ";
     bool connected = false;
-    
-    cout << "Server-Controller by team Prattle" << endl;          
-    cout << "\nUse this to control a Prattle Server."
-         << " Type 'help' for displaying supported commands to control the server\n" << endl;
 
-    for(cout << prompt+prompt_suffix; std::getline(std::cin, input);
-        cout << prompt+prompt_suffix)
+    cout << "Server-Controller by team Prattle" << endl;
+    cout << "Use this to control a Prattle Server."
+         << "\nType 'help' for displaying supported commands to control the server\n" << endl;
+
+    for(cout << prompt + prompt_suffix; std::getline(std::cin, input);
+        cout << prompt + prompt_suffix)
     {
         if(input.empty())
             continue;
@@ -41,7 +41,6 @@ int main()
         std::string command = tokens[0];
         if(command == "exit")
         {
-            server_sock.disconnect();
             break;
         }
         else if(command == "help")
@@ -76,26 +75,30 @@ int main()
                 cerr << "Invalid Command.\nAlready connected to server at " << server_sock.getRemoteAddress() << endl;
                 continue;
             }
+
             if(tokens.size() < 3)
-                cerr << "Invalid command." << endl;
+                cerr << "Not enough arguments for `connect' command." << endl;
+
             std::string ip = tokens[1];
             unsigned short port = std::stoi(tokens[2]);
             auto status = server_sock.connect(ip, port, sf::seconds(60));
             if(status != sf::Socket::Done)
             {
-                cerr << "ERROR connecting to server." << endl;
+                cerr << "Error in connecting to server." << endl;
+                server_sock.disconnect();
             }
             else
             {
                 sf::Packet connect_packet;
                 std::string passphrase;
-                cout << "Enter the passphrase for this server : ";
+                cout << "Enter the pass-phrase for this server: ";
                 std::getline(std::cin, passphrase);
                 connect_packet << "controller_attach" << passphrase;
                 status = server_sock.send(connect_packet);
                 if(status != sf::Socket::Done)
                 {
-                    cerr << "ERROR while sending packet to server." << endl;
+                    cerr << "ERROR while sending packet to server. Connection request unsuccessful." << endl;
+                    server_sock.disconnect();
                 }
                 else
                 {
@@ -113,14 +116,15 @@ int main()
                         }
                         else
                         {
-                            cout << "Couldn't connect to server. Sever's reply :\n";
+                            cout << "Couldn't connect to server. Sever's reply: \n";
                             cout << reply << endl;
                             server_sock.disconnect();
                         }
                     }
                     else
                     {
-                        cerr << "ERROR while receiving from server. Status code : " << status << endl;
+                        cerr << "ERROR while receiving from server. Status code: " << status << endl;
+                        server_sock.disconnect();
                     }
                 }
             }
@@ -141,23 +145,43 @@ int main()
                     packet << s;
                 }
                 auto status = server_sock.send(packet);
-                if(status != sf::Socket::Done)
+                if(status != sf::Socket::Done && status != sf::Socket::Disconnected)
                 {
                     cerr << "Error sending packet to server." << endl;
                     continue;
                 }
+                else if (status == sf::Socket::Disconnected)
+                {
+                    prompt = "Disconnected";
+                    cerr << "Unexpectedly disconnected from the server." << endl;
+                    server_sock.disconnect();
+                    connected = false;
+                    continue;
+                }
+
+                // Receive a reply
                 sf::Packet reply;
                 status = server_sock.receive(reply);
-                if(status != sf::Socket::Done)
+                if(status != sf::Socket::Done && status != sf::Socket::Disconnected)
                 {
+
                     cerr << "Error receiving reply from Server." << endl;
                     break;
                 }
+                else if (status == sf::Socket::Disconnected)
+                {
+                    prompt = "Disconnected";
+                    cerr << "Unexpectedly disconnected from the server." << endl;
+                    server_sock.disconnect();
+                    connected = false;
+                    continue;
+                }
+
                 std::string reply_str;
                 reply >> reply_str;
                 if(reply_str != "ack")
                 {
-                    cerr << "Operation unsuccessful. Server's reply : \n";
+                    cerr << "Operation unsuccessful. Server's reply: \n";
                     cerr << reply_str << endl;
                 }
                 else

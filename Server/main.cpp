@@ -32,17 +32,18 @@ int main()
         serverPtr = &server;
 
         struct sigaction sa; //struct keyword required to remove ambiguity
-        //Shutdown server when SIGINT is received
+        //Shutdown server when SIGINT or SIGTERM is received
         sa.sa_handler = [](int sig){ if(serverPtr) serverPtr->shutdown(); };
         sa.sa_flags = 0;
         sigaction(SIGINT, &sa, NULL);
+        sigaction(SIGTERM, &sa, NULL);
 #endif // defined
 
         server.run();
     }
     catch (std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        ERR_LOG(std::string("Exception occurred.\nwhat(): ") + e.what());
     }
 
     return 0;
