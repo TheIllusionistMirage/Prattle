@@ -11,14 +11,15 @@ namespace prattle
 
         if (m_clientConf.ui == "gui")
             m_ui = std::unique_ptr<GraphicalUI>{new GraphicalUI{}};
-//        else if (m_clientConf.ui == "cli")
-            //m_ui = std::unique_ptr<decltype(m_ui)>(nullptr);
+        //else if (m_clientConf.ui == "cli")
+        //    m_ui = std::unique_ptr<decltype(m_ui)>(nullptr);
         else
         {
             ERR_LOG("No UI set in config file. Using GUI by default.");
             m_ui = std::unique_ptr<GraphicalUI>{new GraphicalUI{}};
         }
 
+        changeState(UserInterface::State::Login);
     }
 
     void Client::run()
@@ -50,6 +51,7 @@ namespace prattle
                         if (reply.type == Network::Reply::TaskSuccess)
                         {
                             int noOfFriends = std::stoi(reply.args[0]);
+                            DBG_LOG("User has " + reply.args[0] + " friends.");
                             std::vector<std::string> friends;
 
                             for (int i = 1; i <= noOfFriends; i++ )
@@ -57,16 +59,14 @@ namespace prattle
 
                             m_ui->fillFriendList(friends);
 
-                            m_ui->setState(UserInterface::State::Chatting);
-                            m_state = UserInterface::State::Chatting;
+                            changeState(UserInterface::State::Chatting);
                         }
                         else
                         {
                             //todo: look at the reply and display the specific error/issue through the ui
 
                             m_ui->alert("Unable to login!");
-                            m_ui->setState(UserInterface::State::Login);
-                            m_state = UserInterface::State::Login;
+                            changeState(UserInterface::State::Login);
                             m_network.reset();
                         }
                     }
@@ -76,7 +76,7 @@ namespace prattle
                         {
                             m_network.reset();
                             m_ui->reset();
-                            m_state = UserInterface::State::Login;
+                            changeState(UserInterface::State::Login);
                             m_ui->alert("Signup successful! Login to start chatting!");
                         }
                         else
@@ -84,8 +84,7 @@ namespace prattle
                             //todo: look at the reply and display the specific error/issue through the ui
 
                             m_ui->alert("Unable to Signup!");
-                            m_ui->setState(UserInterface::State::Signup);
-                            m_state = UserInterface::State::Signup;
+                            changeState(UserInterface::State::Signup);
                             m_network.reset();
                         }
                     }
@@ -121,8 +120,7 @@ namespace prattle
                         if (!m_ui->isStringWhitespace(m_ui->getUsername()) &&
                              !m_ui->isStringWhitespace(m_ui->getPassword()))
                         {
-                            m_ui->setState(UserInterface::State::Connecting);
-                            m_state = UserInterface::State::Connecting;
+                            changeState(UserInterface::State::Connecting);
                             m_loginReqId = m_network.send(Network::Task::Login, {
                                            m_clientConf.addr,
                                            std::to_string(m_clientConf.port),
@@ -141,8 +139,7 @@ namespace prattle
                         if (!m_ui->isStringWhitespace(m_ui->getUsername()) &&
                                  !m_ui->isStringWhitespace(m_ui->getPassword()))
                             {
-                                m_ui->setState(UserInterface::State::Connecting);
-                                m_state = UserInterface::State::Connecting;
+                                changeState(UserInterface::State::Connecting);
                                 m_signupReqId = m_network.send(Network::Task::Signup, {
                                                m_clientConf.addr,
                                                std::to_string(m_clientConf.port),
@@ -164,7 +161,7 @@ namespace prattle
                             m_network.send(Network::Task::Type::Logout);
                             //m_network.reset();
                             m_ui->reset();
-                            m_state = UserInterface::State::Login;
+                            changeState(UserInterface::State::Login);
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");
@@ -231,29 +228,22 @@ namespace prattle
             {
                 switch(mapping->second.first)
                 {
-                case INT:
-                    *static_cast<int*>(mapping->second.second) = std::stoi(value);
-                    break;
-                case STRING:
-                    *static_cast<std::string*>(mapping->second.second) = value;
-                    break;
-                default:
-                    WRN_LOG("Unhandled data type");
-                    break;
+                    case INT:
+                        *static_cast<int*>(mapping->second.second) = std::stoi(value);
+                        break;
+                    case STRING:
+                        *static_cast<std::string*>(mapping->second.second) = value;
+                        break;
+                    default:
+                        WRN_LOG("Unhandled data type");
+                        break;
                 }
             }
         }
     }
-    void Client::doLogin()
-    {}
-    void Client::doSignup()
-    {}
-    void Client::sendUserMessage()
-    {}
-    void Client::processServerReply()
-    {}
     void Client::changeState(UserInterface::State s)
     {
         m_state = s;
+        m_ui->setState(s);
     }
 }

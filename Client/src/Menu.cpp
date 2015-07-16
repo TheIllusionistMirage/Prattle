@@ -53,7 +53,7 @@ namespace prattle
         m_friendList->setDefaultMessage("No items added");
     }
 
-    void Menu::initList(const std::vector<std::string> friends)
+    void Menu::initList(const std::vector<std::string>& friends)
     {
         m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
 

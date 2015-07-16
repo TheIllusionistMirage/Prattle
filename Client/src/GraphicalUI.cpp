@@ -305,45 +305,36 @@ namespace prattle
         switch(m_state)
         {
             case UserInterface::State::Login:
-                {
-                    m_loginScreen->add(m_usernameField);
-                    m_loginScreen->add(m_passwordField);
+                m_loginScreen->add(m_usernameField);
+                m_loginScreen->add(m_passwordField);
 
-                    m_loginScreen->show();
-                    m_signupScreen->hide();
-                    m_connectingScreen->hide();
-                    m_chatScreen->hide();
-                }
+                m_loginScreen->show();
+                m_signupScreen->hide();
+                m_connectingScreen->hide();
+                m_chatScreen->hide();
                 break;
-
             case UserInterface::State::Signup:
-                {
-                    m_signupScreen->add(m_usernameField);
-                    m_signupScreen->add(m_passwordField);
+                m_signupScreen->add(m_usernameField);
+                m_signupScreen->add(m_passwordField);
 
-                    m_loginScreen->hide();
-                    m_signupScreen->show();
-                    m_connectingScreen->hide();
-                    m_chatScreen->hide();
-                }
+                m_loginScreen->hide();
+                m_signupScreen->show();
+                m_connectingScreen->hide();
+                m_chatScreen->hide();
                 break;
-
             case UserInterface::State::Connecting:
-                {
-                    m_loginScreen->hide();
-                    m_signupScreen->hide();
-                    m_connectingScreen->show();
-                    m_chatScreen->hide();
-                }
+                m_loginScreen->hide();
+                m_signupScreen->hide();
+                m_connectingScreen->show();
+                m_chatScreen->hide();
                 break;
-
             case UserInterface::State::Chatting:
-                {
-                    m_loginScreen->hide();
-                    m_signupScreen->hide();
-                    m_connectingScreen->hide();
-                    m_chatScreen->show();
-                }
+                m_loginScreen->hide();
+                m_signupScreen->hide();
+                m_connectingScreen->hide();
+                m_chatScreen->show();
+                break;
+            case UserInterface::State::Exit:
                 break;
         }
     }
@@ -414,6 +405,8 @@ namespace prattle
                                         }
                                     }
                                     break;
+                                default:
+                                    break;
                             }
                         }
                         break;
@@ -466,6 +459,8 @@ namespace prattle
                                     m_menu->getFriendlist()->hide();
                             }
                         }
+                        break;
+                    default:
                         break;
                 }
             }
@@ -534,6 +529,7 @@ namespace prattle
 
     std::string GraphicalUI::getInputText()
     {
+        return "";
     }
 
     std::string GraphicalUI::getUsername()
@@ -552,6 +548,7 @@ namespace prattle
 
     std::string GraphicalUI::getChat(const std::string& user)
     {
+        return "";
     }
 
     void GraphicalUI::addToChatArea(const std::string& text)

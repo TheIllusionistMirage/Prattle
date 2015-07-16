@@ -29,7 +29,7 @@ namespace prattle
 
             void setFont(std::shared_ptr<sf::Font> font);
 
-            void initList(const std::vector<std::string> friends);
+            void initList(const std::vector<std::string>& friends);
 
             void resetList();
 
