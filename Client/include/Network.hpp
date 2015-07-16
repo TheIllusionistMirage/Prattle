@@ -117,6 +117,8 @@ namespace prattle
         Reply popReply();
 
     private:
+        void disconnect();
+
         // The default timeout period (in ms) : 10000 ms (or 10s)
         const unsigned int m_defaultTaskTimeout = 10000;
 

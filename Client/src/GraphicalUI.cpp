@@ -1,4 +1,5 @@
 #include "../include/GraphicalUI.hpp"
+#include "../include/Logger.hpp"
 
 namespace prattle
 {
@@ -294,7 +295,6 @@ namespace prattle
     void GraphicalUI::setState(UserInterface::State s)
     {
         m_state = s;
-        std::cout << "1 " << m_state << " " << s << std::endl;
 
         if (m_usernameField->getParent() != nullptr && m_passwordField->getParent() != nullptr)
         {
@@ -350,7 +350,6 @@ namespace prattle
 
     UserInterface::State GraphicalUI::getState()
     {
-        std::cout << "2 "<< m_state << std::endl;
         return m_state;
     }
 
@@ -360,7 +359,7 @@ namespace prattle
         {
             sf::Event event;
 
-            if (m_window.pollEvent(event))
+            while (m_window.pollEvent(event))
             {
                 m_gui.handleEvent(event);
 
@@ -372,7 +371,6 @@ namespace prattle
                             return UserInterface::UIEvent::Closed;
                         }
                         break;
-
                     case sf::Event::Resized:
                         {
                             m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
@@ -385,7 +383,6 @@ namespace prattle
                             m_tabs->update();
                         }
                         break;
-
                     case sf::Event::KeyPressed:
                         {
                             switch (event.key.code)
@@ -405,18 +402,21 @@ namespace prattle
                                         if (m_state == State::Login &&
                                              !isStringWhitespace(getUsername()) &&
                                               !isStringWhitespace(getPassword()))
+                                        {
                                             return UIEvent::UserLogin;
-
+                                        }
                                         else if (m_state == State::Signup &&
                                              !isStringWhitespace(getUsername()) &&
                                               !isStringWhitespace(getPassword()))
-                                            {std::cout << "AA" << std::endl;return UIEvent::UserSignup;}
+                                        {
+                                            DBG_LOG("Signup triggered by pressing return.");
+                                            return UIEvent::UserSignup;
+                                        }
                                     }
                                     break;
                             }
                         }
                         break;
-
                     case sf::Event::MouseButtonPressed:
                         {
                             // if alertbox is visible, all other widgets freeze
@@ -437,7 +437,10 @@ namespace prattle
                                 }
 
                                 if (isMouseOver(m_signupButton))
-                                    {std::cout << "BB" << std::endl;return UserInterface::UIEvent::UserSignup;}
+                                {
+                                    DBG_LOG("Signup triggered from clicking the signup button.");
+                                    return UserInterface::UIEvent::UserSignup;
+                                }
 
                                 if (isMouseOver(m_logoutButton))
                                     return UserInterface::UIEvent::Disconnect;

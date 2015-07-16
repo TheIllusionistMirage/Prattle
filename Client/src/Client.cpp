@@ -40,27 +40,6 @@ namespace prattle
             switch (m_state)
             {
                 case UserInterface::State::Login:
-                    if (reply.id == m_loginReqId)
-                    {
-                        if (reply.type == Network::Reply::TaskError)
-                        {
-                            m_ui->reset();
-                            m_network.reset();
-                            m_ui->alert(reply.args[0]);
-                        }
-                        else
-                        {
-                            //todo: look at the reply and display the specific error/issue through the ui
-                            //std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
-                            //m_state = State::Exit;
-
-                            m_ui->alert(reply.args[0]);
-                            m_ui->setState(UserInterface::State::Login);
-                            m_state = UserInterface::State::Login;
-                            m_network.reset();
-                            m_state = UserInterface::State::Login;
-                        }
-                    }
                 case UserInterface::State::Signup:
                     //Not expecting any thing from network in these states
                     WRN_LOG("Received an unexpected network reply in Login/Signup state.");
@@ -84,14 +63,11 @@ namespace prattle
                         else
                         {
                             //todo: look at the reply and display the specific error/issue through the ui
-                            //std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
-                            //m_state = State::Exit;
 
                             m_ui->alert("Unable to login!");
                             m_ui->setState(UserInterface::State::Login);
                             m_state = UserInterface::State::Login;
                             m_network.reset();
-                            m_state = UserInterface::State::Login;
                         }
                     }
                     else if (reply.id == m_signupReqId)
@@ -106,24 +82,21 @@ namespace prattle
                         else
                         {
                             //todo: look at the reply and display the specific error/issue through the ui
-                            //std::cout << "Login failed. Exiting because I don't know how to use ui dialogs." << std::endl;
-                            //m_state = State::Exit;
 
                             m_ui->alert("Unable to Signup!");
-                            m_ui->setState(UserInterface::State::Login);
-                            m_state = UserInterface::State::Login;
+                            m_ui->setState(UserInterface::State::Signup);
+                            m_state = UserInterface::State::Signup;
                             m_network.reset();
-                            m_state = UserInterface::State::Login;
                         }
                     }
                     else
                         WRN_LOG("Received an unexpected network reply in state connecting.");
                     break;
                 case UserInterface::State::Chatting:
-                    // Code goes here ! (And I mean a lot of it.
+                    // Code goes here ! (And I mean a lot of it)
                     break;
                 case UserInterface::State::Exit:
-                    //This should never happen
+                    // This should just never happen, but defining it to prevent GCC warning ...
                     WRN_LOG("LOLZ, this should never have happened. Go pray to the Flying Spaghetti Monster :p");
                     break;
             }
@@ -131,8 +104,13 @@ namespace prattle
 
         //Poll/update UI
         auto event = m_ui->update();
-        if (event == UserInterface::UIEvent::StateChanged)
-        {changeState(m_ui->getState());std::cout << m_state << std::endl;}
+        if (event == UserInterface::UIEvent::Closed)
+            m_state = UserInterface::State::Exit;
+        else if (event == UserInterface::UIEvent::StateChanged)
+        {
+            changeState(m_ui->getState());
+            DBG_LOG("State changed.");
+        }
         else if (event != UserInterface::UIEvent::None)
         {
             switch (m_state)
@@ -152,26 +130,31 @@ namespace prattle
                                            m_ui->getPassword() });
                         }
                         else
-                            m_ui->alert("Can't leave either login field blank!");
+                            m_ui->alert("Can't leave either login fields blank!");
                     }
-                    else if (event != UserInterface::UIEvent::Closed)
+                    else
                         WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + std::to_string(event));
                     break;
                 case UserInterface::State::Signup:
-                    if (!m_ui->isStringWhitespace(m_ui->getUsername()) &&
-                             !m_ui->isStringWhitespace(m_ui->getPassword()))
-                        {
-                            m_ui->setState(UserInterface::State::Connecting);
-                            m_state = UserInterface::State::Connecting;
-                            m_signupReqId = m_network.send(Network::Task::Signup, {
-                                           m_clientConf.addr,
-                                           std::to_string(m_clientConf.port),
-                                           m_ui->getUsername(),
-                                           m_ui->getPassword() });
-                            std::cout << "CC" << std::endl;
-                        }
-                        else
-                            m_ui->alert("Can't leave either signup field blank!");
+                    if (event == UserInterface::UIEvent::UserSignup)
+                    {
+                        if (!m_ui->isStringWhitespace(m_ui->getUsername()) &&
+                                 !m_ui->isStringWhitespace(m_ui->getPassword()))
+                            {
+                                m_ui->setState(UserInterface::State::Connecting);
+                                m_state = UserInterface::State::Connecting;
+                                m_signupReqId = m_network.send(Network::Task::Signup, {
+                                               m_clientConf.addr,
+                                               std::to_string(m_clientConf.port),
+                                               m_ui->getUsername(),
+                                               m_ui->getPassword() });
+                                DBG_LOG("Signup event.");
+                            }
+                            else
+                                m_ui->alert("Can't leave either signup fields blank!");
+                    }
+                    else
+                        WRN_LOG("Unexpected UIEvent received in Signup State. Event code: " + std::to_string(event));
                     break;
                 case UserInterface::State::Connecting:
                 case UserInterface::State::Chatting:
@@ -179,24 +162,19 @@ namespace prattle
                     {
                         case UserInterface::UIEvent::Disconnect:
                             m_network.send(Network::Task::Type::Logout);
-                            m_network.reset();
+                            //m_network.reset();
                             m_ui->reset();
                             m_state = UserInterface::State::Login;
-                            break;
-                        case UserInterface::UIEvent::Closed:
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");
                     }
                     break;
                 case UserInterface::State::Exit:
-                    //This should never happen
+                    // This should just never happen, but defining it to prevent GCC warning ...
                     WRN_LOG("We should've prayed to the Flying Spaghetti Monster harder, sorry.");
                     break;
             }
-            //Whatever state the application is in, Closing always follows exiting
-            if (event == UserInterface::UIEvent::Closed)
-                m_state = UserInterface::State::Exit;
         }
     }
 

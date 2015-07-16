@@ -15,7 +15,7 @@ namespace prattle
         m_socket.disconnect();
         m_tasks.clear();
         m_replies.clear();
-        //m_idCounter = 0;
+        m_connected = false;
     }
     Network::RequestId Network::generateId()
     {
@@ -27,7 +27,8 @@ namespace prattle
         if(task != Task::Type::Login && task != Task::Type::Signup && m_socket.getRemotePort() == 0)
             return InvalidRequest;
 
-        RequestId rid = InvalidRequest;
+        RequestId rid = InvalidRequest; //initialize to InvalidRequest
+
         switch(task)
         {
             case Task::Type::Login:
@@ -74,18 +75,15 @@ namespace prattle
                 m_connectManifest.port = port;
                 m_connectManifest.username = args[2];
                 m_connectManifest.password = args[3];
-
-                std::cout << "abc" << std::endl;
             }
             break;
             case Task::Type::Logout:
-                m_socket.disconnect();
+                DBG_LOG("Network: Logging out");
                 reset();
-                m_connected = false;
                 break;
             default:
                 ERR_LOG("Unhandled task");
-            break;
+                break;
         }
         return rid;
     }
@@ -95,12 +93,19 @@ namespace prattle
         return m_connected;
     }
 
+    void Network::disconnect()
+    {
+        m_socket.disconnect();
+        m_connected = false;
+    }
+
     int Network::update()
     {
         if (!isConnected())
         {
             //if either login or signup is a task
-            if (m_tasks.size() == 1 && (m_tasks.front().type == Task::Login || m_tasks.front().type == Task::Signup))
+            if (/*m_tasks.size() == 1 &&*/
+                (m_tasks.front().type == Task::Login || m_tasks.front().type == Task::Signup))
             {
                 auto status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
                 if (status == sf::Socket::Done)
@@ -116,7 +121,7 @@ namespace prattle
                     reqPacket << std::to_string(m_tasks.front().id) << m_connectManifest.username
                               << m_connectManifest.password;
 
-                    //Try sending the login request
+                    //Try sending the login/signup request
                     int tries = 5;
                     do
                     {
@@ -136,11 +141,8 @@ namespace prattle
                                             Reply::Type::TaskError,
                                             {} });
                         m_tasks.clear();
-                        m_socket.disconnect();
+                        disconnect();
                     }
-
-                    if (m_tasks.front().type == Task::Signup)
-                        m_socket.disconnect();
                 }
                 else if (status == sf::Socket::Error)
                 {
@@ -151,6 +153,18 @@ namespace prattle
                                         {} });
                     m_tasks.clear();
                     DBG_LOG("All tasks cleared");
+                    disconnect();
+                }
+                else if (status == sf::Socket::Disconnected)
+                {
+                    ERR_LOG("Prematurely disconnected.");
+                    m_replies.push_front(Reply{
+                                        m_tasks.front().id,
+                                        Reply::Type::TaskError,
+                                        {} });
+                    m_tasks.clear();
+                    DBG_LOG("All tasks cleared");
+                    disconnect();
                 }
             }
             assert(m_tasks.size() <= 1);
@@ -161,16 +175,19 @@ namespace prattle
             auto status = m_socket.receive(response);
             if (status == sf::Socket::Done)
             {
-                std::string reply;
-                response >> reply;
-                if (reply == LOGIN_FAILURE || reply == LOGIN_SUCCESS)
+                std::string reply, temp;
+                response >> reply >> temp;
+                RequestId rid = static_cast<RequestId>(std::strtoul(temp.c_str(), nullptr, 0));
+
+                const auto comparator = [&](const Task& t) { return t.id == rid; };
+                auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
+                if (res == m_tasks.end())
                 {
-                    std::string temp;
-                    response >> temp;
-                    RequestId rid = static_cast<RequestId>(std::strtoul(temp.c_str(), nullptr, 0));
-                    const auto comparator = [&](const Task& t) { return t.id == rid; };
-                    auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
-                    if(res != m_tasks.end() && res->type == Task::Login)
+                    ERR_LOG("Invalid response from server");
+                }
+                else
+                {
+                    if (reply == LOGIN_FAILURE || reply == LOGIN_SUCCESS)
                     {
                         m_replies.push_front(Reply{
                                             rid,
@@ -185,19 +202,7 @@ namespace prattle
                             vec.push_back(temp);
                         m_tasks.erase(res);
                     }
-                    else
-                    {
-                        ERR_LOG("Invalid response from server");
-                    }
-                }
-                else if (reply == SIGNUP_SUCCESS || reply == SIGNUP_FAILURE)
-                {
-                    std::string temp;
-                    response >> temp;
-                    RequestId rid = static_cast<RequestId>(std::strtoul(temp.c_str(), nullptr, 0));
-                    const auto comparator = [&](const Task& t) { return t.id == rid; };
-                    auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
-                    if(res != m_tasks.end() && res->type == Task::Signup)
+                    else if (reply == SIGNUP_SUCCESS || reply == SIGNUP_FAILURE)
                     {
                         m_replies.push_front(Reply{
                                             rid,
@@ -205,14 +210,11 @@ namespace prattle
                                             {} });
 
                         m_tasks.erase(res);
+                        disconnect();
                     }
                     else
-                    {
-                        ERR_LOG("Invalid response from server");
-                    }
+                        ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
                 }
-                else
-                    ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
             }
             else if (status == sf::Socket::Error)
             {
@@ -221,7 +223,7 @@ namespace prattle
             else if (status == sf::Socket::Disconnected)
             {
                 DBG_LOG("Disconnected.");
-                m_connected = false;
+                disconnect();
             }
 
             //Check expired tasks
