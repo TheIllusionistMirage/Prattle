@@ -31,6 +31,8 @@ namespace prattle
 
             void initList(const std::vector<std::string> friends);
 
+            void resetList();
+
             std::string getSelectedFriend();
 
             GraphicList::Ptr getFriendlist();

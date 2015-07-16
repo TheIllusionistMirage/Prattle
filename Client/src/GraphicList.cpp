@@ -55,9 +55,9 @@ namespace prattle
         m_scrollerDownVisible = false;
 
         m_defaultMessage = tgui::Label::create();
-//        m_defaultMessage->setTextSize(12);
-//        m_defaultMessage->setTextColor(sf::Color{70, 66, 66});
-//        m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
+        m_defaultMessage->setTextSize(12);
+        m_defaultMessage->setTextColor(sf::Color{70, 66, 66});
+        m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
     }
 
     GraphicList::~GraphicList()
@@ -74,7 +74,6 @@ namespace prattle
         Widget::initialize(parent);
         m_font = parent->getGlobalFont();
         m_defaultMessage->setTextFont(m_font);
-        //setDefaultMessage("No Items Added");
     }
 
     // the draw function as interhited from tgui::Widget.
@@ -94,6 +93,9 @@ namespace prattle
                )
                 target.draw(*i, states);
         }
+
+        if (m_defaultMessage->isVisible())
+            target.draw(*m_defaultMessage, states);
 
         // and finally draw the scrollers
         // (if they are visible of course)
@@ -128,9 +130,8 @@ namespace prattle
         // first create a new GraphicListItem object
         // and initialize it with default parameters
 
-//        if( m_font == nullptr)
-//            std::cout << "zxcvxcv" << std::endl;
-        m_defaultMessage->hide();
+        if (m_defaultMessage->isVisible())
+            m_defaultMessage->hide();
 
         m_items.push_back(std::make_shared<GraphicListItem>(label,
                                                             m_itemHeight,
@@ -179,6 +180,10 @@ namespace prattle
                 }
             }
         }
+
+        if (m_items.size() == 0)
+            if (!m_defaultMessage->isVisible())
+                m_defaultMessage->show();
     }
 
     // remove items when the label of the item to be removed is known
@@ -197,6 +202,10 @@ namespace prattle
                 }
             }
         }
+
+        if (m_items.size() == 0)
+            if (!m_defaultMessage->isVisible())
+                m_defaultMessage->show();
     }
 
     std::string GraphicList::getSelected()

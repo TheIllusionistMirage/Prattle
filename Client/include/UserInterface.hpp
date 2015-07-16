@@ -34,6 +34,7 @@ namespace prattle
 
                 enum UIEvent
                 {
+                    StateChanged,
                     UserLogin,
                     UserSignup,
                     MessageSent,
@@ -47,6 +48,7 @@ namespace prattle
             public:
                 virtual void reset() = 0;
                 virtual void setState(State s) = 0;
+                virtual State getState() = 0;
                 virtual UIEvent update() = 0;
                 virtual void draw() = 0;
 
@@ -59,6 +61,10 @@ namespace prattle
                 virtual void clearChat() = 0;
                 virtual std::string getChat(const std::string& user) = 0;
                 virtual void addToChatArea(const std::string& text) = 0;
+
+                virtual bool isStringWhitespace(const std::string& str) = 0;
+
+                virtual void fillFriendList(const std::vector<std::string>& friends) = 0;
 
 //            protected:
 //                State m_state;

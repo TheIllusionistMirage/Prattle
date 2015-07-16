@@ -21,14 +21,14 @@ namespace prattle
     {
         public:
 
-            enum State
-            {
-                Login,
-                Signup,
-                Connecting,
-                Chatting,
-                Exit
-            };
+//            enum State
+//            {
+//                Login,
+//                Signup,
+//                Connecting,
+//                Chatting,
+//                Exit
+//            };
 
             // Stores basic configuration info
             struct Configuration
@@ -51,14 +51,14 @@ namespace prattle
             void doSignup();
             void sendUserMessage();
             void processServerReply();
-            void changeState(State s);
-            bool isStringWhitespace(const std::string& str);
+            void changeState(UserInterface::State s);
 
             const std::string m_configFilePath = "resources/config/client.conf";
-            State m_state;
+            UserInterface::State m_state;
 
             Network m_network;
             Network::RequestId m_loginReqId;
+            Network::RequestId m_signupReqId;
 
             std::unique_ptr<UserInterface> m_ui;
             Configuration m_clientConf;

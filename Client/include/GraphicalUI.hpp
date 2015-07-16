@@ -45,9 +45,11 @@ namespace prattle
             GraphicalUI();
             void reset() override;
             bool isMouseOver(tgui::Widget::Ptr button);
+            void closeAlert();
 
             // virtually inherited functions
             void setState(UserInterface::State s) override;
+            UserInterface::State getState() override;
             UserInterface::UIEvent update() override;
             void draw() override;
 
@@ -60,6 +62,10 @@ namespace prattle
             void clearChat() override;
             std::string getChat(const std::string& user) override;
             void addToChatArea(const std::string& text) override;
+
+            bool isStringWhitespace(const std::string& str) override;
+
+            void fillFriendList(const std::vector<std::string>& friends) override;
 
         protected:
 
@@ -109,6 +115,9 @@ namespace prattle
             tgui::TextBox::Ptr m_inputBox;
             tgui::Picture::Ptr m_chatWindowBorder;
             tgui::Label::Ptr   m_chatMessage;
+
+            tgui::ChildWindow::Ptr m_alertBox;
+            tgui::Label::Ptr       m_alertMessage;
     };
 }
 

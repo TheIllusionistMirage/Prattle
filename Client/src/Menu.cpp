@@ -63,6 +63,12 @@ namespace prattle
         m_friendList->hide();
     }
 
+    void Menu::resetList()
+    {
+        for (int i = 0; i < m_friendList->getItemCount(); i++)
+            m_friendList->removeItem(i);
+    }
+
     std::string Menu::getSelectedFriend()
     {
         return m_friendList->getSelected();

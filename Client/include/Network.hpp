@@ -109,7 +109,7 @@ namespace prattle
         // This looks if new packets have arrived, if so, it checks their validity,
         // parses and stores 'em in m_replies, returns an int with the number of new replies
         // This also makes a reply for tasks that have timed-out.
-        int receive();
+        int update();
 
         // Returns a reply (sent by the server)
         // If the reply was a confirmation/error for a task, request id is the id of the *sent* request

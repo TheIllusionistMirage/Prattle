@@ -121,7 +121,7 @@ namespace prattle
         m_signupScreenButton->setTextSize(15);
         m_signupScreenButton->setSize(tgui::bindWidth(m_passwordField) / 2.5, tgui::bindHeight(m_passwordField) - 10);
         m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 3);
-        m_signupScreenButton->connect("pressed", &GraphicalUI::setState, this, State::Signup);
+        //m_signupScreenButton->connect("pressed", &GraphicalUI::setState, this, State::Signup);
 
         // the details label on the signup screen
         m_signupDetailsLabel->setText("Fill your details");
@@ -140,7 +140,7 @@ namespace prattle
         m_backButton->setTextSize(15);
         m_backButton->setSize(100, 30);
         m_backButton->setPosition(tgui::bindLeft(m_signupButton), tgui::bindHeight(m_gui) / 1.15);
-        m_backButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
+        //m_backButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
 
         m_connectingText->setText("Logging in...");
         m_connectingText->setTextSize(22);
@@ -240,14 +240,17 @@ namespace prattle
 
     void GraphicalUI::reset()
     {
-        m_usernameField->setText("");
+        m_state = State::Login;
+        setState(m_state);
+
+        //m_usernameField->setText("");
         m_passwordField->setText("");
         m_chatBox->setText("");
         m_inputBox->setText("");
 
         m_chatBox->moveToFront();
         m_inputBox->moveToFront();
-        //m_menu->initList({"Friend 1", "Friend 2", "Friend 3", "Friend 4", "Friend 5", "Friend 6", "Friend 7", "Friend 8", "Friend 9", "Friend 10"});
+        m_menu->resetList();
         m_menu->moveToFront();
     }
 
@@ -290,13 +293,16 @@ namespace prattle
 
     void GraphicalUI::setState(UserInterface::State s)
     {
+        m_state = s;
+        std::cout << "1 " << m_state << " " << s << std::endl;
+
         if (m_usernameField->getParent() != nullptr && m_passwordField->getParent() != nullptr)
         {
             m_usernameField->getParent()->remove(m_usernameField);
             m_passwordField->getParent()->remove(m_passwordField);
         }
 
-        switch(s)
+        switch(m_state)
         {
             case UserInterface::State::Login:
                 {
@@ -342,6 +348,12 @@ namespace prattle
         }
     }
 
+    UserInterface::State GraphicalUI::getState()
+    {
+        std::cout << "2 "<< m_state << std::endl;
+        return m_state;
+    }
+
     UserInterface::UIEvent GraphicalUI::update()
     {
         if (m_window.isOpen())
@@ -384,63 +396,112 @@ namespace prattle
                                         return UserInterface::UIEvent::Closed;
                                     }
                                     break;
+
+                                case sf::Keyboard::Return:
+                                    {
+                                        // fill username/password and hit enter
+                                        // instead of having to reach for the
+                                        // mouse to click the login button
+                                        if (m_state == State::Login &&
+                                             !isStringWhitespace(getUsername()) &&
+                                              !isStringWhitespace(getPassword()))
+                                            return UIEvent::UserLogin;
+
+                                        else if (m_state == State::Signup &&
+                                             !isStringWhitespace(getUsername()) &&
+                                              !isStringWhitespace(getPassword()))
+                                            {std::cout << "AA" << std::endl;return UIEvent::UserSignup;}
+                                    }
+                                    break;
                             }
                         }
                         break;
 
                     case sf::Event::MouseButtonPressed:
                         {
-                            if (isMouseOver(m_loginButton))
-                                return UserInterface::UIEvent::UserLogin;
-
-                            if (isMouseOver(m_signupButton))
-                                return UserInterface::UIEvent::UserSignup;
-
-                            if (isMouseOver(m_logoutButton))
-                                return UserInterface::UIEvent::Disconnect;
-
-                            sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
-
-                            if (m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) && m_menu->getFriendlist()->isVisible() && m_menu->getSelectedFriend() != "")
+                            // if alertbox is visible, all other widgets freeze
+                            // and are inactive. So don't update them.
+                            if (!m_alertBox->isVisible())
                             {
-                                if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
-                                    m_tabs->focusTab(m_menu->getSelectedFriend());
-                                else
-                                    m_tabs->addTab(m_menu->getSelectedFriend());
+                                // check if mouse pointer is over login, signup
+                                // or logout buttons. TGUI already allows signals
+                                // to handle button press events but doing the
+                                // following is easier and less code.
+                                if (isMouseOver(m_loginButton))
+                                    return UserInterface::UIEvent::UserLogin;
 
-                                m_menu->getFriendlist()->hide();
+                                if (isMouseOver(m_signupScreenButton))
+                                {
+                                    setState(State::Signup);
+                                    return UserInterface::UIEvent::StateChanged;
+                                }
+
+                                if (isMouseOver(m_signupButton))
+                                    {std::cout << "BB" << std::endl;return UserInterface::UIEvent::UserSignup;}
+
+                                if (isMouseOver(m_logoutButton))
+                                    return UserInterface::UIEvent::Disconnect;
+
+                                // get current mouse poitner position in the render window
+                                sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+
+                                // if the mouse poitner is over friendlist, and
+                                // friendlist is visible, and the selected item
+                                // in friendlist is not a whitespace, then add
+                                // a corresppnding tab for the selected friend.
+                                if (m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) && m_menu->getFriendlist()->isVisible() && m_menu->getSelectedFriend() != "")
+                                {
+                                    if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
+                                        m_tabs->focusTab(m_menu->getSelectedFriend());
+                                    else
+                                        m_tabs->addTab(m_menu->getSelectedFriend());
+
+                                    m_menu->getFriendlist()->hide();
+                                }
+
+                                if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getBounds().contains(mousePos.x, mousePos.y)))
+                                    m_menu->getFriendlist()->hide();
                             }
-
-                            if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getBounds().contains(mousePos.x, mousePos.y)))
-                                m_menu->getFriendlist()->hide();
                         }
                         break;
                 }
             }
 
-            if (!m_menu->getFriendlist()->getItemCount())
+            // If the user is logged in and chatting, and if
+            // no tabs are open, no need to have the chatbox
+            // and input box open. So hide them.
+            if (m_state == State::Chatting)
             {
-                m_menu->getFriendlist()->setDefaultMessage("No friends yet!");
-            }
+                if (!m_menu->getFriendlist()->getItemCount())
+                {
+                    m_menu->getFriendlist()->setDefaultMessage("No friends yet!");
+                }
 
-            if (m_tabs->getTabCount() > 0)
-            {
-                m_chatMessage->hide();
-                m_chatBox->show();
-                m_inputBox->show();
-                m_chatWindowBorder->show();
+                if (m_tabs->getTabCount() > 0)
+                {
+                    m_chatMessage->hide();
+                    m_chatBox->show();
+                    m_inputBox->show();
+                    m_chatWindowBorder->show();
+                }
+                else
+                {
+                    m_chatMessage->show();
+                    m_chatBox->hide();
+                    m_inputBox->hide();
+                    m_chatWindowBorder->hide();
+                }
             }
             else
             {
-                m_chatMessage->show();
-                m_chatBox->hide();
-                m_inputBox->hide();
-                m_chatWindowBorder->hide();
+
             }
 
+            // If no UI event occurred, return a None event
             return UIEvent::None;
         }
 
+        // if renderwindow was closed, then return the Closed UI event
         if (!m_window.isOpen())
             return UserInterface::UIEvent::Closed;
     }
@@ -504,6 +565,11 @@ namespace prattle
             }
         }
         return true;
+    }
+
+    void GraphicalUI::fillFriendList(const std::vector<std::string>& friends)
+    {
+        m_menu->initList(friends);
     }
 
     void GraphicalUI::closeAlert()

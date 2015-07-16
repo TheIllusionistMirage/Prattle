@@ -53,6 +53,31 @@ namespace prattle
                 m_connectManifest.password = args[3];
             }
             break;
+            case Task::Type::Signup:
+            {
+                DBG_LOG("Task Signup added.");
+                if (args.size() != 4)
+                    throw std::invalid_argument("Wrong number of arguments provided for task: Signup");
+                if (!m_tasks.empty())
+                    WRN_LOG("Warning: Trying to signup on a new server but the task list is not empty. It is cleared.");
+                m_tasks.clear();
+                if (!m_replies.empty())
+                    WRN_LOG("Warning: Trying to signup on a new server but the replies stack is not empty. It is cleared.");
+                m_replies.clear();
+
+                m_tasks.push_front(Task{
+                                  rid = generateId(),
+                                  Task::Type::Signup,
+                                  std::chrono::steady_clock::now()});
+                auto port = static_cast<unsigned short>(std::strtoul(args[1].c_str(), nullptr, 0));
+                m_connectManifest.address = args[0];
+                m_connectManifest.port = port;
+                m_connectManifest.username = args[2];
+                m_connectManifest.password = args[3];
+
+                std::cout << "abc" << std::endl;
+            }
+            break;
             case Task::Type::Logout:
                 m_socket.disconnect();
                 reset();
@@ -151,9 +176,34 @@ namespace prattle
                                             rid,
                                             (reply == LOGIN_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
                                             {} });
+
                         auto& vec = m_replies.front().args;
+                        int noOfFriends;
+                        response >> noOfFriends;
+                        vec.push_back(std::to_string(noOfFriends));
                         while (response >> temp)
                             vec.push_back(temp);
+                        m_tasks.erase(res);
+                    }
+                    else
+                    {
+                        ERR_LOG("Invalid response from server");
+                    }
+                }
+                else if (reply == SIGNUP_SUCCESS || reply == SIGNUP_FAILURE)
+                {
+                    std::string temp;
+                    response >> temp;
+                    RequestId rid = static_cast<RequestId>(std::strtoul(temp.c_str(), nullptr, 0));
+                    const auto comparator = [&](const Task& t) { return t.id == rid; };
+                    auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
+                    if(res != m_tasks.end() && res->type == Task::Signup)
+                    {
+                        m_replies.push_front(Reply{
+                                            rid,
+                                            (reply == SIGNUP_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
+                                            {} });
+
                         m_tasks.erase(res);
                     }
                     else

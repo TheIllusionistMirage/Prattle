@@ -424,7 +424,7 @@ namespace prattle
                                 if (db.isValidPassword(sender, plainPassword))
                                 {
                                     sf::Packet loginResult;
-                                    loginResult << LOGIN_SUCCESS << rid << SERVER << sender << sf::Uint32(db.getFriends(sender).size());
+                                    loginResult << LOGIN_SUCCESS << rid << sf::Uint32(db.getFriends(sender).size());
 
                                     for (auto& friendName : db.getFriends(sender))
                                         loginResult << friendName;
@@ -438,7 +438,7 @@ namespace prattle
                                         continue;
                                     }
 
-                                    std::cout << "o [" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
+                                    std::cout << "[" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
                                     DBG_LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
                                     auto itr_end = m_messages.upper_bound(sender);
                                     for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
@@ -503,12 +503,15 @@ namespace prattle
                                 if (db.addNewUser(sender, plainPassword))
                                 {
                                     sf::Packet signupResult;
-                                    signupResult << SIGNUP_SUCCESS << rid << SERVER << sender;
+                                    signupResult << SIGNUP_SUCCESS << rid;
 
-                                    if ((*itr)->send(signupResult) != sf::Socket::Done)
+                                    if ((*itr)->send(signupResult) == sf::Socket::Done)
                                     {
-                                        ERR_LOG("ERROR :: Could not send signup acknowledgment to \'" + sender + "\'.");
+                                        DBG_LOG("Notified '" + sender + "\' about signup success.");
                                     }
+                                    else
+                                        ERR_LOG("ERROR :: Could not send signup acknowledgment to \'" + sender + "\'.");
+
                                     m_selector.remove(**itr);
                                     itr = m_new_connections.erase(itr);
                                 }
@@ -642,6 +645,10 @@ namespace prattle
             ERR_LOG("Unable to receive packet from controller. Status code : " + std::to_string(status));
         }
     }
+    // The shutdown() function shouldn't do anything
+    // nontrivial or any non-threadsafe stuff because
+    // it is called by the signal handler (in a
+    // different thread)
     void Server::shutdown()
     {
         m_running = false;
