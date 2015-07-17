@@ -18,6 +18,24 @@ namespace prattle
 {
     // client.conf contains IP address of server and the open port
     const std::string CLIENT_CONFIG_FILE = "resources/local/client.conf";
+    const std::string prattle_logo =
+        "           , | .\n"
+        "         ' | | | ! .\n"
+        "         | | | | | | .\n"
+        "         | | | | | | | |\n"
+        "         | | | | | | | | | ' .\n"
+        "         | | | | | | | | | | | | | | ' .\n"
+        "         | | | | | . ' ' | | | . '\n"
+        "         | | ! . '         '\n"
+        "         | ! '\n"
+        "         |\n"
+        "                              ||   ||  ||\n"
+        " . .====.   . .===   .====. -====~====-||   .====.\n"
+        " |/      \\. |/     ./`     \\  ||   ||  || ./`     \\\n"
+        " ||      || ||     !|      || ||   ||  || ||~~~~~~'\n"
+        " |\\     ,/' ||     `\\     ,|| ||   ||  || `\\      ,\n"
+        " ||`==='`   ''       `'==` '' ''   ''  ''   `'==='\n"
+        " ||                               Always be near";
     std::string getCurrentTimeAndDate();
 
     enum class ScreenState

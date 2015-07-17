@@ -8,6 +8,26 @@ using std::cout;
 using std::endl;
 using std::cerr;
 
+const std::string prattle_logo = R"**(
+           , | .
+         ' | | | ! .
+         | | | | | | .
+         | | | | | | | |
+         | | | | | | | | | ' .
+         | | | | | | | | | | | | | | ' .
+         | | | | | . ' ' | | | . '
+         | | ! . '         '
+         | ! '
+         |
+                              ||   ||  ||
+ . .====.   . .===   .====. -====~====-||   .====.
+ |/      \. |/     ./`     \  ||   ||  || ./`     \
+ ||      || ||     !|      || ||   ||  || ||~~~~~~'
+ |\     ,/' ||     `\     ,|| ||   ||  || `\      ,
+ ||`==='`   ''       `'==` '' ''   ''  ''   `'==='
+ ||                               Always be near
+ )**";
+
 std::vector<std::string> split(const std::string& str)
 {
     std::vector<std::string> tokens;
@@ -27,9 +47,10 @@ int main()
     const std::string prompt_suffix = "> ";
     bool connected = false;
 
+    cout << prattle_logo << endl;
     cout << "Server-Controller by team Prattle" << endl;
     cout << "Use this to control a Prattle Server."
-         << "\nType 'help' for displaying supported commands to control the server\n" << endl;
+         << "\nType 'help' to display supported commands\n" << endl;
 
     for(cout << prompt + prompt_suffix; std::getline(std::cin, input);
         cout << prompt + prompt_suffix)

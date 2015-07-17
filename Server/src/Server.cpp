@@ -30,8 +30,8 @@ namespace prattle
         {
             sf::Time attempt_delay = sf::seconds(5);
             ERR_LOG("Unable to  bind the listener at port : " + std::to_string(m_server_port)
-                + "\n Retrying in " + std::to_string(int(attempt_delay.asSeconds())) + " seconds. "
-                + "\n Attempt : " + std::to_string(i));
+                + "\nRetrying in " + std::to_string(int(attempt_delay.asSeconds())) + " seconds. "
+                + "\nAttempt : " + std::to_string(i));
             sf::sleep(attempt_delay);
             status = m_listener.listen(m_server_port);
         }
@@ -84,7 +84,7 @@ namespace prattle
                 auto mapping = fields_map.find(field);
                 if(mapping == fields_map.end())
                 {
-                    WRN_LOG("Warning : Unrecognized field in conifg file, ignoring.");
+                    WRN_LOG("Warning : Unrecognized field in config file, ignoring.");
                 }
                 else
                 {

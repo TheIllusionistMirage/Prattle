@@ -8,6 +8,7 @@
 */
 
 #include "../include/Logger.hpp"
+#include "../include/System.hpp"
 
 namespace prattle
 {
@@ -31,8 +32,9 @@ namespace prattle
     void Logger::setStream(std::ostream* stream)
     {
         m_logStream = stream;
-        (*m_logStream) << "------------ Prattle Server Logs --------------\n"
-                       << "-------------- by team Prattle ----------------\n\n";
+        (*m_logStream) << prattle_logo << "\n\n\n"
+                       << "------------------------Server Logs----------------------\n"
+                       << "----------------------by team Prattle -------------------\n\n\n";
         m_logStream->flush();
     }
 
