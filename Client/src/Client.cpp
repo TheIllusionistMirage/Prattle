@@ -189,7 +189,7 @@ namespace prattle
             throw std::runtime_error("FATAL ERROR :: Error reading from \'" + m_configFilePath + "\'.");
         }
 
-        static std::regex fieldPattern("(\\w+):([^:]+):"),
+        const std::regex fieldPattern("(\\w+):([^:]+):"),
                             commentPattern("\\s*#.*");
         enum DataType { INT, STRING };
 

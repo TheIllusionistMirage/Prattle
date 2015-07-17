@@ -50,7 +50,7 @@ namespace prattle
 
     void Server::parseConfigFile()
     {
-        static std::regex field_pattern("(\\w+):([^:]+):"),
+        const std::regex field_pattern("(\\w+):([^:]+):"),
                             comment_pattern("\\s*#.*");
         enum data_type { INT, STRING };
         //Maps the field name in the config file to (data type, pointer to variable) of the field
@@ -424,8 +424,8 @@ namespace prattle
                                 if (db.isValidPassword(sender, plainPassword))
                                 {
                                     sf::Packet loginResult;
-                                    loginResult << LOGIN_SUCCESS << rid << sf::Uint32(db.getFriends(sender).size());
-
+                                    loginResult << LOGIN_SUCCESS << rid << db.getFriends(sender).size();
+                                    DBG_LOG("Friends: " + std::to_string(db.getFriends(sender).size()));
                                     for (auto& friendName : db.getFriends(sender))
                                         loginResult << friendName;
 
