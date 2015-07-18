@@ -71,7 +71,7 @@ namespace prattle
             void addNewClient();                // Adds a connected client (a sf::TcpSocket) to the list of currently connected
                                                 // clients 'm_clients'.
 
-            bool send(const sf::Packet& packet, const std::string& username);// sends a packet (an instance of sf::Packet) to a connected
+            bool send(sf::Packet& packet, const std::string& username);// sends a packet (an instance of sf::Packet) to a connected
                                                 // client (an instance of sf::TcpSocket)
             bool sendController(sf::Packet& packet); // send to controller
             void receive();                     // Receive packets from all clients who are either connected or trying to connect.

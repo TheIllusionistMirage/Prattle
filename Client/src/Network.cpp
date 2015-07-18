@@ -77,6 +77,37 @@ namespace prattle
                 m_connectManifest.password = args[3];
             }
             break;
+            case Task::Type::SendMsg:
+            {
+                DBG_LOG("Message Sending task added");
+                if (args.size() != 2)
+                    throw std::invalid_argument("Wrong number of arguments provided for task: Signup");
+                if (!m_tasks.empty())
+                    WRN_LOG("Warning: Trying to signup on a new server but the task list is not empty. It is cleared.");
+                m_tasks.clear();
+                if (!m_replies.empty())
+                    WRN_LOG("Warning: Trying to signup on a new server but the replies stack is not empty. It is cleared.");
+                m_replies.clear();
+
+                m_tasks.push_front(Task{
+                                  rid = generateId(),
+                                  Task::Type::SendMsg,
+                                  std::chrono::steady_clock::now()});
+
+                sf::Packet packet;
+                packet << SEND_MSG << std::to_string(rid) << args[0] << args[1];
+                std::cout << SEND_MSG << std::to_string(rid) << args[0] << args[1] << std::endl;
+                auto status = m_socket.send(packet);
+
+                if(status == sf::Socket::Status::Done)
+                {
+                    DBG_LOG("Message packet sent to server");
+                    return rid;
+                }
+                else
+                    ERR_LOG("ERROR in sending message packet to sever!");
+            }
+            break;
             case Task::Type::Logout:
                 DBG_LOG("Network: Logging out");
                 reset();
@@ -176,44 +207,83 @@ namespace prattle
             if (status == sf::Socket::Done)
             {
                 std::string reply, temp;
-                response >> reply >> temp;
-                RequestId rid = std::stoi(temp);
-
-                const auto comparator = [&](const Task& t) { return t.id == rid; };
-                auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
-                if (res == m_tasks.end())
+                if (response >> reply)
                 {
-                    ERR_LOG("Invalid response from server");
-                }
-                else
-                {
-                    if (reply == LOGIN_FAILURE || reply == LOGIN_SUCCESS)
+                    if (reply == SEND_MSG)
                     {
-                        m_replies.push_front(Reply{
-                                            rid,
-                                            (reply == LOGIN_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
-                                            {} });
+                        std::string sender, data;
+                        response >> sender >> data;
 
-                        auto& vec = m_replies.front().args;
-                        int noOfFriends;
-                        response >> noOfFriends;
-                        vec.push_back(std::to_string(noOfFriends));
-                        while (response >> temp)
-                            vec.push_back(temp);
-                        m_tasks.erase(res);
-                    }
-                    else if (reply == SIGNUP_SUCCESS || reply == SIGNUP_FAILURE)
-                    {
                         m_replies.push_front(Reply{
-                                            rid,
-                                            (reply == SIGNUP_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
-                                            {} });
-
-                        m_tasks.erase(res);
-                        disconnect();
+                                            InvalidRequest,
+                                            Reply::Type::TaskSuccess,
+                                            {sender, data} });
+                        std::cout << sender << std::endl;
                     }
                     else
-                        ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
+                    {
+                        if (response >> temp)
+                        {
+                            RequestId rid = std::stoi(temp);
+
+                            const auto comparator = [&](const Task& t) { return t.id == rid; };
+                            auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
+                            if (res == m_tasks.end())
+                            {
+                                ERR_LOG("Invalid response from server");
+                            }
+                            else
+                            {
+                                if (reply == LOGIN_FAILURE || reply == LOGIN_SUCCESS)
+                                {
+                                    if (reply == LOGIN_FAILURE)
+                                        DBG_LOG("LOGIN_FILAURE reply recceived from Server");
+
+                                    m_replies.push_front(Reply{
+                                                        rid,
+                                                        (reply == LOGIN_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
+                                                        {} });
+
+                                    if (reply == LOGIN_SUCCESS)
+                                    {
+                                        auto& vec = m_replies.front().args;
+                                        int noOfFriends;
+                                        response >> noOfFriends;
+                                        vec.push_back(std::to_string(noOfFriends));
+                                        while (response >> temp)
+                                            vec.push_back(temp);
+                                    }
+
+                                    DBG_LOG("Login task erased");
+                                    m_tasks.erase(res);
+                                }
+                                else if (reply == SIGNUP_SUCCESS || reply == SIGNUP_FAILURE)
+                                {
+                                    m_replies.push_front(Reply{
+                                                        rid,
+                                                        (reply == SIGNUP_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
+                                                        {} });
+
+                                    DBG_LOG("Signup task erased");
+                                    m_tasks.erase(res);
+                                    disconnect();
+                                }
+                                else if (reply == SEND_MSG_SUCCESS || reply == SEND_MSG_FAILURE)
+                                {
+                                    DBG_LOG("Message sent successfully");
+                                    m_replies.push_front(Reply{
+                                                        rid,
+                                                        (reply == SEND_MSG_SUCCESS) ? Reply::Type::TaskSuccess : Reply::Type::TaskError,
+                                                        {} });
+
+                                    DBG_LOG("Send message task erased");
+                                    m_tasks.erase(res);
+                                }
+                                else
+                                    ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
+                            }
+                        }
+                    }
                 }
             }
             else if (status == sf::Socket::Error)

@@ -61,6 +61,12 @@ namespace prattle
 
                             changeState(UserInterface::State::Chatting);
                         }
+                        else if (reply.type == Network::Reply::TaskError)
+                        {
+                            m_ui->alert("Wrong username/password combination!");
+                            changeState(UserInterface::State::Login);
+                            m_network.reset();
+                        }
                         else
                         {
                             //todo: look at the reply and display the specific error/issue through the ui
@@ -92,7 +98,24 @@ namespace prattle
                         WRN_LOG("Received an unexpected network reply in state connecting.");
                     break;
                 case UserInterface::State::Chatting:
-                    // Code goes here ! (And I mean a lot of it)
+                    {
+                        // Code goes here ! (And I mean a lot of it)
+                        auto msgId = std::find(m_unsentMsgReqId.begin(), m_unsentMsgReqId.end(), reply.id);
+                        if (msgId != m_unsentMsgReqId.end())
+                        {
+                            if (reply.type == Network::Reply::TaskSuccess)
+                            {
+                                DBG_LOG("Successfully sent message");
+                            }
+                        }
+                        else if (reply.id == Network::InvalidRequest)
+                        {
+                            //std::cout << reply.args[0] << std::endl;
+                            m_ui->addToChatArea(reply.args[0] + " : " + reply.args[1]);
+                        }
+                        else
+                            WRN_LOG("Received an unexpected network reply in state connecting.");
+                    }
                     break;
                 case UserInterface::State::Exit:
                     // This should just never happen, but defining it to prevent GCC warning ...
@@ -162,6 +185,16 @@ namespace prattle
                             //m_network.reset();
                             m_ui->reset();
                             changeState(UserInterface::State::Login);
+                            break;
+                        case UserInterface::UIEvent::MessageSent:
+                            m_unsentMsgReqId.push_back(m_network.send(Network::Task::SendMsg, {
+                                           m_ui->getSelectedFriend(),
+                                           m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1) }));
+                                           //m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1)
+                            //m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText());
+                            m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
+                            m_ui->setInputText("");
+                            DBG_LOG("Message sent to server.");
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");

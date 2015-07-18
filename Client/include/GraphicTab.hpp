@@ -32,6 +32,7 @@ namespace prattle
             sf::Vector2f getSize();
             void select(const std::string& tabLabel);
             unsigned int getSelectedTabIndex();
+            std::string getSelectedTabLabel();
             void deselect();
             virtual void update() override;
             bool isTabVisible(const unsigned int& tabIndex);

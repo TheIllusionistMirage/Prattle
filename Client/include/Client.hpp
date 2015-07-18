@@ -35,6 +35,7 @@ namespace prattle
             Network m_network;
             Network::RequestId m_loginReqId;
             Network::RequestId m_signupReqId;
+            std::vector<Network::RequestId> m_unsentMsgReqId;
 
             std::unique_ptr<UserInterface> m_ui;
 

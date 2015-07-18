@@ -55,8 +55,10 @@ namespace prattle
 
             void alert(const std::string& message) override;
 
+            void setInputText(const std::string& str) override;
             std::string getInputText() override;
             std::string getUsername() override;
+            std::string getSelectedFriend() override;
             std::string getPassword() override;
 
             void clearChat() override;
@@ -67,7 +69,8 @@ namespace prattle
 
             void fillFriendList(const std::vector<std::string>& friends) override;
 
-        protected:
+        private:
+            UserInterface::UIEvent getUIEvent(const std::string& button);
 
         private:
 

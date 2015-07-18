@@ -469,6 +469,26 @@ namespace prattle
         return -1;
     }
 
+    std::string GraphicTab::getSelectedTabLabel()
+    {
+// NOTE, TODO : The commented code should work fine but there's some problem
+
+//        std::cout << getSelectedTabIndex() << std::endl;
+//        if (getSelectedTabIndex() > -1)
+//            {std::cout << m_items[getSelectedTabIndex()]->getTextWidget()->getText().toAnsiString() << std::endl;
+//            return m_items[getSelectedTabIndex()]->getTextWidget()->getText().toAnsiString();
+//            }
+//        else
+//            return "";
+        for (unsigned int i = 0; i < m_tabs.size(); i++)
+        {
+            if (m_items[i]->getTextWidget()->getText() == m_selected)
+                return m_items[i]->getTextWidget()->getText().toAnsiString();
+        }
+
+        return "";
+    }
+
     void GraphicTab::deselect()
     {
         for (unsigned int i = 0; i < m_tabs.size(); i++)

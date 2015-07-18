@@ -38,8 +38,6 @@ namespace prattle
             win_size_hints->flags = PMinSize;
             win_size_hints->min_width = 800;
             win_size_hints->min_height = 600;
-//            win_size_hints->max_width = 1200;
-//            win_size_hints->max_height = 720;
             XSetWMNormalHints(display, win, win_size_hints);
             XFree(win_size_hints);
             XFlush(display);
@@ -99,6 +97,7 @@ namespace prattle
         m_loginButton->setText("Login");
         m_loginButton->setSize(tgui::bindWidth(m_passwordField) - 100, tgui::bindHeight(m_passwordField) - 10);
         m_loginButton->setPosition(tgui::bindLeft(m_usernameField) + m_loginButton->getSize().x / 3.38, tgui::bindBottom(m_passwordField) + 20);
+        m_loginButton->connect("pressed", &GraphicalUI::getUIEvent, this, "login");
 
         //std::cout << m_usernameField->getPosition().x - m_loginButton->getPosition().x << " " << (m_usernameField->getPosition().x + m_usernameField->getSize().x) - (m_loginButton->getPosition().x + m_loginButton->getSize().x) << std::endl;
 
@@ -158,10 +157,11 @@ namespace prattle
         m_logoutButton->setSize(100, 30);
         m_logoutButton->setPosition(tgui::bindRight(m_gui) - m_logoutButton->getSize().x - 20, tgui::bindTop(m_gui) + 50 + 50 / 3);
         //m_logoutButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
+        m_logoutButton->connect("pressed", &GraphicalUI::getUIEvent, this, "logout");
 
         m_connectedUser->setText("Username goes here");
         m_connectedUser->setTextSize(12);
-        m_connectedUser->setSize(m_connectedUser->getText().getSize() * 7.2, 15);
+        m_connectedUser->setSize(m_connectedUser->getText().getSize() * 3, 15);
         m_connectedUser->setPosition(tgui::bindLeft(m_logoutButton) - m_connectedUser->getSize().x - 10, tgui::bindTop(m_logoutButton) + 15 / 1.6);
 
         m_tabs->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 80, tgui::bindTop(m_gui) + 50 + 100});
@@ -266,32 +266,6 @@ namespace prattle
                widget->getPosition().y + widget->getSize().y  >= mousePos.y);
     }
 
-//    bool GraphicalUI::isUIRunning()
-//    {
-//        return m_window.isOpen();
-//    }
-//
-//    void GraphicalUI::close()
-//    {
-//        m_window.close();
-//    }
-//
-//    void GraphicalUI::showText()
-//    {
-//        std::cout << m_usernameField->getText().toAnsiString() << std::endl;
-//        std::cout << m_passwordField->getText().toAnsiString() << std::endl;
-//    }
-//
-//    sf::RenderWindow* GraphicalUI::getRenderWindow()
-//    {
-//        return &m_window;
-//    }
-//
-//    tgui::Gui* GraphicalUI::getGui()
-//    {
-//        return &m_gui;
-//    }
-
     void GraphicalUI::setState(UserInterface::State s)
     {
         m_state = s;
@@ -333,6 +307,7 @@ namespace prattle
                 m_signupScreen->hide();
                 m_connectingScreen->hide();
                 m_chatScreen->show();
+                m_connectedUser->setText(m_usernameField->getText());
                 break;
             case UserInterface::State::Exit:
                 break;
@@ -403,6 +378,15 @@ namespace prattle
                                             DBG_LOG("Signup triggered by pressing return.");
                                             return UIEvent::UserSignup;
                                         }
+                                        else if (m_state == State::Chatting)
+                                        {
+                                            if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
+                                            {
+                                                //setInputText(getInputText().substr(0, getInputText().length() - 1));
+                                                DBG_LOG("Attempt to send message");
+                                                return UIEvent::MessageSent;
+                                            }
+                                        }
                                     }
                                     break;
                                 default:
@@ -420,22 +404,22 @@ namespace prattle
                                 // or logout buttons. TGUI already allows signals
                                 // to handle button press events but doing the
                                 // following is easier and less code.
-                                if (isMouseOver(m_loginButton))
+                                if (isMouseOver(m_loginButton) && m_loginButton->isVisible())
                                     return UserInterface::UIEvent::UserLogin;
 
-                                if (isMouseOver(m_signupScreenButton))
+                                if (isMouseOver(m_signupScreenButton) && m_signupButton->isVisible())
                                 {
                                     setState(State::Signup);
                                     return UserInterface::UIEvent::StateChanged;
                                 }
 
-                                if (isMouseOver(m_signupButton))
+                                if (isMouseOver(m_signupButton) && m_signupButton->isVisible())
                                 {
                                     DBG_LOG("Signup triggered from clicking the signup button.");
                                     return UserInterface::UIEvent::UserSignup;
                                 }
 
-                                if (isMouseOver(m_logoutButton))
+                                if (isMouseOver(m_logoutButton) && m_logoutButton->isVisible())
                                     return UserInterface::UIEvent::Disconnect;
 
                                 // get current mouse poitner position in the render window
@@ -527,14 +511,24 @@ namespace prattle
         m_alertBox->enable();
     }
 
+    void GraphicalUI::setInputText(const std::string& str)
+    {
+        m_inputBox->setText(str);
+    }
+
     std::string GraphicalUI::getInputText()
     {
-        return "";
+        return m_inputBox->getText();
     }
 
     std::string GraphicalUI::getUsername()
     {
         return m_usernameField->getText();
+    }
+
+    std::string GraphicalUI::getSelectedFriend()
+    {
+        return m_tabs->getSelectedTabLabel();
     }
 
     std::string GraphicalUI::getPassword()
@@ -548,11 +542,12 @@ namespace prattle
 
     std::string GraphicalUI::getChat(const std::string& user)
     {
-        return "";
+        return m_chatBox->getText();
     }
 
     void GraphicalUI::addToChatArea(const std::string& text)
     {
+        m_chatBox->setText(m_chatBox->getText() + text + "\n");
     }
 
     bool GraphicalUI::isStringWhitespace(const std::string& str)
@@ -578,5 +573,20 @@ namespace prattle
 
         for (auto w : m_gui.getWidgets())
             w->enable();
+    }
+
+    UserInterface::UIEvent GraphicalUI::getUIEvent(const std::string& button)
+    {
+        std::cout << "A" << std::endl;
+        if (button == "login")
+            return UserInterface::UIEvent::UserLogin;
+        else if (button == "signup_screen")
+            return UserInterface::UIEvent::StateChanged;
+        else if (button == "signup")
+            return UserInterface::UIEvent::UserSignup;
+        else if (button == "back")
+            return UserInterface::UIEvent::UserLogin;
+        else if (button == "logout")
+            return UserInterface::UIEvent::Disconnect;
     }
 }
