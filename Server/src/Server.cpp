@@ -220,22 +220,22 @@ namespace prattle
                     //itr = m_clients.erase(itr);
 
                     // Inform online friends of itr->first about his status
-                    const auto& itr_friends = db.getFriends(itr->first);
-                    for (auto& friendName : itr_friends)
-                    {
-                        auto friend_itr = m_clients.find(friendName);
-                        if (friend_itr != m_clients.end())
-                        {
-                            sf::Packet statusPacket;
-                            statusPacket << STATUS_OFFLINE << itr->first;
-                            if(send(statusPacket, friendName))
-                            {
-                                DBG_LOG("Notified \'" + friendName + "\' that \'" + itr->first + "\' logged out");
-                            }
-                            else
-                                ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
-                        }
-                    }
+//                    const auto& itr_friends = db.getFriends(itr->first);
+//                    for (auto& friendName : itr_friends)
+//                    {
+//                        auto friend_itr = m_clients.find(friendName);
+//                        if (friend_itr != m_clients.end())
+//                        {
+//                            sf::Packet statusPacket;
+//                            statusPacket << STATUS_OFFLINE << itr->first;
+//                            if(send(statusPacket, friendName))
+//                            {
+//                                DBG_LOG("Notified \'" + friendName + "\' that \'" + itr->first + "\' logged out");
+//                            }
+//                            else
+//                                ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
+//                        }
+//                    }
                     itr = m_clients.erase(itr);
                     continue;
                 }

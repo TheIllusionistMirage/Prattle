@@ -63,7 +63,10 @@ namespace prattle
                         }
                         else if (reply.type == Network::Reply::TaskError)
                         {
-                            m_ui->alert("Wrong username/password combination!");
+                            if (m_network.isConnected())
+                                m_ui->alert("Wrong username/password combination!");
+                            else
+                                m_ui->alert("Unable to connect to server!");
                             changeState(UserInterface::State::Login);
                             m_network.reset();
                         }

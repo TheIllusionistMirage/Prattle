@@ -353,10 +353,10 @@ namespace prattle
                         {
                             switch (event.key.code)
                             {
-                                case sf::Keyboard::Escape:
+                                case sf::Keyboard::F4:
                                     {
-                                        m_window.close();
-                                        return UserInterface::UIEvent::Closed;
+                                        if (event.key.alt)
+                                            return UserInterface::UIEvent::Closed;
                                     }
                                     break;
 
@@ -380,6 +380,8 @@ namespace prattle
                                         }
                                         else if (m_state == State::Chatting)
                                         {
+                                            if (event.key.shift && m_inputBox->isFocused())
+                                                m_inputBox->addText("\n");
                                             if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
                                             {
                                                 //setInputText(getInputText().substr(0, getInputText().length() - 1));
@@ -404,22 +406,22 @@ namespace prattle
                                 // or logout buttons. TGUI already allows signals
                                 // to handle button press events but doing the
                                 // following is easier and less code.
-                                if (isMouseOver(m_loginButton) && m_loginButton->isVisible())
+                                if (isMouseOver(m_loginButton) && getState() == State::Login)
                                     return UserInterface::UIEvent::UserLogin;
 
-                                if (isMouseOver(m_signupScreenButton) && m_signupButton->isVisible())
+                                if (isMouseOver(m_signupScreenButton) && getState() == State::Login)
                                 {
                                     setState(State::Signup);
                                     return UserInterface::UIEvent::StateChanged;
                                 }
 
-                                if (isMouseOver(m_signupButton) && m_signupButton->isVisible())
+                                if (isMouseOver(m_signupButton) && getState() == State::Signup)
                                 {
                                     DBG_LOG("Signup triggered from clicking the signup button.");
                                     return UserInterface::UIEvent::UserSignup;
                                 }
 
-                                if (isMouseOver(m_logoutButton) && m_logoutButton->isVisible())
+                                if (isMouseOver(m_logoutButton) && getState() == State::Chatting)
                                     return UserInterface::UIEvent::Disconnect;
 
                                 // get current mouse poitner position in the render window
@@ -547,7 +549,10 @@ namespace prattle
 
     void GraphicalUI::addToChatArea(const std::string& text)
     {
-        m_chatBox->setText(m_chatBox->getText() + text + "\n");
+        if (isStringWhitespace(m_chatBox->getText()))
+            m_chatBox->addText(text);
+        else
+            m_chatBox->addText("\n" + text);
     }
 
     bool GraphicalUI::isStringWhitespace(const std::string& str)

@@ -209,6 +209,7 @@ namespace prattle
                 std::string reply, temp;
                 if (response >> reply)
                 {
+                    std::cout << "Protocol : " << reply << std::endl;
                     if (reply == SEND_MSG)
                     {
                         std::string sender, data;
@@ -224,6 +225,7 @@ namespace prattle
                     {
                         if (response >> temp)
                         {
+                            std::cout << "Rid : " << temp << std::endl;
                             RequestId rid = std::stoi(temp);
 
                             const auto comparator = [&](const Task& t) { return t.id == rid; };
