@@ -471,4 +471,23 @@ namespace prattle
             m_defaultMessage->hide();
         }
     }
+
+    void GraphicList::setStatusOfItem(const std::string& listItem, unsigned int status)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                i->setStatus(status);
+            }
+        }
+    }
+
+    void GraphicList::clear()
+    {
+        m_selected = nullptr;
+        m_items.clear();
+        if (!m_defaultMessage->isVisible())
+            m_defaultMessage->show();
+    }
 }

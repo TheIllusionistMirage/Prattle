@@ -506,6 +506,34 @@ namespace prattle
                                     m_clients.insert(std::make_pair(sender, std::move(*itr)));
                                     itr = m_new_connections.erase(itr);
 
+                                    ///
+                                    auto sender_friends = db.getFriends(sender);
+                                    for (auto& friendName : sender_friends)
+                                    {
+                                        auto friend_itr = m_clients.find(friendName);
+                                        if (friend_itr != m_clients.end()) //if friendName is online
+                                        {
+                                            //Notify `friendName` that `sender` came online
+                                            sf::Packet statusPacket;
+                                            statusPacket << STATUS_ONLINE << sender;
+                                            if(send(statusPacket, friendName))
+                                            {
+                                                DBG_LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
+                                            }
+                                            else
+                                                ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
+                                            //Notify `sender` that friendName is online
+                                            statusPacket.clear();
+                                            statusPacket << STATUS_ONLINE << friendName;
+                                            if(send(statusPacket, sender))
+                                            {
+                                                DBG_LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
+                                            }
+                                            else
+                                                ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+                                        }
+                                    }
+
 //                                    auto sender_friends = db.getFriends(sender);
 //                                    for (auto& friendName : sender_friends)
 //                                    {

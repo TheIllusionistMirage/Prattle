@@ -46,6 +46,8 @@ namespace prattle
                 int port;
                 std::string ui;
             } m_clientConf;
+
+            std::map<std::string, std::string> m_chatHistory;
     };
 }
 

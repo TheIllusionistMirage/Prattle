@@ -95,6 +95,10 @@ namespace prattle
 
             void setDefaultMessage(const std::string& message);
 
+            void setStatusOfItem(const std::string& listItem, unsigned int status);
+
+            void clear();
+
         private:
 
             sf::RectangleShape                m_boundary;           // The rectangular base of the list.

@@ -16,6 +16,7 @@ namespace prattle
         m_tasks.clear();
         m_replies.clear();
         m_connected = false;
+        m_idCounter = 0;
     }
     Network::RequestId Network::generateId()
     {
@@ -96,7 +97,7 @@ namespace prattle
 
                 sf::Packet packet;
                 packet << SEND_MSG << std::to_string(rid) << args[0] << args[1];
-                std::cout << SEND_MSG << std::to_string(rid) << args[0] << args[1] << std::endl;
+                //std::cout << SEND_MSG << " " + std::to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
                 auto status = m_socket.send(packet);
 
                 if(status == sf::Socket::Status::Done)
@@ -209,7 +210,7 @@ namespace prattle
                 std::string reply, temp;
                 if (response >> reply)
                 {
-                    std::cout << "Protocol : " << reply << std::endl;
+                    //std::cout << "Protocol : " << reply << std::endl;
                     if (reply == SEND_MSG)
                     {
                         std::string sender, data;
@@ -217,15 +218,27 @@ namespace prattle
 
                         m_replies.push_front(Reply{
                                             InvalidRequest,
-                                            Reply::Type::TaskSuccess,
+                                            Reply::Type::RecievedMessage,
                                             {sender, data} });
-                        std::cout << sender << std::endl;
+                        //std::cout << sender << std::endl;
+                    }
+                    else if (reply == STATUS_ONLINE || reply == STATUS_OFFLINE)
+                    {
+                        std::string sender;
+                        response >> sender;
+
+                        std::cout << reply << sender << std::endl;
+
+                        m_replies.push_front(Reply{
+                                            InvalidRequest,
+                                            Reply::Type::OnlineNotif,
+                                            {sender} });
                     }
                     else
                     {
                         if (response >> temp)
                         {
-                            std::cout << "Rid : " << temp << std::endl;
+                            //std::cout << "Rid : " << temp << std::endl;
                             RequestId rid = std::stoi(temp);
 
                             const auto comparator = [&](const Task& t) { return t.id == rid; };

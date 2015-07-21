@@ -39,9 +39,8 @@ namespace prattle
         const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
         const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
 
-        const std::string NOTIF_LOGIN         = "notif_login";
-        const std::string NOTIF_LOGOUT        = "notif_logout";
-        const std::string NOTIF_ONLINE        = "notif_online";
+        const std::string STATUS_ONLINE       = "status_online";
+        const std::string STATUS_OFFLINE      = "status_offline";
 
         typedef std::uint32_t RequestId;
         const static RequestId InvalidRequest = 0;
@@ -69,7 +68,8 @@ namespace prattle
                 TaskSuccess,
                 TaskError,
                 TaskTimeout,
-                RecievedMessage
+                RecievedMessage,
+                OnlineNotif
 //                Disconnected
             } type;
             std::vector<std::string> args;

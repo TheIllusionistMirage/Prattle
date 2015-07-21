@@ -253,6 +253,7 @@ namespace prattle
         m_inputBox->moveToFront();
         m_menu->resetList();
         m_menu->moveToFront();
+        m_tabs->clear();
     }
 
     bool GraphicalUI::isMouseOver(tgui::Widget::Ptr widget)
@@ -434,11 +435,25 @@ namespace prattle
                                 if (m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) && m_menu->getFriendlist()->isVisible() && m_menu->getSelectedFriend() != "")
                                 {
                                     if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
+                                    {
                                         m_tabs->focusTab(m_menu->getSelectedFriend());
+                                        m_menu->getFriendlist()->hide();
+                                        return UIEvent::TabSelected;
+                                    }
                                     else
+                                    {
                                         m_tabs->addTab(m_menu->getSelectedFriend());
+                                        m_menu->getFriendlist()->hide();
+                                        return UIEvent::TabSelected;
+                                    }
 
                                     m_menu->getFriendlist()->hide();
+                                }
+
+                                else if (m_tabs->mouseOnWidget(mousePos.x, mousePos.y) && m_tabs->getTabCount() > 0)
+                                {
+                                    std::cout << "abc" << std::endl;
+                                    return UIEvent::TabSelected;
                                 }
 
                                 if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getBounds().contains(mousePos.x, mousePos.y)))
@@ -470,6 +485,8 @@ namespace prattle
                 }
                 else
                 {
+                    //m_chatBox->setText("");
+
                     m_chatMessage->show();
                     m_chatBox->hide();
                     m_inputBox->hide();
@@ -540,6 +557,7 @@ namespace prattle
 
     void GraphicalUI::clearChat()
     {
+        m_chatBox->setText("");
     }
 
     std::string GraphicalUI::getChat(const std::string& user)
@@ -593,5 +611,11 @@ namespace prattle
             return UserInterface::UIEvent::UserLogin;
         else if (button == "logout")
             return UserInterface::UIEvent::Disconnect;
+    }
+
+    void GraphicalUI::setStatusOfFriend(const std::string& sender, unsigned int status)
+    {
+        m_menu->getFriendlist()->setStatusOfItem(sender, status);
+        m_tabs->setStatusOfItem(sender, status);
     }
 }

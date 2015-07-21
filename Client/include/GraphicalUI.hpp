@@ -69,6 +69,8 @@ namespace prattle
 
             void fillFriendList(const std::vector<std::string>& friends) override;
 
+            void setStatusOfFriend(const std::string& sender, unsigned int status) override;
+
         private:
             UserInterface::UIEvent getUIEvent(const std::string& button);
 

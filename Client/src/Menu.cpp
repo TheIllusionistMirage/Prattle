@@ -65,8 +65,9 @@ namespace prattle
 
     void Menu::resetList()
     {
-        for (int i = 0; i < m_friendList->getItemCount(); i++)
-            m_friendList->removeItem(i);
+        //for (int i = 0; i < m_friendList->getItemCount(); i++)
+            //m_friendList->removeItem(i);
+        m_friendList->clear();
     }
 
     std::string Menu::getSelectedFriend()

@@ -51,11 +51,15 @@ namespace prattle
                         if (reply.type == Network::Reply::TaskSuccess)
                         {
                             int noOfFriends = std::stoi(reply.args[0]);
-                            DBG_LOG("User has " + reply.args[0] + " friends.");
+                            //DBG_LOG("User has " + reply.args[0] + " friends.");
                             std::vector<std::string> friends;
 
                             for (int i = 1; i <= noOfFriends; i++ )
+                            {
+
                                 friends.push_back(reply.args[i]);
+                                m_chatHistory[friends.back()] = "";
+                            }
 
                             m_ui->fillFriendList(friends);
 
@@ -103,21 +107,47 @@ namespace prattle
                 case UserInterface::State::Chatting:
                     {
                         // Code goes here ! (And I mean a lot of it)
-                        auto msgId = std::find(m_unsentMsgReqId.begin(), m_unsentMsgReqId.end(), reply.id);
-                        if (msgId != m_unsentMsgReqId.end())
+                        if (reply.id == Network::InvalidRequest)
                         {
-                            if (reply.type == Network::Reply::TaskSuccess)
+                            // Actually, when the user receives a message,
+                            // he receives no request id sicne the task
+                            // wasn't created on his side. So, we had no
+                            // choice but to use invalidrequest as request
+                            // id in case when the user receives a message
+                            // from another remote client.
+
+                            if (reply.type == Network::Reply::RecievedMessage)
                             {
-                                DBG_LOG("Successfully sent message");
+                                m_ui->addToChatArea(reply.args[0] + " : " + reply.args[1]);
+                                //m_chatHistory[m_ui->getUsername()] =
+                                m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + m_ui->getUsername() + " : " + reply.args[1] + "\n";
+                            }
+                            else if (reply.type == Network::Reply::OnlineNotif)
+                            {
+                                m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
                             }
                         }
-                        else if (reply.id == Network::InvalidRequest)
+
+                        if (m_unsentMsgReqId.size() > 0)
                         {
-                            //std::cout << reply.args[0] << std::endl;
-                            m_ui->addToChatArea(reply.args[0] + " : " + reply.args[1]);
+                            auto msgId = std::find(m_unsentMsgReqId.begin(), m_unsentMsgReqId.end(), reply.id);
+                            if (msgId != m_unsentMsgReqId.end())
+                            {
+                                if (reply.type == Network::Reply::TaskSuccess)
+                                {
+                                    m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
+                                    m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1) + "\n";
+                                    m_ui->setInputText("");
+                                    DBG_LOG("Successfully sent message");
+                                }
+                            }
+                            else if (msgId == m_unsentMsgReqId.end())
+                            {
+                                m_ui->alert("Unable to send message to \'" + m_ui->getSelectedFriend() + "\'!");
+                            }
                         }
                         else
-                            WRN_LOG("Received an unexpected network reply in state connecting.");
+                            WRN_LOG("Received an unexpected network reply in state Chatting. Received reply : " + std::to_string(reply.id) + " " + std::to_string(reply.type));
                     }
                     break;
                 case UserInterface::State::Exit:
@@ -188,6 +218,8 @@ namespace prattle
                             //m_network.reset();
                             m_ui->reset();
                             changeState(UserInterface::State::Login);
+                            m_unsentMsgReqId.clear();
+                            m_chatHistory.clear();
                             break;
                         case UserInterface::UIEvent::MessageSent:
                             m_unsentMsgReqId.push_back(m_network.send(Network::Task::SendMsg, {
@@ -195,9 +227,16 @@ namespace prattle
                                            m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1) }));
                                            //m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1)
                             //m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText());
-                            m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
-                            m_ui->setInputText("");
-                            DBG_LOG("Message sent to server.");
+//                            m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
+//                            m_ui->setInputText("");
+                            //DBG_LOG("Message sent to server.");
+                            break;
+                        case UserInterface::UIEvent::TabSelected:
+                            //
+                            m_ui->clearChat();
+                            //std::cout << "Selected friend : " << m_ui->getSelectedFriend() << std::endl;
+                            m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                            DBG_LOG(m_chatHistory.find(m_ui->getSelectedFriend())->second);
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");

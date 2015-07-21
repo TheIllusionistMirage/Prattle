@@ -38,6 +38,7 @@ namespace prattle
                     UserLogin,
                     UserSignup,
                     MessageSent,
+                    TabSelected,
                     Search,
                     AddFriend,
                     None,
@@ -67,6 +68,8 @@ namespace prattle
                 virtual bool isStringWhitespace(const std::string& str) = 0;
 
                 virtual void fillFriendList(const std::vector<std::string>& friends) = 0;
+
+                virtual void setStatusOfFriend(const std::string& sender, unsigned int status) = 0;
 
 //            protected:
 //                State m_state;

@@ -606,4 +606,31 @@ namespace prattle
 
         return false;
     }
+
+    void GraphicTab::setStatusOfItem(const std::string& item, unsigned int status)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == item)
+            {
+                i->setStatus(status);
+            }
+        }
+    }
+
+    void GraphicTab::clear()
+    {
+        m_absoluteBounds.width = 0;
+        m_absoluteBounds.height = 0;
+        m_selected = "";
+        m_tabs.clear();
+        m_items.clear();
+        m_iconSprites.clear();
+        m_lastTabVisible = 0;
+        m_firstTabVisible = 0;
+        m_visibleTabs = 0;
+        m_tabVisibility.clear();
+        m_leftArrowVisibile = false;
+        m_rightArrowVisibile = false;
+    }
 }

@@ -41,7 +41,7 @@ namespace prattle
             virtual Widget::Ptr clone() override;
             virtual void setPosition(const tgui::Layout& position) override;
             sf::Vector2f getPosition();
-            void setStatus(unsigned short status);
+            void setStatus(unsigned short status);  // 0 for the offline sprite and 1 for the online sprite
             tgui::Label::Ptr getTextWidget();
             sf::FloatRect getBounds();
             void loadTexture(const std::string& file);
