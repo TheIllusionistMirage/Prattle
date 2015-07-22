@@ -451,10 +451,7 @@ namespace prattle
                                 }
 
                                 else if (m_tabs->mouseOnWidget(mousePos.x, mousePos.y) && m_tabs->getTabCount() > 0)
-                                {
-                                    std::cout << "abc" << std::endl;
                                     return UIEvent::TabSelected;
-                                }
 
                                 if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getBounds().contains(mousePos.x, mousePos.y)))
                                     m_menu->getFriendlist()->hide();

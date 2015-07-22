@@ -118,14 +118,18 @@ namespace prattle
 
                             if (reply.type == Network::Reply::RecievedMessage)
                             {
-                                m_ui->addToChatArea(reply.args[0] + " : " + reply.args[1]);
-                                //m_chatHistory[m_ui->getUsername()] =
-                                m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + m_ui->getUsername() + " : " + reply.args[1] + "\n";
+                                if (m_ui->getSelectedFriend() == reply.args[0])
+                                    m_ui->addToChatArea(reply.args[0] + " : " + reply.args[1]);
+                                if (m_chatHistory.find(reply.args[0])->second == "")
+                                    m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + reply.args[0] + " : " + reply.args[1];
+                                else
+                                    m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + "\n" + reply.args[0] + " : " + reply.args[1];
                             }
-                            else if (reply.type == Network::Reply::OnlineNotif)
-                            {
-                                m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
-                            }
+//                            else if (reply.type == Network::Reply::OnlineNotif)
+//                            {
+//                                DBG_LOG(reply.type + " " + reply.args[0]);
+//                                m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
+//                            }
                         }
 
                         if (m_unsentMsgReqId.size() > 0)
@@ -135,10 +139,15 @@ namespace prattle
                             {
                                 if (reply.type == Network::Reply::TaskSuccess)
                                 {
+                                    if (m_chatHistory.find(m_ui->getSelectedFriend())->second == "")
+                                        m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1);
+                                    else
+                                        m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + "\n" + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1);
+
                                     m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
-                                    m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1) + "\n";
                                     m_ui->setInputText("");
                                     DBG_LOG("Successfully sent message");
+                                    m_unsentMsgReqId.erase(msgId);
                                 }
                             }
                             else if (msgId == m_unsentMsgReqId.end())
@@ -146,6 +155,7 @@ namespace prattle
                                 m_ui->alert("Unable to send message to \'" + m_ui->getSelectedFriend() + "\'!");
                             }
                         }
+
                         else
                             WRN_LOG("Received an unexpected network reply in state Chatting. Received reply : " + std::to_string(reply.id) + " " + std::to_string(reply.type));
                     }
@@ -234,9 +244,8 @@ namespace prattle
                         case UserInterface::UIEvent::TabSelected:
                             //
                             m_ui->clearChat();
-                            //std::cout << "Selected friend : " << m_ui->getSelectedFriend() << std::endl;
                             m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
-                            DBG_LOG(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                            std::cout << "o" << m_chatHistory.find(m_ui->getSelectedFriend())->second << "o" << std::endl;
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");
