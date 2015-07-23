@@ -23,6 +23,7 @@ namespace prattle
             virtual void mouseMoved(float x, float y) override;
             virtual void leftMousePressed(float x, float y) override;
             void addTab(const std::string& tabLabel);
+            void addTab(const std::string& tabLabel, const unsigned int& status);
             void focusTab(const unsigned int& tabIndex);
             void focusTab(const std::string& tabLabel);
             void removeTab(unsigned int index);

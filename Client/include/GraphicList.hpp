@@ -97,6 +97,8 @@ namespace prattle
 
             void setStatusOfItem(const std::string& listItem, unsigned int status);
 
+            unsigned int getStatusOfItem(const std::string& listItem);
+
             void clear();
 
         private:

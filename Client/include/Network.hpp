@@ -69,7 +69,8 @@ namespace prattle
                 TaskError,
                 TaskTimeout,
                 RecievedMessage,
-                OnlineNotif
+                OnlineNotif,
+                OfflineNotif
 //                Disconnected
             } type;
             std::vector<std::string> args;

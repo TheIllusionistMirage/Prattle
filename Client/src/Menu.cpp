@@ -75,6 +75,11 @@ namespace prattle
         return m_friendList->getSelected();
     }
 
+    unsigned int Menu::getStatus(const std::string& friendName)
+    {
+        return m_friendList->getStatusOfItem(friendName);
+    }
+
 //    GraphicList::Ptr Menu::getFriendlistBounds()
 //    {
 //        return m_friendList->getBounds();

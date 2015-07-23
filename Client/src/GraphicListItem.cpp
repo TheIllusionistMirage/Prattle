@@ -122,6 +122,11 @@ namespace prattle
         m_itemSprite.setTextureRect(sf::IntRect{10 * m_status, 0, 10, 10});
     }
 
+    unsigned int GraphicListItem::getStatus()
+    {
+        return m_status;
+    }
+
     tgui::Label::Ptr GraphicListItem::getTextWidget()
     {
         if (m_itemText != nullptr)

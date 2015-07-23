@@ -442,7 +442,7 @@ namespace prattle
                                     }
                                     else
                                     {
-                                        m_tabs->addTab(m_menu->getSelectedFriend());
+                                        m_tabs->addTab(m_menu->getSelectedFriend(), m_menu->getStatus(m_menu->getSelectedFriend()));
                                         m_menu->getFriendlist()->hide();
                                         return UIEvent::TabSelected;
                                     }

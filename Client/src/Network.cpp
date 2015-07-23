@@ -223,18 +223,18 @@ namespace prattle
 
                         std::cout << sender << data << std::endl;
                     }
-//                    else if (reply == STATUS_ONLINE || reply == STATUS_OFFLINE)
-//                    {
-//                        std::string sender;
-//                        response >> sender;
-//
-//                        //std::cout << reply << sender << std::endl;
-//
-//                        m_replies.push_front(Reply{
-//                                            InvalidRequest,
-//                                            Reply::Type::OnlineNotif,
-//                                            {sender} });
-//                    }
+                    else if (reply == STATUS_ONLINE || reply == STATUS_OFFLINE)
+                    {
+                        std::string sender;
+                        response >> sender;
+
+                        std::cout << reply << sender << std::endl;
+
+                        m_replies.push_front(Reply{
+                                            InvalidRequest,
+                                            reply == STATUS_ONLINE ? Reply::Type::OnlineNotif : Reply::Type::OfflineNotif,// Reply::Type::OnlineNotif,
+                                            {sender} });
+                    }
                     else
                     {
                         if (response >> temp)

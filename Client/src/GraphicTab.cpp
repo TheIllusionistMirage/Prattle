@@ -242,6 +242,62 @@ namespace prattle
         }
     }
 
+    void GraphicTab::addTab(const std::string& tabLabel, const unsigned int& status)
+    {
+        if (m_tabs.size())
+        {
+            m_tabs.back().setTexture(m_tabActiveTexture);
+            deselect();
+        }
+        else
+        {
+            m_firstTabVisible = 0;
+            m_lastTabVisible = 0;
+        }
+
+        m_tabs.push_back(sf::RectangleShape{m_maxDefaultTabSize});
+        m_tabs.back().setTexture(m_tabTexture);
+        m_tabs.back().setPosition(sf::Vector2f{ m_absoluteBounds.left + m_absoluteBounds.width,
+                                                m_absoluteBounds.top});
+        m_lastTabVisible = m_tabs.size() - 1;
+
+        m_iconSprites.push_back(sf::Sprite{m_iconTexture});
+        m_iconSprites.back().setTextureRect(sf::IntRect{10, 0, 10, 10});
+        m_iconSprites.back().setPosition(sf::Vector2f{m_tabs.back().getPosition().x + m_tabs.back().getSize().x - 15,
+                                                      m_absoluteBounds.top + 7});
+
+        m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::Black, m_GLItemTexPtr, status, 5));
+        m_items.back()->getTextWidget()->setTextFont(m_font);
+        m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
+
+        m_tabVisibility.push_back(true);
+
+        m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left, m_absoluteBounds.top, m_absoluteBounds.width + m_tabs.back().getSize().x + 2, m_tabs.back().getSize().y};
+
+        select(tabLabel);
+
+        if (m_absoluteBounds.width >= (m_parent->getSize().x - 100))
+        {
+            for (unsigned int i = 0; i < m_tabs.size(); i++)
+            {
+                m_tabs[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x - m_tabs[i].getSize().x - 2, m_tabs[i].getPosition().y});
+                m_iconSprites[i].setPosition(sf::Vector2f{m_tabs[i].getPosition().x + m_tabs[i].getSize().x - 15, m_tabs[i].getPosition().y + 7});
+                m_items[i]->setPosition(sf::Vector2f{m_tabs[i].getPosition().x + 7, m_tabs[i].getPosition().y + 7});
+            }
+
+            m_tabVisibility[m_firstTabVisible] = false;
+            m_firstTabVisible++;
+
+            m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left - m_maxDefaultTabSize.x - 2, m_absoluteBounds.top, m_absoluteBounds.width, m_tabs.back().getSize().y};
+
+            m_leftArrowVisibile = true;
+            m_leftArrow.setPosition(sf::Vector2f{m_tabs[m_firstTabVisible].getPosition().x - 27, m_tabs[m_firstTabVisible].getPosition().y});
+
+            m_rightArrowVisibile = false;
+            m_rightArrow.setPosition(sf::Vector2f{m_tabs[m_lastTabVisible].getPosition().x + m_tabs[m_lastTabVisible].getSize().x + 2, m_tabs[m_lastTabVisible].getPosition().y});
+        }
+    }
+
     void GraphicTab::focusTab(const unsigned int& tabIndex)
     {
         if (tabIndex == getSelectedTabIndex())
@@ -613,6 +669,7 @@ namespace prattle
         {
             if (i->getTextWidget()->getText() == item)
             {
+                std::cout << "GT : " << i->getTextWidget()->getText().toAnsiString() + " " + std::to_string(status) << std::endl;;
                 i->setStatus(status);
             }
         }

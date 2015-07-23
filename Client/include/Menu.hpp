@@ -35,6 +35,8 @@ namespace prattle
 
             std::string getSelectedFriend();
 
+            unsigned int getStatus(const std::string& friendName);
+
             GraphicList::Ptr getFriendlist();
 
             sf::FloatRect getBounds();

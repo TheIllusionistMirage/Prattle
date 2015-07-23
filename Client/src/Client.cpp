@@ -125,14 +125,18 @@ namespace prattle
                                 else
                                     m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + "\n" + reply.args[0] + " : " + reply.args[1];
                             }
-//                            else if (reply.type == Network::Reply::OnlineNotif)
-//                            {
-//                                DBG_LOG(reply.type + " " + reply.args[0]);
-//                                m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
-//                            }
+                            else if (reply.type == Network::Reply::OnlineNotif)
+                            {
+                                //DBG_LOG("x" + std::to_string(reply.type) + " " + reply.args[0] + "x");
+                                m_ui->setStatusOfFriend(reply.args[0], 0);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
+                            }
+                            else if (reply.type == Network::Reply::OfflineNotif)
+                            {
+                                m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
+                            }
                         }
 
-                        if (m_unsentMsgReqId.size() > 0)
+                        if (reply.id != 0 && m_unsentMsgReqId.size() > 0)
                         {
                             auto msgId = std::find(m_unsentMsgReqId.begin(), m_unsentMsgReqId.end(), reply.id);
                             if (msgId != m_unsentMsgReqId.end())
@@ -245,7 +249,6 @@ namespace prattle
                             //
                             m_ui->clearChat();
                             m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
-                            std::cout << "o" << m_chatHistory.find(m_ui->getSelectedFriend())->second << "o" << std::endl;
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");

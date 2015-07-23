@@ -483,6 +483,17 @@ namespace prattle
         }
     }
 
+    unsigned int GraphicList::getStatusOfItem(const std::string& listItem)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                return i->getStatus();
+            }
+        }
+    }
+
     void GraphicList::clear()
     {
         m_selected = nullptr;
