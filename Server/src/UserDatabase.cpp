@@ -35,6 +35,23 @@ namespace prattle
         return itr->second.friends;
     }
 
+    unsigned int UserDatabase::getDbSize()
+    {
+        return records.size();
+    }
+
+    std::vector<std::string> UserDatabase::getMatchingUsers(const std::string& str)
+    {
+        std::vector<std::string> matches;
+        for (auto& i : records)
+        {
+            if (i.first.find(str) != std::string::npos)
+                matches.push_back(i.first);
+        }
+
+        return matches;
+    }
+
     bool UserDatabase::isValidPassword(const std::string& username,const std::string& plain_pwd)
     {
         auto res = records.find(username);
@@ -49,6 +66,7 @@ namespace prattle
     {
         if(isUserRegistered(username))
         {
+            ERR_LOG("User already registered using that name!");
             return false;
         }
         dbFile.open(USER_LIST, std::ios::in | std::ios::out);

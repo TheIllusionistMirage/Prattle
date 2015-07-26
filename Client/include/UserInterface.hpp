@@ -60,6 +60,7 @@ namespace prattle
                 virtual std::string getUsername() = 0;
                 virtual std::string getSelectedFriend() = 0;
                 virtual std::string getPassword() = 0;
+                virtual std::string getSearchString() = 0;
 
                 virtual void clearChat() = 0;
                 virtual std::string getChat(const std::string& user) = 0;
@@ -70,6 +71,8 @@ namespace prattle
                 virtual void fillFriendList(const std::vector<std::string>& friends) = 0;
 
                 virtual void setStatusOfFriend(const std::string& sender, unsigned int status) = 0;
+                virtual void showSearchResults(const std::vector<std::string>& results) = 0;
+                virtual void addFriend(const std::string& friendName) = 0;
 
 //            protected:
 //                State m_state;

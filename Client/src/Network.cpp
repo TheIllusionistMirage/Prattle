@@ -109,6 +109,37 @@ namespace prattle
                     ERR_LOG("ERROR in sending message packet to sever!");
             }
             break;
+            case Task::Type::SearchUser:
+            {
+                DBG_LOG("Searching task added");
+                if (args.size() != 1)
+                    throw std::invalid_argument("Wrong number of arguments provided for task: Search");
+                if (!m_tasks.empty())
+                    WRN_LOG("Warning: Trying to search on a new server but the task list is not empty. It is cleared.");
+                m_tasks.clear();
+                if (!m_replies.empty())
+                    WRN_LOG("Warning: Trying to search on a new server but the replies stack is not empty. It is cleared.");
+                m_replies.clear();
+
+                m_tasks.push_front(Task{
+                                  rid = generateId(),
+                                  Task::Type::SearchUser,
+                                  std::chrono::steady_clock::now()});
+
+                sf::Packet packet;
+                packet << SEARCH_USER << std::to_string(rid) << args[0];
+                //std::cout << SEND_MSG << " " + std::to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
+                auto status = m_socket.send(packet);
+
+                if(status == sf::Socket::Status::Done)
+                {
+                    DBG_LOG("Search packet sent to server");
+                    return rid;
+                }
+                else
+                    ERR_LOG("ERROR in sending search packet to sever!");
+            }
+            break;
             case Task::Type::Logout:
                 DBG_LOG("Network: Logging out");
                 reset();
@@ -221,7 +252,7 @@ namespace prattle
                                             Reply::Type::RecievedMessage,
                                             {sender, data} });
 
-                        std::cout << sender << data << std::endl;
+                        //std::cout << sender << data << std::endl;
                     }
                     else if (reply == STATUS_ONLINE || reply == STATUS_OFFLINE)
                     {
@@ -294,6 +325,51 @@ namespace prattle
 
                                     DBG_LOG("Send message task erased");
                                     m_tasks.erase(res);
+                                }
+                                else if (reply == SEARCH_USER_RESULTS)
+                                {
+                                    unsigned int noOfFriends;
+                                    std::vector<std::string> result;
+
+                                    if (response >> noOfFriends)
+                                    {
+                                        result.push_back(std::to_string(noOfFriends));
+                                        while (response >> temp)
+                                            result.push_back(temp);
+
+                                        m_replies.push_front(Reply{
+                                                            rid,
+                                                            Reply::Type::TaskSuccess,
+                                                            result});
+
+                                        DBG_LOG("Send message task erased");
+                                        m_tasks.erase(res);
+                                    }
+                                    else
+                                        ERR_LOG("Damaged packet received");
+                                }
+                                else if (reply == ADD_FRIEND_SUCCESS ||
+                                          reply == ADD_FRIEND_FAILURE)
+                                {
+                                    unsigned int noOfFriends;
+                                    std::vector<std::string> result;
+
+                                    if (response >> noOfFriends)
+                                    {
+                                        result.push_back(std::to_string(noOfFriends));
+                                        while (response >> temp)
+                                            result.push_back(temp);
+
+                                        m_replies.push_front(Reply{
+                                                            rid,
+                                                            Reply::Type::TaskSuccess,
+                                                            result});
+
+                                        DBG_LOG("Send message task erased");
+                                        m_tasks.erase(res);
+                                    }
+                                    else
+                                        ERR_LOG("Damaged packet received");
                                 }
                                 else
                                     ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");

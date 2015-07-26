@@ -64,6 +64,8 @@ namespace prattle
                             m_ui->fillFriendList(friends);
 
                             changeState(UserInterface::State::Chatting);
+
+                            m_loginReqId = -1;
                         }
                         else if (reply.type == Network::Reply::TaskError)
                         {
@@ -81,6 +83,8 @@ namespace prattle
                             m_ui->alert("Unable to login!");
                             changeState(UserInterface::State::Login);
                             m_network.reset();
+
+                            m_loginReqId = -1;
                         }
                     }
                     else if (reply.id == m_signupReqId)
@@ -91,6 +95,7 @@ namespace prattle
                             m_ui->reset();
                             changeState(UserInterface::State::Login);
                             m_ui->alert("Signup successful! Login to start chatting!");
+                            m_signupReqId = -1;
                         }
                         else
                         {
@@ -99,6 +104,7 @@ namespace prattle
                             m_ui->alert("Unable to Signup!");
                             changeState(UserInterface::State::Signup);
                             m_network.reset();
+                            m_signupReqId = -1;
                         }
                     }
                     else
@@ -106,6 +112,8 @@ namespace prattle
                     break;
                 case UserInterface::State::Chatting:
                     {
+                        bool isReplyOk = false;
+
                         // Code goes here ! (And I mean a lot of it)
                         if (reply.id == Network::InvalidRequest)
                         {
@@ -124,15 +132,19 @@ namespace prattle
                                     m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + reply.args[0] + " : " + reply.args[1];
                                 else
                                     m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + "\n" + reply.args[0] + " : " + reply.args[1];
+
+                                isReplyOk = true;
                             }
                             else if (reply.type == Network::Reply::OnlineNotif)
                             {
                                 //DBG_LOG("x" + std::to_string(reply.type) + " " + reply.args[0] + "x");
                                 m_ui->setStatusOfFriend(reply.args[0], 0);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
+                                isReplyOk = true;
                             }
                             else if (reply.type == Network::Reply::OfflineNotif)
                             {
                                 m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
+                                isReplyOk = true;
                             }
                         }
 
@@ -152,15 +164,47 @@ namespace prattle
                                     m_ui->setInputText("");
                                     DBG_LOG("Successfully sent message");
                                     m_unsentMsgReqId.erase(msgId);
+
+                                    isReplyOk = true;
                                 }
                             }
                             else if (msgId == m_unsentMsgReqId.end())
                             {
                                 m_ui->alert("Unable to send message to \'" + m_ui->getSelectedFriend() + "\'!");
+                                isReplyOk = true;
                             }
                         }
 
-                        else
+                        //std::cout << "Id : " << reply.id << " " << m_searchReqId << std::endl;
+                        //std::cout << "Typed : " << reply.type << std::endl;
+                        if (reply.id == m_searchReqId && reply.type == Network::Reply::TaskSuccess)
+                        {
+                            //std::cout << "A" << std::endl;
+                            //DBG_LOG(reply.args[0] + " " + reply.args[1]);
+                            //std::cout << reply.args[0];
+                            //m_ui->showSearchResults(reply.args);
+                            m_ui->showSearchResults(std::vector<std::string>{reply.args.begin() + 1, reply.args.end()});
+                            isReplyOk = true;
+                            m_searchReqId = -1;
+                        }
+
+                        if (reply.id == m_searchReqId && reply.type == Network::Reply::TaskSuccess)
+                        {
+                            //std::cout << "A" << std::endl;
+                            //DBG_LOG(reply.args[0] + " " + reply.args[1]);
+                            //std::cout << reply.args[0];
+                            //m_ui->showSearchResults(reply.args);
+                            m_ui->showSearchResults(std::vector<std::string>{reply.args.begin() + 1, reply.args.end()});
+                            isReplyOk = true;
+                        }
+
+                        if (reply.id == m_addFriendReqId && reply.type == Network::Reply::TaskSuccess)
+                        {
+                            //
+                            isReplyOk = true;
+                        }
+
+                        if (!isReplyOk)
                             WRN_LOG("Received an unexpected network reply in state Chatting. Received reply : " + std::to_string(reply.id) + " " + std::to_string(reply.type));
                     }
                     break;
@@ -232,7 +276,10 @@ namespace prattle
                             //m_network.reset();
                             m_ui->reset();
                             changeState(UserInterface::State::Login);
+                            m_loginReqId = 0 ;
+                            m_signupReqId = 0 ;
                             m_unsentMsgReqId.clear();
+                            m_searchReqId = 0;
                             m_chatHistory.clear();
                             break;
                         case UserInterface::UIEvent::MessageSent:
@@ -245,10 +292,29 @@ namespace prattle
 //                            m_ui->setInputText("");
                             //DBG_LOG("Message sent to server.");
                             break;
+                        case UserInterface::UIEvent::Search:
+                            if (!m_ui->isStringWhitespace(m_ui->getSearchString()))
+                            {
+                                m_searchReqId = m_network.send(Network::Task::SearchUser,
+                                                    {m_ui->getSearchString()});
+
+                                std::cout << m_ui->getSearchString() << std::endl;
+                            }
+                            else
+                                m_ui->alert("Search string cannot be empty!");
+
                         case UserInterface::UIEvent::TabSelected:
                             //
                             m_ui->clearChat();
                             m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                            break;
+
+                        case UserInterface::UIEvent::AddFriend:
+                            {// NOTE : Test code only
+                            std::string username = "trex";
+
+                            m_addFriendReqId = m_network.send(Network::Task::AddFriend,
+                                                              {username});}
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");

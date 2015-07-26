@@ -256,49 +256,106 @@ namespace prattle
 
         if (packet >> request)
         {
-            std::string rid, receiver, data;
-
-            if (packet >> rid >> receiver >> data)
+            DBG_LOG("req : " + request);
+            if (request == SEND_MSG)
             {
-                sf::Packet rcvrReplyPacket;
-                rcvrReplyPacket << SEND_MSG << sender << data;
+                std::string rid, receiver, data;
 
-                if (send(rcvrReplyPacket, receiver))
+                if (packet >> rid >> receiver >> data)
                 {
-                    DBG_LOG("Sent message packet received from \'" + sender + "\' to \'" + receiver + "\'.");
+                    sf::Packet rcvrReplyPacket;
+                    rcvrReplyPacket << SEND_MSG << sender << data;
 
-                    sf::Packet replyPacket;
-                    replyPacket << SEND_MSG_SUCCESS << rid;
-
-                    if (send(replyPacket, sender))
+                    if (send(rcvrReplyPacket, receiver))
                     {
-                        DBG_LOG("Notified \'" + sender + "\' about message transmission success.");
+                        DBG_LOG("Sent message packet received from \'" + sender + "\' to \'" + receiver + "\'.");
+
+                        sf::Packet replyPacket;
+                        replyPacket << SEND_MSG_SUCCESS << rid;
+
+                        if (send(replyPacket, sender))
+                        {
+                            DBG_LOG("Notified \'" + sender + "\' about message transmission success.");
+                        }
+                        else
+                        {
+                            ERR_LOG("Unable to notify \'" + sender + "\' about message transmission success.");
+                        }
                     }
                     else
                     {
-                        ERR_LOG("Unable to notify \'" + sender + "\' about message transmission success.");
+                        ERR_LOG("ERROR :: Unable to send \'" + receiver + "\' message received from \'" + sender + "\'.");
+
+                        sf::Packet replyPacket;
+                        replyPacket << SEND_MSG_FAILURE << rid;
+
+                        if (send(replyPacket, sender))
+                        {
+                            DBG_LOG("Notified \'" + sender + "\' about message transmission failure.");
+                        }
+                        else
+                        {
+                            ERR_LOG("Unable to notify \'" + sender + "\' about message transmission failure.");
+                        }
                     }
                 }
                 else
                 {
-                    ERR_LOG("ERROR :: Unable to send \'" + receiver + "\' message received from \'" + sender + "\'.");
-
-                    sf::Packet replyPacket;
-                    replyPacket << SEND_MSG_FAILURE << rid;
-
-                    if (send(replyPacket, sender))
-                    {
-                        DBG_LOG("Notified \'" + sender + "\' about message transmission failure.");
-                    }
-                    else
-                    {
-                        ERR_LOG("Unable to notify \'" + sender + "\' about message transmission failure.");
-                    }
+                    ERR_LOG("ERROR :: Damaged packet received.");
                 }
             }
-            else
+            else if (request == SEARCH_USER)
             {
-                ERR_LOG("ERROR :: Damaged packet received.");
+                std::string rid, query;
+                if (packet >> rid >> query)
+                {
+                    auto matches = db.getMatchingUsers(query);
+                    if (matches.size() > 0)
+                    {
+                        sf::Packet searchResult;
+                        searchResult << SEARCH_USER_RESULTS << rid << matches.size();
+
+                        for (auto& i : matches)
+                            searchResult << i;
+
+                        if (!send(searchResult, sender))
+                        {
+                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+                        }
+                        else
+                            std::cout <<"Sent results" << std::endl;
+                    }
+
+//                    //searchDatabase(query);
+//                    // This part is a WIP. For now only the exact match for query
+//                    // gets sent to sender. Later on matching results feature will get added.
+//                    if (db.isUserRegistered(query))
+//                    {
+//                        sf::Packet searchResult;
+//                        searchResult << SEARCH_USER_RESULTS << rid << 1 << query;
+//                        if (!send(searchResult, sender))
+//                        {
+//                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+//                        }
+//                        else
+//                            std::cout <<"Sent results" << std::endl;
+//                    }
+//                    else
+//                    {
+//                        sf::Packet searchResult;
+//                        searchResult << SEARCH_USER_RESULTS << rid << 0;
+//                        if (!send(searchResult, sender))
+//                        {
+//                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+//                        }
+//                        else
+//                            std::cout <<"Sent results 1" << std::endl;
+//                    }
+                }
+                else
+                {
+                    ERR_LOG("ERROR while extracting data from packet.");
+                }
             }
         }
         else

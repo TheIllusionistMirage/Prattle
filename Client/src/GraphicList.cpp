@@ -391,6 +391,7 @@ namespace prattle
             }
             else
                 m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
+
         }
 
         if (m_scrollerDown.getGlobalBounds().contains(x, y) && m_scrollerDownVisible)

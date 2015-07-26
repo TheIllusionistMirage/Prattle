@@ -28,6 +28,7 @@ namespace prattle
                                  //m_chatBox{std::make_shared<tgui::TextBox>()},
                                  //m_userInputBox{std::make_shared<tgui::TextBox>()},
                                  //m_state{UserInterface::State::Login}
+                                 //m_searchBox{std::make_shared<tgui::ChildWindow>()},
                                  m_state{UserInterface::State::Login}
     {
         /* Setting the minimum window size for the X window system */
@@ -142,7 +143,7 @@ namespace prattle
         m_backButton->setPosition(tgui::bindLeft(m_signupButton), tgui::bindHeight(m_gui) / 1.15);
         //m_backButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
 
-        m_connectingText->setText("Logging in...");
+        m_connectingText->setText("Connecting...");
         m_connectingText->setTextSize(22);
         m_connectingText->setTextColor(sf::Color{70, 66, 66});
         m_connectingText->setPosition(tgui::bindWidth(m_gui) / 5, tgui::bindHeight(m_gui) / 2);
@@ -241,7 +242,7 @@ namespace prattle
 
     void GraphicalUI::reset()
     {
-        m_state = State::Login;
+        m_state = State::Login;;
         setState(m_state);
 
         //m_usernameField->setText("");
@@ -260,12 +261,24 @@ namespace prattle
     {
         sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
-        // returns true if the mouse press occured within the bounds of the widget
-        return (widget->getPosition().x <= mousePos.x &&
-             widget->getPosition().y <= mousePos.y &&
-              widget->getPosition().x + widget->getSize().x >= mousePos.x &&
-               widget->getPosition().y + widget->getSize().y  >= mousePos.y);
+        // returns true if the mouse press occured within the bounds of the tgui element
+        return (widget->getAbsolutePosition().x <= mousePos.x &&
+             widget->getAbsolutePosition().y <= mousePos.y &&
+              widget->getAbsolutePosition().x + widget->getSize().x >= mousePos.x &&
+               widget->getAbsolutePosition().y + widget->getSize().y  >= mousePos.y);
     }
+//
+//    bool GraphicalUI::isMouseOver(tgui::Container::Ptr panel)
+//    {
+//        sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+//
+//        // returns true if the mouse press occured within the bounds of the panel
+//
+//        return (panel->getPosition().x <= mousePos.x &&
+//             panel->getPosition().y <= mousePos.y &&
+//              panel->getPosition().x + panel->getSize().x >= mousePos.x &&
+//               panel->getPosition().y + panel->getSize().y  >= mousePos.y);
+//    }
 
     void GraphicalUI::setState(UserInterface::State s)
     {
@@ -425,6 +438,48 @@ namespace prattle
                                 if (isMouseOver(m_logoutButton) && getState() == State::Chatting)
                                     return UserInterface::UIEvent::Disconnect;
 
+                                auto sp = m_menu->getMenuItem(Menu::Item::SearchPanel);
+//                                if (sp == nullptr)
+//                                    std::cout << "NULL1" << std::endl;
+                                auto c = std::static_pointer_cast<tgui::Container>(sp);
+//                                if (c.get() == nullptr)
+//                                    std::cout << "NULL2" << std::endl;
+//                                if (c.get()->get("search_button") == nullptr)
+//                                    std::cout << "NULL3" << std::endl;
+                                //if (isMouseOver(c.get()->get("search_button")))
+//                                    std::cout << "button : "
+//                                              << c.get()->get("search_button")->getPosition().x
+//                                              << " "
+//                                              << c.get()->get("search_button")->getPosition().y
+//                                              << " "
+//                                              << c.get()->get("search_button")->getSize().x
+//                                              << " "
+//                                              << c.get()->get("search_button")->getSize().y
+//                                              << std::endl;
+//                                    sf::Vector2i mp = sf::Mouse::getPosition(m_window);
+//                                    std::cout << "mouse over : " << isMouseOver(c.get()->get("search_button")) << " " << mp.x << "," << mp.y << std::endl;
+//                                    std::cout << "panel : " << m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() << std::endl;
+                                if (isMouseOver(c.get()->get("search_button")) &&
+                                     m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() &&
+                                      getState() == State::Chatting)
+                                {
+                                    //std::cout << "asdsA" << std::endl;
+                                    return UserInterface::UIEvent::Search;
+                                }
+
+                                if (isMouseOver(c.get()->get("add_friend_button")) &&
+                                     m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() &&
+                                      getState() == State::Chatting)
+                                {
+                                    //std::cout << "asdsA" << std::endl;
+                                    return UserInterface::UIEvent::AddFriend;
+                                }
+
+//                                 if (isMouseOver(m_menu->getMenuItem(Menu::Item::SearchPanel)) &&
+//                                     m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() &&
+//                                      getState() == State::Chatting)
+//                                    return UserInterface::UIEvent::Search;
+
                                 // get current mouse poitner position in the render window
                                 sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
@@ -432,6 +487,8 @@ namespace prattle
                                 // friendlist is visible, and the selected item
                                 // in friendlist is not a whitespace, then add
                                 // a corresppnding tab for the selected friend.
+
+                                // NOTE : There's a bug in this if check
                                 if (m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) && m_menu->getFriendlist()->isVisible() && m_menu->getSelectedFriend() != "")
                                 {
                                     if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
@@ -442,6 +499,7 @@ namespace prattle
                                     }
                                     else
                                     {
+                                        std::cout << m_menu->getSelectedFriend() << std::endl;
                                         m_tabs->addTab(m_menu->getSelectedFriend(), m_menu->getStatus(m_menu->getSelectedFriend()));
                                         m_menu->getFriendlist()->hide();
                                         return UIEvent::TabSelected;
@@ -453,8 +511,16 @@ namespace prattle
                                 else if (m_tabs->mouseOnWidget(mousePos.x, mousePos.y) && m_tabs->getTabCount() > 0)
                                     return UIEvent::TabSelected;
 
-                                if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getBounds().contains(mousePos.x, mousePos.y)))
+                                if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getItemBounds(0).contains(mousePos.x, mousePos.y)))
                                     m_menu->getFriendlist()->hide();
+
+                                auto bounds = sf::FloatRect{m_menu->getMenuItem(Menu::Item::SearchPanel)->getPosition().x,
+                                                            m_menu->getMenuItem(Menu::Item::SearchPanel)->getPosition().y,
+                                                            m_menu->getMenuItem(Menu::Item::SearchPanel)->getSize().x,
+                                                            m_menu->getMenuItem(Menu::Item::SearchPanel)->getSize().y,
+                                                           };
+                                if (m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() && !(bounds.contains(mousePos.x, mousePos.y) || m_menu->getItemBounds(1).contains(mousePos.x, mousePos.y)))
+                                    m_menu->getMenuItem(Menu::Item::SearchPanel)->hide();
                             }
                         }
                         break;
@@ -462,6 +528,8 @@ namespace prattle
                         break;
                 }
             }
+
+            //m_menu->update();
 
             // If the user is logged in and chatting, and if
             // no tabs are open, no need to have the chatbox
@@ -552,6 +620,11 @@ namespace prattle
         return m_passwordField->getText();
     }
 
+    std::string GraphicalUI::getSearchString()
+    {
+        return m_menu->getSearchFieldText();
+    }
+
     void GraphicalUI::clearChat()
     {
         m_chatBox->setText("");
@@ -614,5 +687,15 @@ namespace prattle
     {
         m_menu->getFriendlist()->setStatusOfItem(sender, status);
         m_tabs->setStatusOfItem(sender, status);
+    }
+
+    void GraphicalUI::showSearchResults(const std::vector<std::string>& results)
+    {
+        m_menu->showSearchResults(results);
+    }
+
+    void GraphicalUI::addFriend(const std::string& friendName)
+    {
+        std::static_pointer_cast<GraphicList>(m_menu->getMenuItem(Menu::Item::FriendPanel))->addItem(friendName);
     }
 }

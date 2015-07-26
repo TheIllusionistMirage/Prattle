@@ -71,6 +71,7 @@ namespace prattle
                 RecievedMessage,
                 OnlineNotif,
                 OfflineNotif
+                //SearchResults
 //                Disconnected
             } type;
             std::vector<std::string> args;

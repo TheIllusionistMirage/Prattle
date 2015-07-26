@@ -44,8 +44,8 @@ namespace prattle
             // member methods
             GraphicalUI();
             void reset() override;
-            bool isMouseOver(tgui::Widget::Ptr button);
-            void closeAlert();
+            bool isMouseOver(tgui::Widget::Ptr widget);
+            //bool isMouseOver(tgui::Container::Ptr panel);
 
             // virtually inherited functions
             void setState(UserInterface::State s) override;
@@ -60,6 +60,7 @@ namespace prattle
             std::string getUsername() override;
             std::string getSelectedFriend() override;
             std::string getPassword() override;
+            std::string getSearchString() override;
 
             void clearChat() override;
             std::string getChat(const std::string& user) override;
@@ -71,7 +72,14 @@ namespace prattle
 
             void setStatusOfFriend(const std::string& sender, unsigned int status) override;
 
+            void showSearchResults(const std::vector<std::string>& results) override;
+
+            void addFriend(const std::string& friendName) override;
+
         private:
+            void closeAlert();
+
+            // NOTE : This function is useless right now
             UserInterface::UIEvent getUIEvent(const std::string& button);
 
         private:

@@ -668,10 +668,7 @@ namespace prattle
         for (auto& i : m_items)
         {
             if (i->getTextWidget()->getText() == item)
-            {
-                std::cout << "GT : " << i->getTextWidget()->getText().toAnsiString() + " " + std::to_string(status) << std::endl;;
                 i->setStatus(status);
-            }
         }
     }
 
