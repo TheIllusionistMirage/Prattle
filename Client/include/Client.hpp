@@ -10,36 +10,46 @@
 
 #include <iostream>
 #include <SFML/Network.hpp>
-#include "../include/ErrorLog.hpp"
+#include "../include/Logger.hpp"
+#include "../include/Network.hpp"
+#include "../include/UserInterface.hpp"
+#include "../include/GraphicalUI.hpp"
 
 namespace prattle
 {
     class Client
     {
         public:
-            enum State
-            {
-                LoginPrompt,
-                Connecting,
-                ChatHome,
-                ErrorState,
-                Exit,
-            };
             Client();
+            void update();
+            void draw();
             void run();
 
         private:
-            void parseConifgFile();
-            void doLogin();
-            void doSignup();
-            void sendUserMessage();
-            void processServerReply();
-            void changeState(State s);
+            void parseConfigFile();
+            void changeState(UserInterface::State s);
 
             const std::string m_configFilePath = "resources/config/client.conf";
-            State m_state;
+            UserInterface::State m_state;
+
             Network m_network;
-            std::unique_ptr<UserInterface> ui;
+            Network::RequestId m_loginReqId;
+            Network::RequestId m_signupReqId;
+            std::vector<Network::RequestId> m_unsentMsgReqId;
+            Network::RequestId m_searchReqId;
+            Network::RequestId m_addFriendReqId;
+
+            std::unique_ptr<UserInterface> m_ui;
+
+            // Stores basic configuration info
+            struct Configuration
+            {
+                std::string addr;
+                int port;
+                std::string ui;
+            } m_clientConf;
+
+            std::map<std::string, std::string> m_chatHistory;
     };
 }
 

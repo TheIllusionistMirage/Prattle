@@ -30,8 +30,8 @@ namespace prattle
         {
             sf::Time attempt_delay = sf::seconds(5);
             ERR_LOG("Unable to  bind the listener at port : " + std::to_string(m_server_port)
-                + "\n Retrying in " + std::to_string(int(attempt_delay.asSeconds())) + " seconds. "
-                + "\n Attempt : " + std::to_string(i));
+                + "\nRetrying in " + std::to_string(int(attempt_delay.asSeconds())) + " seconds. "
+                + "\nAttempt : " + std::to_string(i));
             sf::sleep(attempt_delay);
             status = m_listener.listen(m_server_port);
         }
@@ -50,7 +50,7 @@ namespace prattle
 
     void Server::parseConfigFile()
     {
-        static std::regex field_pattern("(\\w+):([^:]+):"),
+        const std::regex field_pattern("(\\w+):([^:]+):"),
                             comment_pattern("\\s*#.*");
         enum data_type { INT, STRING };
         //Maps the field name in the config file to (data type, pointer to variable) of the field
@@ -84,7 +84,7 @@ namespace prattle
                 auto mapping = fields_map.find(field);
                 if(mapping == fields_map.end())
                 {
-                    WRN_LOG("Warning : Unrecognized field in conifg file, ignoring.");
+                    WRN_LOG("Warning : Unrecognized field in config file, ignoring.");
                 }
                 else
                 {
@@ -121,7 +121,6 @@ namespace prattle
                 {
                     addNewClient();
                 }
-
                 else
                 {
                     receive();
@@ -129,7 +128,8 @@ namespace prattle
             }
             sf::sleep(sf::milliseconds(1));
         }
-        shutdown();
+        m_listener.close();
+        DBG_LOG("Server successfully shutdown at " + getCurrentTimeAndDate() + " .");
     }
 
     bool Server::isRunning()
@@ -158,66 +158,35 @@ namespace prattle
         }
     }
 
-    bool Server::send(const sf::Packet& packet)
+    bool Server::send(sf::Packet& packet, const std::string& username)
     {
         sf::Packet packetCopy{packet};
-        std::string request;
-        if (packetCopy >> request)
+        auto itr = m_clients.find(username);
+        bool result = true;
+        if (itr == m_clients.end())
         {
-            if ( request == LOGIN_SUCCESS       ||
-                  request == LOGIN_FAILURE       ||
-                   request == SIGNUP_SUCCESS      ||
-                    request == SIGNUP_FAILURE      ||
-                     request == SEND_MSG            ||
-                      request == SEND_MSG_SUCCESS    ||
-                       request == SEND_MSG_FAILURE    ||
-                        request == SEARCH_USER_RESULTS ||
-                         request == ADD_FRIEND_SUCCESS  ||
-                          request == ADD_FRIEND_FAILURE  ||
-                           request == NOTIF_LOGIN         ||
-                            request == NOTIF_LOGOUT        ||
-                             request == NOTIF_ONLINE )
+            std::string reply;
+            packet >> reply;
+            std::cout << reply << std::endl;
+            if(reply == SEND_MSG)
             {
-                std::string sender, username;
-                // NOTE : the sender in this case is ALWAYS the server because, well, you know the server is sending ...
-                if (packetCopy >> sender >> username)
-                {
-                    auto itr = m_clients.find(username);
-                    bool result = true;
-                    if (itr == m_clients.end())
-                    {
-                        // NOTE : the sender in this case is ALWAYS the server.
-                        m_messages.insert(std::make_pair(username, std::make_pair(sender, packetCopy)));
-                        DBG_LOG("Messesge for offline user " + username + "stored in server");
-                    }
-                    else
-                    {
-                        DBG_LOG("Messege for online user " + username + " sent");
-                        if (itr->second->send(packetCopy) != sf::Socket::Done)
-                        {
-                            ERR_LOG("ERROR :: Error in sending packet from " + sender + " to " + username + ".");
-                            result = false;
-                        }
-                    }
-                    return result;
-                }
-                else
-                {
-                    ERR_LOG("ERROR :: A damaged packet is being tried to be sent by the server.");
-                    return false;
-                }
+                m_messages.insert(std::make_pair(username, packetCopy));
+                DBG_LOG("Messesge for offline user " + username + "stored in server");
             }
             else
-            {
-                ERR_LOG("ERROR :: An unknown request \'" + request + "\' is being tried to be executed by the server.");
-                return false;
-            }
+                WRN_LOG("Warning: Attempted to send packet to offline user \'" + username + "\'.");
         }
         else
         {
-            ERR_LOG("ERROR :: A damaged packet is being tried to be sent by the server.");
-            return false;
+            if (itr->second->send(packetCopy) != sf::Socket::Done)
+            {
+                ERR_LOG("ERROR :: Error in sending packet to" + username);
+                result = false;
+            }
+            else
+                DBG_LOG("Messege for online user " + username + " sent");
         }
+        return result;
     }
 
     bool Server::sendController(sf::Packet& packet)
@@ -242,7 +211,7 @@ namespace prattle
                 auto status = (itr->second)->receive(packet);
                 if (status == sf::Socket::Done)
                 {
-                    handleClientRequest(packet);
+                    handleClientRequest(packet, itr->first);
                 }
                 else if (status == sf::Socket::Disconnected)
                 {
@@ -250,22 +219,21 @@ namespace prattle
                     m_selector.remove(*itr->second);
                     //itr = m_clients.erase(itr);
 
-                    // Send a notif to all online friends of itr->first about his status
+                    // Inform online friends of itr->first about his status
                     const auto& itr_friends = db.getFriends(itr->first);
                     for (auto& friendName : itr_friends)
                     {
                         auto friend_itr = m_clients.find(friendName);
                         if (friend_itr != m_clients.end())
                         {
-                            //std::cout << friendName << " is online" << std::endl;
-                            sf::Packet notifPacket;
-                            notifPacket << NOTIF_LOGOUT << SERVER << friendName << itr->first;
-                            if(send(notifPacket))
+                            sf::Packet statusPacket;
+                            statusPacket << STATUS_OFFLINE << itr->first;
+                            if(send(statusPacket, friendName))
                             {
                                 DBG_LOG("Notified \'" + friendName + "\' that \'" + itr->first + "\' logged out");
                             }
                             else
-                                ERR_LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
+                                ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
                         }
                     }
                     itr = m_clients.erase(itr);
@@ -282,41 +250,135 @@ namespace prattle
         }
     }
 
-    void Server::handleClientRequest(sf::Packet& packet)
+    void Server::handleClientRequest(sf::Packet& packet, const std::string& sender)
     {
         std::string request;
+
+        if (packet >> request)
+        {
+            DBG_LOG("req : " + request);
+            if (request == SEND_MSG)
+            {
+                std::string rid, receiver, data;
+
+                if (packet >> rid >> receiver >> data)
+                {
+                    sf::Packet rcvrReplyPacket;
+                    rcvrReplyPacket << SEND_MSG << sender << data;
+
+                    if (send(rcvrReplyPacket, receiver))
+                    {
+                        DBG_LOG("Sent message packet received from \'" + sender + "\' to \'" + receiver + "\'.");
+
+                        sf::Packet replyPacket;
+                        replyPacket << SEND_MSG_SUCCESS << rid;
+
+                        if (send(replyPacket, sender))
+                        {
+                            DBG_LOG("Notified \'" + sender + "\' about message transmission success.");
+                        }
+                        else
+                        {
+                            ERR_LOG("Unable to notify \'" + sender + "\' about message transmission success.");
+                        }
+                    }
+                    else
+                    {
+                        ERR_LOG("ERROR :: Unable to send \'" + receiver + "\' message received from \'" + sender + "\'.");
+
+                        sf::Packet replyPacket;
+                        replyPacket << SEND_MSG_FAILURE << rid;
+
+                        if (send(replyPacket, sender))
+                        {
+                            DBG_LOG("Notified \'" + sender + "\' about message transmission failure.");
+                        }
+                        else
+                        {
+                            ERR_LOG("Unable to notify \'" + sender + "\' about message transmission failure.");
+                        }
+                    }
+                }
+                else
+                {
+                    ERR_LOG("ERROR :: Damaged packet received.");
+                }
+            }
+            else if (request == SEARCH_USER)
+            {
+                std::string rid, query;
+                if (packet >> rid >> query)
+                {
+                    auto matches = db.getMatchingUsers(query);
+                    if (matches.size() > 0)
+                    {
+                        sf::Packet searchResult;
+                        searchResult << SEARCH_USER_RESULTS << rid << matches.size();
+
+                        for (auto& i : matches)
+                            searchResult << i;
+
+                        if (!send(searchResult, sender))
+                        {
+                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+                        }
+                        else
+                            std::cout <<"Sent results" << std::endl;
+                    }
+
+//                    //searchDatabase(query);
+//                    // This part is a WIP. For now only the exact match for query
+//                    // gets sent to sender. Later on matching results feature will get added.
+//                    if (db.isUserRegistered(query))
+//                    {
+//                        sf::Packet searchResult;
+//                        searchResult << SEARCH_USER_RESULTS << rid << 1 << query;
+//                        if (!send(searchResult, sender))
+//                        {
+//                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+//                        }
+//                        else
+//                            std::cout <<"Sent results" << std::endl;
+//                    }
+//                    else
+//                    {
+//                        sf::Packet searchResult;
+//                        searchResult << SEARCH_USER_RESULTS << rid << 0;
+//                        if (!send(searchResult, sender))
+//                        {
+//                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+//                        }
+//                        else
+//                            std::cout <<"Sent results 1" << std::endl;
+//                    }
+                }
+                else
+                {
+                    ERR_LOG("ERROR while extracting data from packet.");
+                }
+            }
+        }
+        else
+        {
+            ERR_LOG("ERROR :: Damaged packet received.");
+        }
+
+        /*std::string request;
         if (packet >> request)
         {
             if (request == SEND_MSG)
             {
-                std::string sender, receiver, data;
-                if (packet >> sender >> receiver >> data)
-                {
-                    /*if (receiver == "Open Chat")
-                    {
-                        m_globalChat += sender + " : " + data + "\n";
-
-                        sf::Packet pckt;
-                        pckt << SEND_MSG << SERVER << sender << SERVER << m_globalChat;
-
-                        if (!send(pckt))
-                        {
-                            ERR_LOG("ERROR :: Packet from \'" + SERVER + "\' was not sent to \'" + sender + "\'.");
-                        }
-
-                        continue;
-                    }*/
-
+                std::string rid,  receiver, data;
                     sf::Packet newPacket;
-                    newPacket << SEND_MSG << SERVER << receiver << sender << data;
-                    if (!send(newPacket))
+                    newPacket << SEND_MSG << sender << data;
+                    if (!send(newPacket, receiver))
                     {
                         ERR_LOG("ERROR :: Packet from \'" + sender + "\' was not sent to \'" + receiver + "\'.");
 
                         sf::Packet replyPacket;
                         std::string details = "ERROR :: Packet from \'" + sender + "\' was not sent to \'" + receiver + "\'.";
-                        replyPacket << SEND_MSG_FAILURE << SERVER << sender << details;
-                        if (!send(replyPacket))
+                        replyPacket << SEND_MSG_FAILURE << rid << details;
+                        if (!send(replyPacket, sender))
                         {
                             ERR_LOG("ERROR :: Error in notifying \'" + sender + "\' about message transmission's failure.");
                         }
@@ -324,8 +386,8 @@ namespace prattle
                     else
                     {
                         sf::Packet replyPacket;
-                        replyPacket << SEND_MSG_SUCCESS << SERVER << sender;
-                        if (!send(replyPacket))
+                        replyPacket << SEND_MSG_SUCCESS << rid;
+                        if (!send(replyPacket, sender))
                         {
                             ERR_LOG("ERROR :: Error in notifying \'" + sender + "\' about message transmission's success.");
                         }
@@ -342,36 +404,29 @@ namespace prattle
             }
             else if (request == SEARCH_USER)
             {
-                std::string sender, receiver, query;
-                if (packet >> sender >> receiver >> query)
+                std::string rid, query;
+                if (packet >> rid >> query)
                 {
-                    if (receiver == SERVER)
+                    //searchDatabase(query);
+                    // This part is a WIP. For now only the exact match for query
+                    // gets sent to sender. Later on matching results feature will get added.
+                    if (db.isUserRegistered(query))
                     {
-                        //searchDatabase(query);
-                        // This part is a WIP. For now only the exact match for query
-                        // gets sent to sender. Later on matching results feature will get added.
-                        if (db.isUserRegistered(query))
+                        sf::Packet searchResult;
+                        searchResult << SEARCH_USER_RESULTS << rid << 1 << query;
+                        if (!send(searchResult, sender))
                         {
-                            sf::Packet searchResult;
-                            searchResult << SEARCH_USER_RESULTS << SERVER << sender << query;
-                            if (!send(searchResult))
-                            {
-                                ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
-                            }
-                        }
-                        else
-                        {
-                            sf::Packet searchResult;
-                            searchResult << SEARCH_USER_RESULTS << SERVER << sender << "";
-                            if (!send(searchResult))
-                            {
-                                ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
-                            }
+                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
                         }
                     }
                     else
                     {
-                        ERR_LOG("ERROR corrupt package.");
+                        sf::Packet searchResult;
+                        searchResult << SEARCH_USER_RESULTS << rid << 0;
+                        if (!send(searchResult, sender))
+                        {
+                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+                        }
                     }
                 }
                 else
@@ -381,93 +436,63 @@ namespace prattle
             }
             else if (request == ADD_FRIEND)
             {
-                std::string sender, receiver, user;
-                if (packet >> sender >> receiver >> user)
+                std::string rid, user;
+                if (packet >> rid >> user)
                 {
-                    if (receiver == SERVER)
+                    if (db.isUserRegistered(user))
                     {
-                        if (db.isUserRegistered(user))
+                        db.addNewFriend(sender, user);
+                        sf::Packet result;
+                        result << ADD_FRIEND_SUCCESS << rid;
+                        if (send(result, sender))
                         {
-                            db.addNewFriend(sender, user);
-                            sf::Packet result;
-                            result << ADD_FRIEND_SUCCESS << SERVER << sender;
-                            if (send(result))
-                            {
-                                DBG_LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
-                            }
-                            else
-                                ERR_LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
-                            result.clear();
-
-                            /*result << ADD_FRIEND_SUCCESS << SERVER << user << sender;
-                            if (send(result))
-                            {
-                                LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
-                            }
-
-                            else
-                                ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");*/
-                            //result.clear();
-
-                            sf::Packet notifPacket;
-                            auto friend_itr = m_clients.find(user);
-                            if (friend_itr != m_clients.end())
-                            {
-                                result << ADD_FRIEND_SUCCESS << SERVER << user << sender;
-                                if (send(result))
-                                {
-                                    DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
-                                }
-                                else
-                                    ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
-
-                                notifPacket << NOTIF_ONLINE << SERVER << sender << user;
-                                if(send(notifPacket))
-                                {
-                                    DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
-                                }
-                                else
-                                    ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
-                                notifPacket.clear();
-                                notifPacket << NOTIF_ONLINE << SERVER << user << sender;
-
-                                if(send(notifPacket))
-                                {
-                                    DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
-                                }
-                                else
-                                    ERR_LOG("ERROR :: Error in sending notification to \'" + user + "\' from the server");
-                            }
-                            /*notifPacket.clear();
-                            notifPacket << NOTIF_ONLINE << SERVER << user << sender;
-
-                            if(send(notifPacket))
-                            {
-                                LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
-                            }
-
-                            else
-                                LOG("ERROR :: Error in sending notification to \'" + user + "\' from the server");*/
-
-                            /*result << NOTIF_ONLINE << SERVER << sender << user;
-
-                            if(send(result))
-                            {
-                                LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
-                            }
-
-                            else
-                                LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");*/
+                            DBG_LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
                         }
                         else
+                            ERR_LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+
+
+                        result.clear();
+                        auto friend_itr = m_clients.find(user);
+                        if (friend_itr != m_clients.end()) //if the friend is online
                         {
-                            sf::Packet result;
-                            std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
-                            result << ADD_FRIEND_FAILURE << SERVER << sender << details;
-                            if (!send(result))
+                            //Notify `sender` of his new friend
+                            result << ADD_NEW_FRIEND << sender;
+                            if (send(result, user))
                             {
-                                ERR_LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
+                                DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
                             }
+                            else
+                                ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
+
+                            //Notify both of each other's online presence
+                            sf::Packet statusPacket;
+                            statusPacket << STATUS_ONLINE << user;
+                            if(send(statusPacket, sender))
+                            {
+                                DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
+                            }
+                            else
+                                ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
+
+                            statusPacket.clear();
+                            statusPacket << STATUS_ONLINE << sender;
+                            if(send(statusPacket, user))
+                            {
+                                DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
+                            }
+                            else
+                                ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
+                        }
+                    }
+                    else
+                    {
+                        sf::Packet result;
+                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
+                        result << ADD_FRIEND_FAILURE << rid << details;
+                        if (!send(result, sender))
+                        {
+                            ERR_LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
                         }
                     }
                 }
@@ -484,7 +509,8 @@ namespace prattle
         else
         {
             ERR_LOG("ERROR :: Damaged packet received.");
-        }
+        }*/
+
     }
 
     void Server::handleNewConnection()
@@ -502,84 +528,108 @@ namespace prattle
                     {
                         if (request == LOGIN)
                         {
-                            std::string sender, receiver, plainPassword;
-                            if (packet >> sender >> receiver >> plainPassword)
+                            DBG_LOG("Login attempt by a new connection.");
+                            std::string rid, sender, plainPassword;
+                            if (packet >> rid >> sender >> plainPassword)
                             {
-                                if (receiver == SERVER)
+                                if (db.isValidPassword(sender, plainPassword))
                                 {
-                                    if (db.isValidPassword(sender, plainPassword))
+                                    sf::Packet loginResult;
+                                    loginResult << LOGIN_SUCCESS << rid << db.getFriends(sender).size();
+                                    DBG_LOG("Friends: " + std::to_string(db.getFriends(sender).size()));
+                                    for (auto& friendName : db.getFriends(sender))
+                                        loginResult << friendName;
+
+                                    if ((*itr)->send(loginResult) != sf::Socket::Done)
                                     {
-                                        sf::Packet loginResult;
-                                        loginResult << LOGIN_SUCCESS << SERVER << sender << sf::Uint32(db.getFriends(sender).size());
+                                        ERR_LOG("ERROR :: Error in sending login acknowledgment to \'" + sender + "\' from the server");
 
-                                        for (auto& friendName : db.getFriends(sender))
-                                            loginResult << friendName;
-
-                                        if ((*itr)->send(loginResult) != sf::Socket::Done)
-                                        {
-                                            ERR_LOG("ERROR :: Error in sending login acknowledgment to \'" + sender + "\' from the server");
-
-                                            m_selector.remove(**itr);
-                                            itr = m_new_connections.erase(itr);
-                                            continue;
-                                        }
-
-                                        std::cout << "o [" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
-                                        DBG_LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
-                                        auto itr_end = m_messages.upper_bound(sender);
-                                        for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
-                                        {
-                                            if ((*itr)->send(itr_2->second.second) != sf::Socket::Done)
-                                            {
-                                                ERR_LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + sender + ".");
-                                            }
-                                        }
-                                        m_messages.erase(sender);
-                                        m_clients.insert(std::make_pair(sender, std::move(*itr)));
+                                        m_selector.remove(**itr);
                                         itr = m_new_connections.erase(itr);
-
-                                        auto sender_friends = db.getFriends(sender);
-                                        sf::Packet onlinePacket;
-                                        for (auto& friendName : sender_friends)
-                                        {
-                                            auto friend_itr = m_clients.find(friendName);
-
-                                            if (friend_itr != m_clients.end())
-                                            {
-                                                //std::cout << friendName << " is online" << std::endl;
-                                                sf::Packet notifPacket;
-                                                notifPacket << NOTIF_LOGIN << SERVER << friendName << sender;
-                                                if(send(notifPacket))
-                                                {
-                                                    DBG_LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
-                                                }
-                                                else
-                                                    ERR_LOG("ERROR :: Error in sending notification to \'" + friendName + "\' from the server");
-                                                notifPacket.clear();
-                                                notifPacket << NOTIF_ONLINE << SERVER << sender << friendName;
-                                                if(send(notifPacket))
-                                                {
-                                                    DBG_LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
-                                                }
-                                                else
-                                                    ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
-                                            }
-                                        }
+                                        continue;
                                     }
-                                    else
+
+                                    std::cout << "[" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
+                                    DBG_LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
+                                    auto itr_end = m_messages.upper_bound(sender);
+                                    for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
                                     {
-                                        sf::Packet loginResult;
-                                        std::string details = "ERROR :: The username-password combination is not recognized.";
-                                        loginResult << LOGIN_FAILURE << SERVER << sender << details;
-                                        if (!(*itr)->send(loginResult))
+                                        if ((*itr)->send(itr_2->second) != sf::Socket::Done)
                                         {
-                                            ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
+                                            ERR_LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + sender + ".");
                                         }
                                     }
+                                    m_messages.erase(sender);
+                                    m_clients.insert(std::make_pair(sender, std::move(*itr)));
+                                    itr = m_new_connections.erase(itr);
+
+                                    ///
+                                    auto sender_friends = db.getFriends(sender);
+                                    for (auto& friendName : sender_friends)
+                                    {
+                                        auto friend_itr = m_clients.find(friendName);
+                                        if (friend_itr != m_clients.end()) //if friendName is online
+                                        {
+                                            //Notify `friendName` that `sender` came online
+                                            sf::Packet statusPacket;
+                                            statusPacket << STATUS_ONLINE << sender;
+                                            if(send(statusPacket, friendName))
+                                            {
+                                                DBG_LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
+                                            }
+                                            else
+                                                ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
+                                            //Notify `sender` that friendName is online
+                                            statusPacket.clear();
+                                            statusPacket << STATUS_ONLINE << friendName;
+                                            if(send(statusPacket, sender))
+                                            {
+                                                DBG_LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
+                                            }
+                                            else
+                                                ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+                                        }
+                                    }
+
+//                                    auto sender_friends = db.getFriends(sender);
+//                                    for (auto& friendName : sender_friends)
+//                                    {
+//                                        auto friend_itr = m_clients.find(friendName);
+//                                        if (friend_itr != m_clients.end()) //if friendName is online
+//                                        {
+//                                            //Notify `friendName` that `sender` came online
+//                                            sf::Packet statusPacket;
+//                                            statusPacket << sender;
+//                                            if(send(statusPacket, friendName))
+//                                            {
+//                                                DBG_LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
+//                                            }
+//                                            else
+//                                                ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
+//                                            //Notify `sender` that friendName is online
+//                                            statusPacket.clear();
+//                                            statusPacket << STATUS_ONLINE << friendName;
+//                                            if(send(statusPacket, sender))
+//                                            {
+//                                                DBG_LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
+//                                            }
+//                                            else
+//                                                ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+//                                        }
+//                                    }
                                 }
                                 else
                                 {
-                                    ERR_LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                                    sf::Packet loginResult;
+                                    std::string details = "ERROR :: The username-password combination is not recognized.";
+                                    loginResult << LOGIN_FAILURE << rid << sender << details;
+
+                                    if ((*itr)->send(loginResult))
+                                    {
+                                        //ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
+                                    }
+                                    else
+                                        ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
                                 }
                             }
                             else
@@ -589,41 +639,35 @@ namespace prattle
                         }
                         else if (request == SIGNUP)
                         {
-                            std::string sender, receiver, plainPassword;
-                            if (packet >> sender >> receiver >> plainPassword)
+                            std::string rid, sender, plainPassword;
+                            if (packet >> rid >> sender >> plainPassword)
                             {
-                                if (receiver == SERVER)
+                                if (db.addNewUser(sender, plainPassword))
                                 {
-                                    if (db.addNewUser(sender, plainPassword))
-                                    {
-                                        sf::Packet signupResult;
-                                        signupResult << SIGNUP_SUCCESS << SERVER << sender;
+                                    sf::Packet signupResult;
+                                    signupResult << SIGNUP_SUCCESS << rid;
 
-                                        if ((*itr)->send(signupResult) != sf::Socket::Done)
-                                        {
-                                            ERR_LOG("ERROR :: Could not send signup acknowledgment to \'" + sender + "\'.");
-                                        }
-                                        m_selector.remove(**itr);
-                                        itr = m_new_connections.erase(itr);
+                                    if ((*itr)->send(signupResult) == sf::Socket::Done)
+                                    {
+                                        DBG_LOG("Notified '" + sender + "\' about signup success.");
                                     }
                                     else
-                                    {
-                                        sf::Packet signupResult;
-                                        std::string details = "ERROR :: The username \'" + sender + "\' exists.";
-                                        signupResult << SIGNUP_FAILURE << SERVER << sender << details;
-                                        if (!send(signupResult))
-                                        {
-                                            ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about unsuccessful attempt to sign up");
-                                        }
-                                    }
-                                }
+                                        ERR_LOG("ERROR :: Could not send signup acknowledgment to \'" + sender + "\'.");
 
+                                    m_selector.remove(**itr);
+                                    itr = m_new_connections.erase(itr);
+                                }
                                 else
                                 {
-                                    ERR_LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                                    sf::Packet signupResult;
+                                    std::string details = "ERROR :: The username \'" + sender + "\' exists.";
+                                    signupResult << SIGNUP_FAILURE << rid << details;
+                                    if (!send(signupResult, sender))
+                                    {
+                                        ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about unsuccessful attempt to sign up");
+                                    }
                                 }
                             }
-
                             else
                             {
                                 ERR_LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
@@ -646,7 +690,7 @@ namespace prattle
                                     reply << "ack";
                                     m_controller = std::move(*itr);
                                     sendController(reply);
-                                    DBG_LOG("Controller attached.\n Controller IP : " + m_controller->getRemoteAddress().toString());
+                                    DBG_LOG("Controller attached.\nController IP : " + m_controller->getRemoteAddress().toString());
                                 }
                                 else
                                 {
@@ -701,7 +745,10 @@ namespace prattle
                 {
                     replyStr += i.first + '\n';
                 }
-                replyStr.resize(replyStr.size()-1); //remove the last newline
+                if (replyStr.size())
+                    replyStr.erase(replyStr.size()-1); //remove the last newline
+//                else
+//                    replyStr = "None.";
                 reply << "ack" << replyStr;
             }
             else if(request == "print_stats")
@@ -743,10 +790,12 @@ namespace prattle
             ERR_LOG("Unable to receive packet from controller. Status code : " + std::to_string(status));
         }
     }
+    // The shutdown() function shouldn't do anything
+    // nontrivial or any non-threadsafe stuff because
+    // it is called by the signal handler (in a
+    // different thread)
     void Server::shutdown()
     {
-        m_listener.close();
         m_running = false;
-        DBG_LOG("Server successfully shutdown at " + getCurrentTimeAndDate() + " .");
     }
 }

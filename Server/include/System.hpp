@@ -23,8 +23,27 @@ namespace prattle
     //const std::string SERVER_IP_ADDRESS = "116.203.150.19";      // The IP address of the server
                                                             // Remember to change it to your desired host's IP
     const std::string USER_LIST         = "resources/members.db";    // The user database
+    const std::string prattle_logo =
+        "           , | .\n"
+        "         ' | | | ! .\n"
+        "         | | | | | | .\n"
+        "         | | | | | | | |\n"
+        "         | | | | | | | | | ' .\n"
+        "         | | | | | | | | | | | | | | ' .\n"
+        "         | | | | | . ' ' | | | . '\n"
+        "         | | ! . '         '\n"
+        "         | ! '\n"
+        "         |\n"
+        "                              ||   ||  ||\n"
+        " . .====.   . .===   .====. -====~====-||   .====.\n"
+        " |/      \\. |/     ./`     \\  ||   ||  || ./`     \\\n"
+        " ||      || ||     !|      || ||   ||  || ||~~~~~~'\n"
+        " |\\     ,/' ||     `\\     ,|| ||   ||  || `\\      ,\n"
+        " ||`==='`   ''       `'==` '' ''   ''  ''   `'==='\n"
+        " ||                               Always be near";
 
     /* Functions */
+    std::uint32_t     djb2_hash(std::string str);
     std::string       getCurrentTimeAndDate();                                    // Returns the current date & time in the host machine
     std::string       generate_salt(int length = 5);                              // Generates a salt to add to the hashed password
     std::string       pwd_hash(const std::string& str,const std::string& salt);   // Hashes the password using the SHA256

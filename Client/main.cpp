@@ -1,23 +1,25 @@
 #include <iostream>
 #include <exception>
 #include "include/Client.hpp"
+#include "include/Logger.hpp"
+#include "include/TeeStream.hpp"
 
-using namespace std;
 
 int main()
 {
     try
     {
-        cout << "=========================" << endl;
-        cout << "   Prattle Client v0.1   " << endl;
-        cout << "=========================" << endl;
+        std::ofstream logFile("prattle_log.txt");
+        prattle::TeeStream tee(std::cerr, logFile);
+        prattle::Logger::getLogger()->setStream(&tee);
+        prattle::Logger::getLogger()->setLoggingLevel(prattle::Logger::Debug);
 
         prattle::Client m_prattleClient;
-        m_prattleClient.run(0.f);
+        m_prattleClient.run();
     }
     catch(std::exception& e)
     {
-        std::cout << e.what() << std::endl;
+        ERR_LOG(std::string("Exception occurred.\nwhat(): ") + e.what());
     }
 
     return 0;
