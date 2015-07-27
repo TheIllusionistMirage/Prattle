@@ -1,12 +1,3 @@
-/**
-
-    Prattle/Server/Logger.cpp
-    ===========================
-
-    Contains implementations of class Logger declared in Prattle/Server/Logger.hpp
-
-*/
-
 #include "../include/Logger.hpp"
 #include "../include/System.hpp"
 
@@ -32,9 +23,8 @@ namespace prattle
     void Logger::setStream(std::ostream* stream)
     {
         m_logStream = stream;
-
         (*m_logStream) << prattle_logo << "\n\n\n"
-                       << "------------------------Server Logs----------------------\n"
+                       << "------------------------Client Logs----------------------\n"
                        << "----------------------by team Prattle -------------------\n\n\n";
         m_logStream->flush();
     }
@@ -58,7 +48,6 @@ namespace prattle
     {
         if (m_level <= Debug)
             (*m_logStream) << file << ":" << line << " :\n" << output << "\n\n";
-        m_logStream->flush();
     }
 
     void Logger::warn(const std::string& output,

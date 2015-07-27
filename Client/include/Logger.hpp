@@ -1,13 +1,3 @@
-/**
-
-    Prattle/Server/Logger.hpp
-    ===========================
-
-    Provides a very basic error logging system.The results of the log file can
-    be found in 'server_log.txt' in the directory containing the Server binary.
-
-*/
-
 #ifndef LOGGER_HPP
 #define LOGGER_HPP
 

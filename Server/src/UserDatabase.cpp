@@ -35,6 +35,23 @@ namespace prattle
         return itr->second.friends;
     }
 
+    unsigned int UserDatabase::getDbSize()
+    {
+        return records.size();
+    }
+
+    std::vector<std::string> UserDatabase::getMatchingUsers(const std::string& str)
+    {
+        std::vector<std::string> matches;
+        for (auto& i : records)
+        {
+            if (i.first.find(str) != std::string::npos)
+                matches.push_back(i.first);
+        }
+
+        return matches;
+    }
+
     bool UserDatabase::isValidPassword(const std::string& username,const std::string& plain_pwd)
     {
         auto res = records.find(username);
@@ -49,6 +66,7 @@ namespace prattle
     {
         if(isUserRegistered(username))
         {
+            ERR_LOG("User already registered using that name!");
             return false;
         }
         dbFile.open(USER_LIST, std::ios::in | std::ios::out);
@@ -198,8 +216,9 @@ namespace prattle
 
     void UserDatabase::parseFile()
     {
-        static std::regex record_pattern(
-                "([\\w.]{3,16}):([0-9a-f]{64}):([[:alnum:]]+):(?:([\\w.]{3,16}),)*:"),
+        const std::regex record_pattern(
+                "([\\w.]{3,16}):([0-9a-f]{64}):([[:alnum:]]+):((?:[\\w.]{3,16},)*):"),
+                friend_pattern("([\\w.]{3,16}),"),
                 comment_pattern("\\s*#.*");
 
         dbFile.open(USER_LIST, std::ios_base::in);
@@ -213,27 +232,29 @@ namespace prattle
         std::getline(dbFile,line);
         for(unsigned int line_num = 1; !dbFile.eof(); std::getline(dbFile, line) , ++line_num)
         {
-            std::string username, hashed_pwd, salt;
-            std::vector<std::string> friends;
             std::smatch record_match;
             if(line.empty() || std::regex_match(line, comment_pattern))
                 continue;
             else if(std::regex_match(line, record_match, record_pattern))
             {
-                username = record_match[1].str();
-                hashed_pwd = record_match[2].str();
-                salt = record_match[3].str();
+                std::string username {record_match[1].str()},
+                             hashed_pwd {record_match[2].str()},
+                             salt {record_match[3].str()},
+                             friendsAll {record_match[4].str()};
 
-                std::size_t i = 4;
-                while (record_match[i].str() != "")
+                std::vector<std::string> friends;
+                std::smatch friend_match;
+                while (std::regex_search(friendsAll, friend_match, friend_pattern))
                 {
-                    friends.push_back(record_match[i++].str());
+                    friends.push_back(friend_match[1].str());
+                    friendsAll = friend_match.suffix().str();
                 }
+
                 records.insert({username, Record{hashed_pwd, salt, friends}});
             }
             else
             {
-                WRN_LOG("Invalid record in the database :\n\t" + line);
+                WRN_LOG("Invalid record in the database.\n\tLine: " + line);
                 continue;
             }
         }

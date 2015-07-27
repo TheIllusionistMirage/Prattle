@@ -11,6 +11,15 @@
 
 namespace prattle
 {
+    std::uint32_t djb2_hash(std::string str)
+    {
+        std::uint32_t hash = 5381;
+        for (int c : str)
+            hash = ((hash << 5) + hash) + c;
+
+        return hash;
+    }
+
     std::string getCurrentTimeAndDate()
     {
         time_t now = time(0);
