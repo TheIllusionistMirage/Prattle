@@ -511,6 +511,7 @@ namespace prattle
         {
             ERR_LOG("ERROR :: Damaged packet received.");
         }*/
+
     }
 
     void Server::handleNewConnection()
