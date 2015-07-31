@@ -74,6 +74,8 @@ namespace prattle
 
             void showSearchResults(const std::vector<std::string>& results) override;
 
+            std::string getSelectedResult() override;
+
             void addFriend(const std::string& friendName) override;
 
         private:

@@ -9,26 +9,15 @@ namespace prattle
         if (parent->getGlobalFont())
         {
             m_font = parent->getGlobalFont();
-            m_friendList->initialize(parent);
-            //m_friendList->setFont(m_font);
-
-            //if(m_font == nullptr)
-            //std::cout << "ASDASD" << std::endl;
-            m_searchPanel->initialize(parent);
-            //m_instruction->initialize(parent);
-            //m_searchField->initialize(parent);
-            //m_resultMessage->initialize(parent);
-            //m_results->initialize(parent);
+            add(m_friendList);
+            add(m_searchPanel);
         }
     }
 
     Menu::Menu() : m_friendList{std::make_shared<GraphicList>()},
-                   //m_searchPanel{std::make_shared<tgui::Panel>(sf::Vector2f{300, 300})},
-                   //m_instruction{std::make_shared<tgui::Label>()},
                    m_searchField{std::make_shared<tgui::EditBox>()},
                    m_resultMessage{std::make_shared<tgui::Label>()},
-                   m_results{std::make_shared<tgui::ListBox>()}//,
-                   //m_addFriendButton{std::make_shared<tgui::Button>()}
+                   m_results{std::make_shared<tgui::ListBox>()}
     {
         if (!m_menuItemTexture.loadFromFile("resources/images/custom/menu_items.png"))
             throw std::runtime_error("ERROR :: Unable to open image file \'menu_items.png\'.");
@@ -58,9 +47,6 @@ namespace prattle
         m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
         m_friendList->hide();
 
-//        m_instruction->setText("Enter search string :");
-//        m_instruction->setTextColor(sf::Color::White);
-
         m_searchField->setDefaultText("Search");
         m_searchField->setSize(200, 20);
         m_searchField->setPosition(20, 20);
@@ -69,16 +55,6 @@ namespace prattle
         m_searchButton->setText("Search");
         m_searchButton->setSize(200, 20);
         m_searchButton->setPosition(m_searchField->getPosition().x, m_searchField->getPosition().y + m_searchField->getSize().y + 7);
-
-//        m_searchBox = tgui::ChildWindow::create();
-//        m_searchBox->setTitle("Search");
-//        m_searchBox->hide();
-//        m_searchBox->connect("Closed", std::bind(&tgui::ChildWindow::hide, m_searchBox));
-//
-//        m_searchBox->add(m_instruction);
-//        m_searchBox->add(m_searchField);
-//        m_searchBox->add(m_resultMessage);
-//        m_searchBox->add(m_results);
 
         m_resultMessage->setText("Results found:");
         m_resultMessage->setSize(100, 12);
@@ -107,11 +83,6 @@ namespace prattle
         m_searchPanel->add(m_addFriendButton, "add_friend_button");
     }
 
-    void Menu::init()
-    {
-        //m_friendList->setDefaultMessage("No items added");
-    }
-
     void Menu::initList(const std::vector<std::string>& friends)
     {
         m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
@@ -124,8 +95,6 @@ namespace prattle
 
     void Menu::resetList()
     {
-        //for (int i = 0; i < m_friendList->getItemCount(); i++)
-            //m_friendList->removeItem(i);
         m_friendList->clear();
     }
 
@@ -138,11 +107,6 @@ namespace prattle
     {
         return m_friendList->getStatusOfItem(friendName);
     }
-
-//    GraphicList::Ptr Menu::getFriendlistBounds()
-//    {
-//        return m_friendList->getBounds();
-//    }
 
     void Menu::setFont(std::shared_ptr<sf::Font> font)
     {
@@ -160,7 +124,6 @@ namespace prattle
 
         if (m_searchPanel->isVisible())
             target.draw(*m_searchPanel, states);
-        //target.draw(*m_searchField, states);
     }
 
     tgui::Widget::Ptr Menu::clone()
@@ -232,9 +195,6 @@ namespace prattle
 
     void Menu::mouseLeftWidget()
     {
-        //m_searchField->mouseLeftWidget();
-        //m_searchPanel->mouseLeftWidget();
-
         for (unsigned int i = 0; i < m_menuItemSprites.size(); i++)
         {
             m_menuItemSprites[i].setTextureRect(sf::IntRect{60 * (int)i, 0, 60, 60});
@@ -245,59 +205,20 @@ namespace prattle
 
     void Menu::leftMousePressed(float x, float y)
     {
-//        if (mouseOnWidget(x, y))
-//        {
-////            if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
-////            {
-////                m_friendlistPressed = true;
-////            }
-////            else
-////                m_friendlistPressed = false;
-//        }
-////        else
-////            m_friendlistPressed = true;
-////
-////        std::cout << " xyz" << std::endl;
-
         if (mouseOnWidget(x, y))
         {
-//            if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
-//            {
-//                std::cout << " A " << std::endl;
-//                if (m_friendList->isVisible())
-//                {
-//                    std::cout << " B " << std::endl;
-//                    m_friendList->hide();
-//                }
-//            }
-
-            if (m_friendList->isVisible())// && m_friendList->mouseOnWidget(x, y))
+            if (m_friendList->isVisible())
             {
                 m_friendList->leftMousePressed(x, y);
-                //m_friendList->hide();
                 if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
                     m_friendList->hide();
             }
-            //else if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
-                //m_friendList->hide();
             else
                 if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
                     m_friendList->show();
 
-            if (m_searchPanel->isVisible())// && m_searchPanel->mouseOnWidget(x, y))
+            if (m_searchPanel->isVisible())
             {
-                if (m_searchField->mouseOnWidget(x, y))
-                    m_searchField->leftMousePressed(x, y);
-
-                if (m_searchButton->mouseOnWidget(x, y))
-                    m_searchButton->leftMousePressed(x, y);
-
-                if (m_results->mouseOnWidget(x, y))
-                    m_results->leftMousePressed(x, y);
-
-                if (m_addFriendButton->mouseOnWidget(x, y))
-                    m_addFriendButton->leftMousePressed(x, y);
-
                 m_searchPanel->leftMousePressed(x, y);
 
                 if (m_menuItemSprites[1].getGlobalBounds().contains(x, y))
@@ -311,11 +232,6 @@ namespace prattle
         }
     }
 
-//    void Menu::update()
-//    {
-//        m_searchPanel->update();
-//    }
-
     void Menu::textEntered(sf::Uint32 key)
     {
         m_searchField->textEntered(key);
@@ -325,11 +241,6 @@ namespace prattle
     {
         m_searchField->keyPressed(event);
     }
-
-//    bool Menu::isFriendListButtonPressed()
-//    {
-//        return m_friendlistPressed;
-//    }
 
     void Menu::setPosition(const tgui::Layout& position)
     {
@@ -346,6 +257,8 @@ namespace prattle
         m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
         m_searchPanel->setPosition(m_menuItemSprites[1].getPosition().x, m_menuItemSprites[1].getPosition().y + m_menuItemSprites[1].getGlobalBounds().height + 5);
         m_searchButton->setPosition(m_searchField->getPosition().x, m_searchField->getPosition().y + m_searchField->getSize().y + 7);
+        m_resultMessage->setPosition(m_searchButton->getPosition().x, m_searchButton->getPosition().y + m_searchButton->getSize().y + 30);
+        m_results->setPosition(m_resultMessage->getPosition().x, m_resultMessage->getPosition().y + m_resultMessage->getSize().y + 10);
     }
 
     sf::Vector2f Menu::getPosition()
@@ -362,22 +275,6 @@ namespace prattle
     {
         return m_friendList;
     }
-
-//    template <typename T>
-//    T Menu::getMenuItem(Item itemType)
-//    {
-//        switch (itemType)
-//        {
-//            case Item::FriendPanel:
-//                return m_friendList;
-//
-//            case Item::SearchPanel:
-//                return m_searchPanel;
-//
-//            case Item::SettingsPanel:;
-//            case Item::AboutPanel:;
-//        }
-//    }
 
     tgui::Widget::Ptr Menu::getMenuItem(Item itemType)
     {
@@ -424,5 +321,10 @@ namespace prattle
 
     void Menu::closeSearchPanel()
     {
+    }
+
+    std::string Menu::getSelectedResult()
+    {
+        return m_results->getSelectedItem().toAnsiString();
     }
 }

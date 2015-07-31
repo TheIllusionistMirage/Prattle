@@ -146,6 +146,12 @@ namespace prattle
                                 m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
                                 isReplyOk = true;
                             }
+                            else if (reply.type == Network::Reply::TaskSuccess)
+                            {
+                                m_ui->addFriend(reply.args[0]);
+                                m_chatHistory[reply.args[0]] = "";
+                                isReplyOk = true;
+                            }
                         }
 
                         if (reply.id != 0 && m_unsentMsgReqId.size() > 0)
@@ -188,20 +194,24 @@ namespace prattle
                             m_searchReqId = -1;
                         }
 
-                        if (reply.id == m_searchReqId && reply.type == Network::Reply::TaskSuccess)
-                        {
-                            //std::cout << "A" << std::endl;
-                            //DBG_LOG(reply.args[0] + " " + reply.args[1]);
-                            //std::cout << reply.args[0];
-                            //m_ui->showSearchResults(reply.args);
-                            m_ui->showSearchResults(std::vector<std::string>{reply.args.begin() + 1, reply.args.end()});
-                            isReplyOk = true;
-                        }
+//                        if (reply.id == m_searchReqId && reply.type == Network::Reply::TaskSuccess)
+//                        {
+//                            //std::cout << "A" << std::endl;
+//                            //DBG_LOG(reply.args[0] + " " + reply.args[1]);
+//                            //std::cout << reply.args[0];
+//                            //m_ui->showSearchResults(reply.args);
+//                            m_ui->showSearchResults(std::vector<std::string>{reply.args.begin() + 1, reply.args.end()});
+//                            m_
+//                            isReplyOk = true;
+//                        }
 
                         if (reply.id == m_addFriendReqId && reply.type == Network::Reply::TaskSuccess)
                         {
-                            //
+                            std::cout << "Recieved : " << reply.args[0] << std::endl;
+                            m_ui->addFriend(reply.args[0]);
+                            m_chatHistory[reply.args[0]] = "";
                             isReplyOk = true;
+                            m_addFriendReqId = -1;
                         }
 
                         if (!isReplyOk)
@@ -310,11 +320,14 @@ namespace prattle
                             break;
 
                         case UserInterface::UIEvent::AddFriend:
-                            {// NOTE : Test code only
-                            std::string username = "trex";
+                            {
+                                DBG_LOG("Selected result : " + m_ui->getSelectedResult());
 
-                            m_addFriendReqId = m_network.send(Network::Task::AddFriend,
-                                                              {username});}
+                                m_addFriendReqId = m_network.send(Network::Task::AddFriend,
+                                                                  {m_ui->getSelectedResult()});
+
+                                DBG_LOG("Add friend task added.");
+                            }
                             break;
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");

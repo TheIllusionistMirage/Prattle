@@ -314,13 +314,10 @@ namespace prattle
                     if (matches.size() > 0)
                     {
                         sf::Packet searchResult;
-                        searchResult << SEARCH_USER_RESULTS << rid << sf::Uint32(matches.size());
+                        searchResult << SEARCH_USER_RESULTS << rid << matches.size();
 
                         for (auto& i : matches)
-                        {
                             searchResult << i;
-                            std::cout << i << std::endl;
-                        }
 
                         if (!send(searchResult, sender))
                         {
@@ -329,73 +326,32 @@ namespace prattle
                         else
                             std::cout <<"Sent results" << std::endl;
                     }
-                }
-                else
-                {
-                    ERR_LOG("ERROR while extracting data from packet.");
-                }
-            }
-            else if (request == ADD_FRIEND)
-            {
-                std::string rid, user;
-                if (packet >> rid >> user)
-                {
-                    if (db.isUserRegistered(user))
-                    {
-                        db.addNewFriend(sender, user);
-                        sf::Packet result;
-                        result << ADD_FRIEND_SUCCESS << rid << user;
-                        if (send(result, sender))
-                        {
-                            DBG_LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
-                        }
-                        else
-                            ERR_LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
 
-
-                        result.clear();
-                        auto friend_itr = m_clients.find(user);
-                        if (friend_itr != m_clients.end()) //if the friend is online
-                        {
-                            //Notify `sender` of his new friend
-                            result << ADD_FRIEND << sender;
-                            if (send(result, user))
-                            {
-                                DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
-                            }
-                            else
-                                ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
-
-                            //Notify both of each other's online presence
-                            sf::Packet statusPacket;
-                            statusPacket << STATUS_ONLINE << user;
-                            if(send(statusPacket, sender))
-                            {
-                                DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
-                            }
-                            else
-                                ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
-
-                            statusPacket.clear();
-                            statusPacket << STATUS_ONLINE << sender;
-                            if(send(statusPacket, user))
-                            {
-                                DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
-                            }
-                            else
-                                ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
-                        }
-                    }
-                    else
-                    {
-                        sf::Packet result;
-                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
-                        result << ADD_FRIEND_FAILURE << rid << details;
-                        if (!send(result, sender))
-                        {
-                            ERR_LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
-                        }
-                    }
+//                    //searchDatabase(query);
+//                    // This part is a WIP. For now only the exact match for query
+//                    // gets sent to sender. Later on matching results feature will get added.
+//                    if (db.isUserRegistered(query))
+//                    {
+//                        sf::Packet searchResult;
+//                        searchResult << SEARCH_USER_RESULTS << rid << 1 << query;
+//                        if (!send(searchResult, sender))
+//                        {
+//                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+//                        }
+//                        else
+//                            std::cout <<"Sent results" << std::endl;
+//                    }
+//                    else
+//                    {
+//                        sf::Packet searchResult;
+//                        searchResult << SEARCH_USER_RESULTS << rid << 0;
+//                        if (!send(searchResult, sender))
+//                        {
+//                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+//                        }
+//                        else
+//                            std::cout <<"Sent results 1" << std::endl;
+//                    }
                 }
                 else
                 {
@@ -555,7 +511,6 @@ namespace prattle
         {
             ERR_LOG("ERROR :: Damaged packet received.");
         }*/
-
     }
 
     void Server::handleNewConnection()
@@ -580,7 +535,7 @@ namespace prattle
                                 if (db.isValidPassword(sender, plainPassword))
                                 {
                                     sf::Packet loginResult;
-                                    loginResult << LOGIN_SUCCESS << rid << sf::Uint32(db.getFriends(sender).size());
+                                    loginResult << LOGIN_SUCCESS << rid << db.getFriends(sender).size();
                                     DBG_LOG("Friends: " + std::to_string(db.getFriends(sender).size()));
                                     for (auto& friendName : db.getFriends(sender))
                                         loginResult << friendName;

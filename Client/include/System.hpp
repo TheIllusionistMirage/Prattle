@@ -37,20 +37,6 @@ namespace prattle
         " ||`==='`   ''       `'==` '' ''   ''  ''   `'==='\n"
         " ||                               Always be near";
     std::string getCurrentTimeAndDate();
-
-    enum class ScreenState
-    {
-        LoginScreen ,
-        SignupScreen,
-        ChatScreen
-    };
-
-    enum class Status
-    {
-        Online  ,
-        Busy    ,
-        Offline
-    };
 }
 
 #endif // SYSTEM_HPP_INCLUDED

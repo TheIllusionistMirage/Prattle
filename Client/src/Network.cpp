@@ -140,6 +140,36 @@ namespace prattle
                     ERR_LOG("ERROR in sending search packet to sever!");
             }
             break;
+            case Task::Type::AddFriend:
+            {
+                DBG_LOG("Searching task added");
+                if (args.size() != 1)
+                    throw std::invalid_argument("Wrong number of arguments provided for task: Add Friend");
+                if (!m_tasks.empty())
+                    WRN_LOG("Warning: Trying to search on a new server but the task list is not empty. It is cleared.");
+                m_tasks.clear();
+                if (!m_replies.empty())
+                    WRN_LOG("Warning: Trying to search on a new server but the replies stack is not empty. It is cleared.");
+                m_replies.clear();
+
+                m_tasks.push_front(Task{
+                                  rid = generateId(),
+                                  Task::Type::AddFriend,
+                                  std::chrono::steady_clock::now()});
+
+                sf::Packet packet;
+                packet << ADD_FRIEND << std::to_string(rid) << args[0];
+                auto status = m_socket.send(packet);
+
+                if(status == sf::Socket::Status::Done)
+                {
+                    DBG_LOG("Add friend packet sent to server");
+                    return rid;
+                }
+                else
+                    ERR_LOG("ERROR in sending search packet to sever!");
+            }
+            break;
             case Task::Type::Logout:
                 DBG_LOG("Network: Logging out");
                 reset();
@@ -259,11 +289,21 @@ namespace prattle
                         std::string sender;
                         response >> sender;
 
-                        std::cout << reply << sender << std::endl;
+                        //std::cout << reply << sender << std::endl;
 
                         m_replies.push_front(Reply{
                                             InvalidRequest,
                                             reply == STATUS_ONLINE ? Reply::Type::OnlineNotif : Reply::Type::OfflineNotif,// Reply::Type::OnlineNotif,
+                                            {sender} });
+                    }
+                    else if (reply == ADD_FRIEND)
+                    {
+                        std::string sender;
+                        response >> sender;
+
+                        m_replies.push_front(Reply{
+                                            InvalidRequest,
+                                            Reply::Type::TaskSuccess,
                                             {sender} });
                     }
                     else
@@ -351,25 +391,17 @@ namespace prattle
                                 else if (reply == ADD_FRIEND_SUCCESS ||
                                           reply == ADD_FRIEND_FAILURE)
                                 {
-                                    unsigned int noOfFriends;
-                                    std::vector<std::string> result;
+                                    std::string result;
 
-                                    if (response >> noOfFriends)
-                                    {
-                                        result.push_back(std::to_string(noOfFriends));
-                                        while (response >> temp)
-                                            result.push_back(temp);
+                                    response >> result;
 
-                                        m_replies.push_front(Reply{
-                                                            rid,
-                                                            Reply::Type::TaskSuccess,
-                                                            result});
+                                    m_replies.push_front(Reply{
+                                                        rid,
+                                                        Reply::Type::TaskSuccess,
+                                                        {result}});
 
-                                        DBG_LOG("Send message task erased");
-                                        m_tasks.erase(res);
-                                    }
-                                    else
-                                        ERR_LOG("Damaged packet received");
+                                    DBG_LOG("Add friend task completed");
+                                    m_tasks.erase(res);
                                 }
                                 else
                                     ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");

@@ -7,7 +7,7 @@
 
 namespace prattle
 {
-    class Menu : public tgui::Widget
+    class Menu : public tgui::Container// tgui::Widget
     {
         public:
             enum class Item
@@ -26,7 +26,7 @@ namespace prattle
             void initialize(tgui::Container *const parent);
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
             virtual Widget::Ptr clone() override;
-            bool mouseOnWidget(float x, float y);
+            virtual bool mouseOnWidget(float x, float y);
             virtual void mouseMoved(float x, float y) override;
             virtual void mouseLeftWidget() override;
             virtual void leftMousePressed(float x, float y) override;
@@ -51,34 +51,6 @@ namespace prattle
 
             GraphicList::Ptr getFriendlist();
 
-            // NOTE : Not sure if this functino can relaly be used like I'd hoped.
-            // It will probably be removed sometime later
-            //tgui::Widget::Ptr getMenuItem(Item itemType);
-//            template <typename T>
-//            T getMenuItem(Item itemType)
-//            {
-////                switch (itemType)
-////                {
-////                    case Item::FriendPanel:
-////                        return m_friendList;
-////
-////                    case Item::SearchPanel:
-////                        return m_searchPanel;
-////
-////                    case Item::SettingsPanel:;
-////                    case Item::AboutPanel:;
-////                }
-//                if(itemType == Item::FriendPanel)
-//                    return m_friendList;
-//
-//                if(itemType == Item::SearchPanel)
-//                    return m_searchPanel;
-//
-////                    case Item::SettingsPanel:;
-////                    case Item::AboutPanel:;
-//                }
-//            }
-
             tgui::Widget::Ptr getMenuItem(Item itemType);
 
             sf::FloatRect getItemBounds(const unsigned int& itemIndex);
@@ -89,20 +61,18 @@ namespace prattle
 
             void closeSearchPanel();
 
-            void init();
+            std::string getSelectedResult();
 
         private:
 
             sf::Texture m_menuItemTexture;
             std::vector<sf::Sprite> m_menuItemSprites;
             sf::FloatRect m_bounds;
-            //std::shared_ptr<sf::Font> m_font;
             float m_spacing;
             GraphicList::Ptr m_friendList;
 
             // the search box
             tgui::Panel::Ptr       m_searchPanel;
-            //tgui::Label::Ptr       m_instruction;
             tgui::EditBox::Ptr     m_searchField;
             tgui::Button::Ptr      m_searchButton;
             tgui::Label::Ptr       m_resultMessage;

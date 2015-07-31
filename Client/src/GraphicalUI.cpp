@@ -439,46 +439,18 @@ namespace prattle
                                     return UserInterface::UIEvent::Disconnect;
 
                                 auto sp = m_menu->getMenuItem(Menu::Item::SearchPanel);
-//                                if (sp == nullptr)
-//                                    std::cout << "NULL1" << std::endl;
+
                                 auto c = std::static_pointer_cast<tgui::Container>(sp);
-//                                if (c.get() == nullptr)
-//                                    std::cout << "NULL2" << std::endl;
-//                                if (c.get()->get("search_button") == nullptr)
-//                                    std::cout << "NULL3" << std::endl;
-                                //if (isMouseOver(c.get()->get("search_button")))
-//                                    std::cout << "button : "
-//                                              << c.get()->get("search_button")->getPosition().x
-//                                              << " "
-//                                              << c.get()->get("search_button")->getPosition().y
-//                                              << " "
-//                                              << c.get()->get("search_button")->getSize().x
-//                                              << " "
-//                                              << c.get()->get("search_button")->getSize().y
-//                                              << std::endl;
-//                                    sf::Vector2i mp = sf::Mouse::getPosition(m_window);
-//                                    std::cout << "mouse over : " << isMouseOver(c.get()->get("search_button")) << " " << mp.x << "," << mp.y << std::endl;
-//                                    std::cout << "panel : " << m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() << std::endl;
+
                                 if (isMouseOver(c.get()->get("search_button")) &&
                                      m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() &&
                                       getState() == State::Chatting)
-                                {
-                                    //std::cout << "asdsA" << std::endl;
                                     return UserInterface::UIEvent::Search;
-                                }
 
                                 if (isMouseOver(c.get()->get("add_friend_button")) &&
                                      m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() &&
                                       getState() == State::Chatting)
-                                {
-                                    //std::cout << "asdsA" << std::endl;
                                     return UserInterface::UIEvent::AddFriend;
-                                }
-
-//                                 if (isMouseOver(m_menu->getMenuItem(Menu::Item::SearchPanel)) &&
-//                                     m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() &&
-//                                      getState() == State::Chatting)
-//                                    return UserInterface::UIEvent::Search;
 
                                 // get current mouse poitner position in the render window
                                 sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
@@ -499,7 +471,6 @@ namespace prattle
                                     }
                                     else
                                     {
-                                        std::cout << m_menu->getSelectedFriend() << std::endl;
                                         m_tabs->addTab(m_menu->getSelectedFriend(), m_menu->getStatus(m_menu->getSelectedFriend()));
                                         m_menu->getFriendlist()->hide();
                                         return UIEvent::TabSelected;
@@ -528,8 +499,6 @@ namespace prattle
                         break;
                 }
             }
-
-            //m_menu->update();
 
             // If the user is logged in and chatting, and if
             // no tabs are open, no need to have the chatbox
@@ -692,6 +661,11 @@ namespace prattle
     void GraphicalUI::showSearchResults(const std::vector<std::string>& results)
     {
         m_menu->showSearchResults(results);
+    }
+
+    std::string GraphicalUI::getSelectedResult()
+    {
+        return m_menu->getSelectedResult();
     }
 
     void GraphicalUI::addFriend(const std::string& friendName)
