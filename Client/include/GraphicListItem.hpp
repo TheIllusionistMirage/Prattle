@@ -43,14 +43,18 @@ namespace prattle
             sf::Vector2f getPosition();
             void setStatus(unsigned short status);  // 0 for the online sprite and 1 for the offline sprite
             unsigned int getStatus();  // 0 for the online sprite and 1 for the offline sprite
+            tgui::Label::Ptr getNotifWidget();
             tgui::Label::Ptr getTextWidget();
             sf::FloatRect getBounds();
             void loadTexture(const std::string& file);
             //void setFont(std::shared_ptr<sf::Font> font);
+            void setNotif(const std::string& notif = "");
+            std::string getNotif();
 
         private:
 
             tgui::Label::Ptr             m_itemText;    // The label widget from TGUI.
+            tgui::Label::Ptr             m_notifText;   // The label widget from TGUI.
             std::shared_ptr<sf::Texture> m_itemTexture; // The texture file for the graphic.
             sf::Sprite                   m_itemSprite;  // The Sprite of the graphic.
             sf::FloatRect                m_bounds;      // The rextangular boundary of the GraphicListItem object.

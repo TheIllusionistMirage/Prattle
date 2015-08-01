@@ -75,6 +75,9 @@ namespace prattle
                 virtual std::string getSelectedResult() = 0;
                 virtual void addFriend(const std::string& friendName) = 0;
 
+                virtual void insertNotif(const std::string& friendName, const std::string& notif = "") = 0;
+                //virtual std::string getFocusedTab() = 0;
+
 //            protected:
 //                State m_state;
     };

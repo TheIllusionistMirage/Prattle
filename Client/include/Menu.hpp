@@ -63,6 +63,10 @@ namespace prattle
 
             std::string getSelectedResult();
 
+            void setNotif(const std::string& friendLabel, const std::string& notif = "");
+
+            std::string getNotif(const std::string& friendLabel);
+
         private:
 
             sf::Texture m_menuItemTexture;

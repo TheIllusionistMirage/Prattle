@@ -99,6 +99,10 @@ namespace prattle
 
             unsigned int getStatusOfItem(const std::string& listItem);
 
+            void setNotifOfItem(const std::string& listItem, const std::string& notif);
+
+            std::string getNotifOfItem(const std::string& listItem);
+
             void clear();
 
         private:

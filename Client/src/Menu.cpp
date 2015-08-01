@@ -327,4 +327,14 @@ namespace prattle
     {
         return m_results->getSelectedItem().toAnsiString();
     }
+
+    void Menu::setNotif(const std::string& friendLabel, const std::string& notif)
+    {
+        m_friendList->setNotifOfItem(friendLabel, notif);
+    }
+
+    std::string Menu::getNotif(const std::string& friendLabel)
+    {
+        m_friendList->getNotifOfItem(friendLabel);
+    }
 }

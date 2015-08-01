@@ -40,6 +40,8 @@ namespace prattle
             unsigned int getTabCount();
             bool isTabPresent(const std::string& tabLabel);
             void setStatusOfItem(const std::string& item, unsigned int status);
+            void setNotifOfItem(const std::string& listItem, const std::string& notif);
+            std::string getNotifOfItem(const std::string& listItem);
             void clear();
 
         private:

@@ -135,6 +135,16 @@ namespace prattle
 
                     if (m_iconSprites[i].getGlobalBounds().contains(x, y) && m_tabVisibility[i])
                     {
+                        //removeTab(i);
+
+                        if (m_tabs.size() > 0)
+                        {
+                            if (i + 1 < m_tabs.size())
+                                select(m_items[i + 1]->getTextWidget()->getText());
+                            else if (i - 1 >= 0)
+                                select(m_items[i - 1]->getTextWidget()->getText());
+                        }
+
                         removeTab(i);
                     }
                 }
@@ -211,7 +221,8 @@ namespace prattle
                                                       m_absoluteBounds.top + 7});
 
         m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::Black, m_GLItemTexPtr, 1, 5));
-        m_items.back()->getTextWidget()->setTextFont(m_font);
+        //m_items.back()->getTextWidget()->setTextFont(m_font);
+        //m_items.back()->getNotifWidget()->setTextFont(m_font);
         m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
 
         m_tabVisibility.push_back(true);
@@ -268,6 +279,7 @@ namespace prattle
 
         m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::Black, m_GLItemTexPtr, status, 5));
         m_items.back()->getTextWidget()->setTextFont(m_font);
+        m_items.back()->getNotifWidget()->setTextFont(m_font);
         m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
 
         m_tabVisibility.push_back(true);
@@ -668,7 +680,34 @@ namespace prattle
         for (auto& i : m_items)
         {
             if (i->getTextWidget()->getText() == item)
+            {
                 i->setStatus(status);
+                return;
+            }
+        }
+    }
+
+    void GraphicTab::setNotifOfItem(const std::string& listItem, const std::string& notif)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                i->setNotif(notif);
+                //std::cout << "notif : " << i->getNotif() << i->getTextWidget()->getText().toAnsiString() << std::endl;
+                return;
+            }
+        }
+    }
+
+    std::string GraphicTab::getNotifOfItem(const std::string& listItem)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                return i->getNotif();
+            }
         }
     }
 

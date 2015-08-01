@@ -23,7 +23,7 @@ namespace prattle
             const unsigned short MIN_WINDOW_WIDTH = 800;
             const unsigned short MIN_WINDOW_HEIGHT = 600;
             const unsigned short MIN_WINDOW_BPP = 32;
-            const std::string TITLE = "Prattle - Always be Near";
+            const std::string    TITLE = "Prattle - Always be Near";
 
             const std::string BACKGROUND  = "resources/images/prattle-bg.png";
             const std::string LOGO        = "resources/images/prattle-logo.png";
@@ -78,11 +78,15 @@ namespace prattle
 
             void addFriend(const std::string& friendName) override;
 
+            void insertNotif(const std::string& friendName, const std::string& notif = "") override;
+
+            //std::string getFocusedTab() override;
+
         private:
             void closeAlert();
 
             // NOTE : This function is useless right now
-            UserInterface::UIEvent getUIEvent(const std::string& button);
+            //UserInterface::UIEvent getUIEvent(const std::string& button);
 
         private:
 

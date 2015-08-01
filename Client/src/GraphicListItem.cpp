@@ -10,6 +10,12 @@ namespace prattle
         m_status = 0;
         m_spacing = 5;
 
+        m_notifText = tgui::Label::create();
+        m_notifText->setAutoSize(true);
+        m_notifText->setText("");
+        m_notifText->setTextSize(10);
+        m_notifText->setTextColor(sf::Color::White);
+
         m_itemText = tgui::Label::create();
         m_itemText->setAutoSize(true);
         m_itemText->setText("GraphicListItem");
@@ -19,7 +25,8 @@ namespace prattle
         m_bounds = sf::FloatRect{ m_itemSprite.getGlobalBounds().left,
                                   m_itemSprite.getGlobalBounds().top,
                                   m_itemSprite.getGlobalBounds().width +
-                                   m_spacing + m_itemText->getSize().x,
+                                   m_notifText->getSize().x +
+                                    m_spacing + m_itemText->getSize().x,
                                   (float)m_itemText->getTextSize()
                                 };
     }
@@ -34,6 +41,12 @@ namespace prattle
     {
         m_status = status;
         m_spacing = spacing;
+
+        m_notifText = tgui::Label::create();
+        m_notifText->setAutoSize(true);
+        m_notifText->setText("");
+        m_notifText->setTextSize(labelSize);
+        m_notifText->setTextColor(labelColor);
 
         m_itemText = tgui::Label::create();
         m_itemText->setTextFont(m_font);
@@ -61,6 +74,7 @@ namespace prattle
         {
             m_font = parent->getGlobalFont();
             //m_itemText->setTextFont(m_font);
+            m_notifText->initialize(m_parent);
             m_itemText->initialize(m_parent);
         }
     }
@@ -72,6 +86,7 @@ namespace prattle
     void GraphicListItem::draw(sf::RenderTarget& target, sf::RenderStates states) const
     {
         target.draw(m_itemSprite, states);
+        target.draw(*m_notifText, states);
         target.draw(*m_itemText, states);
     }
 
@@ -103,12 +118,14 @@ namespace prattle
         m_bounds = sf::FloatRect{ p.x,
                                   p.y,
                                   m_itemSprite.getGlobalBounds().width +
-                                   m_itemText->getSize().x + m_spacing,
+                                   m_notifText->getSize().x +
+                                    m_itemText->getSize().x + m_spacing,
                                   m_itemText->getSize().y > m_itemSprite.getGlobalBounds().height ? m_itemText->getSize().y : m_itemSprite.getGlobalBounds().height
                                 };
 
         m_itemSprite.setPosition(p);
-        m_itemText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing, p.y);
+        m_notifText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing, p.y);
+        m_itemText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, p.y);
     }
 
     sf::Vector2f GraphicListItem::getPosition()
@@ -125,6 +142,12 @@ namespace prattle
     unsigned int GraphicListItem::getStatus()
     {
         return m_status;
+    }
+
+    tgui::Label::Ptr GraphicListItem::getNotifWidget()
+    {
+        if (m_notifText != nullptr)
+            return m_notifText;
     }
 
     tgui::Label::Ptr GraphicListItem::getTextWidget()
@@ -145,6 +168,19 @@ namespace prattle
 
         m_itemSprite.setTexture(*m_itemTexture);
         m_itemSprite.setTextureRect(sf::IntRect{10 * m_status, 0, 10, 10});
+    }
+
+    void GraphicListItem::setNotif(const std::string& notif)
+    {
+        m_notifText->setText(notif);
+        m_itemText->setPosition(m_bounds.left + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, m_bounds.top);
+
+        //std::cout << m_notifText->getText().toAnsiString() << std::endl;
+    }
+
+    std::string GraphicListItem::getNotif()
+    {
+        return m_notifText->getText().toAnsiString();
     }
 
 //    void GraphicListItem::setFont(std::shared_ptr<sf::Font> font)

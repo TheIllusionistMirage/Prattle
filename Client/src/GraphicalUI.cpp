@@ -98,7 +98,7 @@ namespace prattle
         m_loginButton->setText("Login");
         m_loginButton->setSize(tgui::bindWidth(m_passwordField) - 100, tgui::bindHeight(m_passwordField) - 10);
         m_loginButton->setPosition(tgui::bindLeft(m_usernameField) + m_loginButton->getSize().x / 3.38, tgui::bindBottom(m_passwordField) + 20);
-        m_loginButton->connect("pressed", &GraphicalUI::getUIEvent, this, "login");
+        //m_loginButton->connect("pressed", &GraphicalUI::getUIEvent, this, "login");
 
         //std::cout << m_usernameField->getPosition().x - m_loginButton->getPosition().x << " " << (m_usernameField->getPosition().x + m_usernameField->getSize().x) - (m_loginButton->getPosition().x + m_loginButton->getSize().x) << std::endl;
 
@@ -158,7 +158,7 @@ namespace prattle
         m_logoutButton->setSize(100, 30);
         m_logoutButton->setPosition(tgui::bindRight(m_gui) - m_logoutButton->getSize().x - 20, tgui::bindTop(m_gui) + 50 + 50 / 3);
         //m_logoutButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
-        m_logoutButton->connect("pressed", &GraphicalUI::getUIEvent, this, "logout");
+        //m_logoutButton->connect("pressed", &GraphicalUI::getUIEvent, this, "logout");
 
         m_connectedUser->setText("Username goes here");
         m_connectedUser->setTextSize(12);
@@ -351,6 +351,16 @@ namespace prattle
                             return UserInterface::UIEvent::Closed;
                         }
                         break;
+                    case sf::Event::GainedFocus:
+                        {
+                            //m_window.setTitle(TITLE);
+                        }
+                        break;
+                    case sf::Event::LostFocus:
+                        {
+                            //m_window.setTitle("* " + TITLE);
+                        }
+                        break;
                     case sf::Event::Resized:
                         {
                             m_window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
@@ -429,9 +439,15 @@ namespace prattle
                                     return UserInterface::UIEvent::StateChanged;
                                 }
 
+                                if (isMouseOver(m_backButton) && getState() == State::Signup)
+                                {
+                                    setState(State::Login);
+                                    return UserInterface::UIEvent::StateChanged;
+                                }
+
                                 if (isMouseOver(m_signupButton) && getState() == State::Signup)
                                 {
-                                    DBG_LOG("Signup triggered from clicking the signup button.");
+                                    //DBG_LOG("Signup triggered from clicking the signup button.");
                                     return UserInterface::UIEvent::UserSignup;
                                 }
 
@@ -529,7 +545,7 @@ namespace prattle
             }
             else
             {
-
+                //
             }
 
             // If no UI event occurred, return a None event
@@ -637,20 +653,20 @@ namespace prattle
             w->enable();
     }
 
-    UserInterface::UIEvent GraphicalUI::getUIEvent(const std::string& button)
-    {
-        std::cout << "A" << std::endl;
-        if (button == "login")
-            return UserInterface::UIEvent::UserLogin;
-        else if (button == "signup_screen")
-            return UserInterface::UIEvent::StateChanged;
-        else if (button == "signup")
-            return UserInterface::UIEvent::UserSignup;
-        else if (button == "back")
-            return UserInterface::UIEvent::UserLogin;
-        else if (button == "logout")
-            return UserInterface::UIEvent::Disconnect;
-    }
+//    UserInterface::UIEvent GraphicalUI::getUIEvent(const std::string& button)
+//    {
+//        std::cout << "A" << std::endl;
+//        if (button == "login")
+//            return UserInterface::UIEvent::UserLogin;
+//        else if (button == "signup_screen")
+//            return UserInterface::UIEvent::StateChanged;
+//        else if (button == "signup")
+//            return UserInterface::UIEvent::UserSignup;
+//        else if (button == "back")
+//            return UserInterface::UIEvent::UserLogin;
+//        else if (button == "logout")
+//            return UserInterface::UIEvent::Disconnect;
+//    }
 
     void GraphicalUI::setStatusOfFriend(const std::string& sender, unsigned int status)
     {
@@ -672,4 +688,20 @@ namespace prattle
     {
         std::static_pointer_cast<GraphicList>(m_menu->getMenuItem(Menu::Item::FriendPanel))->addItem(friendName);
     }
+
+    void GraphicalUI::insertNotif(const std::string& friendName, const std::string& notif)
+    {
+        m_menu->setNotif(friendName, notif);
+        m_tabs->setNotifOfItem(friendName, notif);
+
+        if (m_window.hasFocus())// || (m_tabs->getSelectedTabLabel() == friendName))
+            m_window.setTitle(TITLE);
+        else
+            m_window.setTitle("* " + TITLE);
+    }
+
+//    std::string GraphicalUI::getFocusedTab()
+//    {
+//        return m_tabs->getSelectedTabLabel();
+//    }
 }

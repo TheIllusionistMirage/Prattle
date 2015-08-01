@@ -143,6 +143,7 @@ namespace prattle
 //        if (m_pFont == nullptr)
 //        std::cout << "n" << std::endl;
         //m_items.back()->initialize(m_parent);
+        m_items.back()->getNotifWidget()->setTextFont(m_font);
         m_items.back()->getTextWidget()->setTextFont(m_font);
         //m_items.back()->setFont(m_font);
 
@@ -480,6 +481,7 @@ namespace prattle
             if (i->getTextWidget()->getText() == listItem)
             {
                 i->setStatus(status);
+                return;
             }
         }
     }
@@ -491,6 +493,29 @@ namespace prattle
             if (i->getTextWidget()->getText() == listItem)
             {
                 return i->getStatus();
+            }
+        }
+    }
+
+    void GraphicList::setNotifOfItem(const std::string& listItem, const std::string& notif)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                i->setNotif(notif);
+                return;
+            }
+        }
+    }
+
+    std::string GraphicList::getNotifOfItem(const std::string& listItem)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                return i->getNotif();
             }
         }
     }

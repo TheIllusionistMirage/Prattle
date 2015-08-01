@@ -133,6 +133,14 @@ namespace prattle
                                 else
                                     m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + "\n" + reply.args[0] + " : " + reply.args[1];
 
+                                // set the notification to unread
+                                //std::cout << "tabs : " << m_ui->getFocusedTab() << " " <<  reply.args[0] << std::endl;
+                                if (m_ui->getSelectedFriend() != reply.args[0])
+                                {
+                                    m_ui->insertNotif(reply.args[0], "(*) ");
+                                    //std::cout << "A" << std::endl;
+                                }
+
                                 isReplyOk = true;
                             }
                             else if (reply.type == Network::Reply::OnlineNotif)
@@ -254,6 +262,8 @@ namespace prattle
                         else
                             m_ui->alert("Can't leave either login fields blank!");
                     }
+                    else if (event == UserInterface::UIEvent::StateChanged)
+                    {}
                     else
                         WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + std::to_string(event));
                     break;
@@ -317,6 +327,7 @@ namespace prattle
                             //
                             m_ui->clearChat();
                             m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                            m_ui->insertNotif(m_ui->getSelectedFriend(), "");
                             break;
 
                         case UserInterface::UIEvent::AddFriend:
