@@ -32,6 +32,8 @@ namespace prattle
         m_boundary.setSize(m_maxBoundarySize);
         m_boundary.setPosition(sf::Vector2f{0, 0});
         m_boundary.setTexture(m_panelTexturePtr);
+        //m_boundary.setOutlineThickness(1.f);
+        //m_boundary.setOutlineColor(sf::Color{140, 144, 144});
 
         /* Initialize the scrollers. */
         m_scrollerUp.setTexture(m_scrollTexture);
@@ -227,6 +229,8 @@ namespace prattle
 
         auto p = position.getValue();
 
+        //std::cout << "p : " << p.y << std::endl;
+        //m_boundary.setPosition(sf::Vector2f{p.x, p.y});
         m_boundary.setPosition(p);
 
         int t = 0;

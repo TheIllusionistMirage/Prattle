@@ -33,11 +33,11 @@ namespace prattle
             UserInterface::State m_state;
 
             Network m_network;
-            Network::RequestId m_loginReqId;
-            Network::RequestId m_signupReqId;
+            Network::RequestId m_loginReqId = -1;
+            Network::RequestId m_signupReqId = -1;
             std::vector<Network::RequestId> m_unsentMsgReqId;
-            Network::RequestId m_searchReqId;
-            Network::RequestId m_addFriendReqId;
+            Network::RequestId m_searchReqId = -1;
+            Network::RequestId m_addFriendReqId = -1;
 
             std::unique_ptr<UserInterface> m_ui;
 

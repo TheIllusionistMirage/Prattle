@@ -26,10 +26,13 @@ namespace prattle
             const std::string    TITLE = "Prattle - Always be Near";
 
             const std::string BACKGROUND  = "resources/images/prattle-bg.png";
+            const std::string FRAME       = "resources/images/frame.png";
             const std::string LOGO        = "resources/images/prattle-logo.png";
             const std::string DEFAULT_TGUI_THEME  = "resources/widgets/Black.conf";
 
-            const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
+            //const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/DejaVuSans.ttf";
+            const std::string DEFAULT_GLOBAL_FONT = "resources/fonts/Roboto-Bold.ttf";
+            const std::string ROBOTO_FONT = "resources/fonts/Roboto-Bold.ttf";
             const std::string CLOSE_BUTTON_GRAPHIC = "resources/images/custom/close_button.png";
             const std::string GRAPHIC_LISTITEM = "resources/images/custom/graphic_list_item.png";
             const std::string GRAPHIC_LISTITEM_PANEL = "resources/images/custom/graphic_list_panel.png";
@@ -109,7 +112,11 @@ namespace prattle
 
             tgui::Picture::Ptr m_background;
             tgui::Picture::Ptr m_logo;
-
+            tgui::Picture::Ptr m_frame;
+//            struct Filter
+//            {   sf::RectangleShape m_filter;
+//                bool               m_active;
+//            } m_inactiveFilter;
             tgui::Label::Ptr m_loginMessage;
             tgui::EditBox::Ptr m_usernameField;
             tgui::EditBox::Ptr m_passwordField;

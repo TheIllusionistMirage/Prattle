@@ -44,7 +44,7 @@ namespace prattle
                                   m_menuItemSprites[0].getGlobalBounds().width + m_menuItemSprites[1].getGlobalBounds().width + m_menuItemSprites[2].getGlobalBounds().width + m_menuItemSprites[3].getGlobalBounds().width + 3 * m_spacing,
                                   m_menuItemSprites[0].getGlobalBounds().height };
 
-        m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
+        m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
         m_friendList->hide();
 
         m_searchField->setDefaultText("Search");
@@ -85,7 +85,7 @@ namespace prattle
 
     void Menu::initList(const std::vector<std::string>& friends)
     {
-        m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
+        //m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
 
         for (auto& i : friends)
             m_friendList->addItem(i);
@@ -254,11 +254,17 @@ namespace prattle
         m_menuItemSprites[2].setPosition(sf::Vector2f{m_menuItemSprites[1].getPosition().x + m_menuItemSprites[1].getGlobalBounds().width + m_spacing, m_menuItemSprites[1].getPosition().y});
         m_menuItemSprites[3].setPosition(sf::Vector2f{m_menuItemSprites[2].getPosition().x + m_menuItemSprites[2].getGlobalBounds().width + m_spacing, m_menuItemSprites[2].getPosition().y});
 
-        m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
+        //std::cout << "Pos : " << m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5 << std::endl;
+        m_friendList->setPosition(tgui::Layout{m_menuItemSprites[0].getPosition().x, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
         m_searchPanel->setPosition(m_menuItemSprites[1].getPosition().x, m_menuItemSprites[1].getPosition().y + m_menuItemSprites[1].getGlobalBounds().height + 5);
         m_searchButton->setPosition(m_searchField->getPosition().x, m_searchField->getPosition().y + m_searchField->getSize().y + 7);
         m_resultMessage->setPosition(m_searchButton->getPosition().x, m_searchButton->getPosition().y + m_searchButton->getSize().y + 30);
         m_results->setPosition(m_resultMessage->getPosition().x, m_resultMessage->getPosition().y + m_resultMessage->getSize().y + 10);
+
+//        std::cout << "pos1 : " << m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5 << std::endl;
+//        std::cout << "pos2 : " << m_friendList->getPosition().y << std::endl;
+//
+//        std::cout << "pos3 : " << m_searchPanel->getPosition().y << std::endl;
     }
 
     sf::Vector2f Menu::getPosition()

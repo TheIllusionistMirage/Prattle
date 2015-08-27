@@ -74,6 +74,10 @@ namespace prattle
             sf::FloatRect m_bounds;
             float m_spacing;
             GraphicList::Ptr m_friendList;
+            struct Filter
+            {   sf::RectangleShape m_filter;
+                bool               m_active;
+            } m_inactiveFilter;
 
             // the search box
             tgui::Panel::Ptr       m_searchPanel;

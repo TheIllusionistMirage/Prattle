@@ -215,6 +215,7 @@ namespace prattle
 
                         if (reply.id == m_addFriendReqId && reply.type == Network::Reply::TaskSuccess)
                         {
+                            std::cout << "Reply : " << reply.id << m_addFriendReqId << std::endl;
                             std::cout << "Recieved : " << reply.args[0] << std::endl;
                             m_ui->addFriend(reply.args[0]);
                             m_chatHistory[reply.args[0]] = "";
@@ -288,6 +289,7 @@ namespace prattle
                         WRN_LOG("Unexpected UIEvent received in Signup State. Event code: " + std::to_string(event));
                     break;
                 case UserInterface::State::Connecting:
+                    break;
                 case UserInterface::State::Chatting:
                     switch (event)
                     {

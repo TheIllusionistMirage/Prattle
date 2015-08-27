@@ -59,7 +59,8 @@ namespace prattle
             if (m_tabVisibility[i] == true)
             {
                 target.draw(m_tabs[i], states);
-                target.draw(m_iconSprites[i], states);
+                if (m_iconVisibility[i] == true)
+                    target.draw(m_iconSprites[i], states);
                 target.draw(*m_items[i], states);
             }
 
@@ -79,8 +80,11 @@ namespace prattle
     {
         if (!m_absoluteBounds.contains(x,y))
             for (unsigned int i = 0; i < m_tabs.size(); i++)
+            {
                 if (m_selected != m_items[i]->getTextWidget()->getText())
                             m_tabs[i].setTexture(m_tabActiveTexture);
+                m_iconVisibility[i] = false;
+            }
 
         return m_absoluteBounds.contains(x,y);
     }
@@ -96,11 +100,13 @@ namespace prattle
                     if (m_tabs[i].getGlobalBounds().contains(x, y))
                     {
                         m_tabs[i].setTexture(m_tabTexture);
+                        m_iconVisibility[i] = true;
                     }
                     else
                     {
                         if (m_selected != m_items[i]->getTextWidget()->getText())
                             m_tabs[i].setTexture(m_tabActiveTexture);
+                        m_iconVisibility[i] = false;
                     }
 
                     if (m_iconSprites[i].getGlobalBounds().contains(x, y))
@@ -111,6 +117,8 @@ namespace prattle
                         m_iconSprites[i].setTextureRect(sf::IntRect{10, 0, 10, 10});
                 }
             }
+            //for (unsigned int i = 0; i < m_tabs.size(); i++)
+                //m_iconVisibility[i] = false;
         }
     }
 
@@ -141,10 +149,14 @@ namespace prattle
                         {
                             if (i + 1 < m_tabs.size())
                                 select(m_items[i + 1]->getTextWidget()->getText());
-                            else if (i - 1 >= 0)
-                                select(m_items[i - 1]->getTextWidget()->getText());
+                            else if (int(i - 1) >= 0)
+                            {
+
+                            select(m_items[i - 1]->getTextWidget()->getText());
+                            }
                         }
 
+                        //deselect();
                         removeTab(i);
                     }
                 }
@@ -220,7 +232,7 @@ namespace prattle
         m_iconSprites.back().setPosition(sf::Vector2f{m_tabs.back().getPosition().x + m_tabs.back().getSize().x - 15,
                                                       m_absoluteBounds.top + 7});
 
-        m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::Black, m_GLItemTexPtr, 1, 5));
+        m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::White, m_GLItemTexPtr, 1, 5));
         //m_items.back()->getTextWidget()->setTextFont(m_font);
         //m_items.back()->getNotifWidget()->setTextFont(m_font);
         m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
@@ -277,12 +289,13 @@ namespace prattle
         m_iconSprites.back().setPosition(sf::Vector2f{m_tabs.back().getPosition().x + m_tabs.back().getSize().x - 15,
                                                       m_absoluteBounds.top + 7});
 
-        m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::Black, m_GLItemTexPtr, status, 5));
+        m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 15, sf::Color::White, m_GLItemTexPtr, status, 5));
         m_items.back()->getTextWidget()->setTextFont(m_font);
         m_items.back()->getNotifWidget()->setTextFont(m_font);
         m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
 
         m_tabVisibility.push_back(true);
+        m_iconVisibility.push_back(false);
 
         m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left, m_absoluteBounds.top, m_absoluteBounds.width + m_tabs.back().getSize().x + 2, m_tabs.back().getSize().y};
 
@@ -432,6 +445,7 @@ namespace prattle
                 m_iconSprites.erase(m_iconSprites.begin() + i);
                 m_tabs.erase(m_tabs.begin() + i);
                 m_tabVisibility.erase(m_tabVisibility.begin() + i);
+                m_iconVisibility.erase(m_iconVisibility.begin() + i);
 
                 for (auto j = i; j < m_tabs.size(); j++)
                 {
@@ -725,5 +739,6 @@ namespace prattle
         m_tabVisibility.clear();
         m_leftArrowVisibile = false;
         m_rightArrowVisibile = false;
+        m_iconVisibility.clear();
     }
 }

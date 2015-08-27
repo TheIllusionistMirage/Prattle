@@ -14,8 +14,8 @@ namespace prattle
                                  m_connectedUser{std::make_shared<tgui::Label>()},
                                  m_logoutButton{std::make_shared<tgui::Button>()},
                                  m_tabs{std::make_shared<GraphicTab>()},
-                                 m_chatBox{std::make_shared<tgui::TextBox>()},
-                                 m_inputBox{std::make_shared<tgui::TextBox>()},
+                                 //m_chatBox{std::make_shared<tgui::TextBox>()},
+                                 //m_inputBox{std::make_shared<tgui::TextBox>()},
                                  m_chatMessage{std::make_shared<tgui::Label>()},
                                 // m_alertBox{std::make_shared<tgui::ChildWindow>()},
                                  m_alertMessage{std::make_shared<tgui::Label>()},
@@ -63,6 +63,14 @@ namespace prattle
         m_logo->setSize(tgui::bindWidth(m_gui) / 2, tgui::bindWidth(m_gui) / (2 * 1.333333333));
         m_logo->setPosition(tgui::bindRight(m_gui) / 2.2, tgui::bindHeight(m_gui) / 5);
 
+        m_frame = tgui::Picture::create(FRAME);
+        m_frame->setSmooth(true);
+        //m_frame->setSize(tgui::bindWidth(m_gui), tgui::bindHeight(m_loginMessage));
+
+//        m_inactiveFilter.m_filter.setSize(sf::Vector2f{m_window.getSize().x, m_window.getSize().y});
+//        m_inactiveFilter.m_filter.setFillColor(sf::Color{200, 200, 200, 150});
+//        m_inactiveFilter.m_active = false;
+
         m_alertMessage->setTextColor(sf::Color::White);
 
         m_alertBox = tgui::ChildWindow::create(DEFAULT_TGUI_THEME);
@@ -70,15 +78,17 @@ namespace prattle
         m_alertBox->hide();
         m_alertBox->add(m_alertMessage);
         m_alertBox->connect("Closed", &GraphicalUI::closeAlert, this);
+        m_alertBox->keepInParent(true);
         m_gui.add(m_alertBox);
 
         /* initialization of widgets for the login screen */
 
         // the login message
-        m_loginMessage->setText("Login to start prattling");
-        m_loginMessage->setTextSize(22);
-        m_loginMessage->setTextColor(sf::Color{70, 66, 66});
-        m_loginMessage->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindHeight(m_gui) / 2.25);
+        m_loginMessage->setText("Login");
+        m_loginMessage->setTextSize(40);
+        m_loginMessage->setTextColor(sf::Color::White);
+        //m_loginMessage->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindHeight(m_gui) / 2.25);
+        m_loginMessage->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindTop(m_gui) + 20);
 
         // the username field
         m_usernameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
@@ -93,25 +103,28 @@ namespace prattle
         m_passwordField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_usernameField));
         m_passwordField->setPosition(tgui::bindWidth(m_gui) / 10, tgui::bindBottom(m_usernameField) + 10);
 
+        // the rememebr me checkbox
+        m_rememberMeCheckbox = tgui::Checkbox::create(DEFAULT_TGUI_THEME);
+        m_rememberMeCheckbox->setText("Remember me");
+        m_rememberMeCheckbox->setSize(tgui::bindWidth(m_passwordField) / 10 - 20, tgui::bindHeight(m_passwordField) - 20);
+        //m_rememberMeCheckbox->setPosition(tgui::bindLeft(m_passwordField) + 50, tgui::bindBottom(m_loginButton) + 10);
+        m_rememberMeCheckbox->setPosition(tgui::bindLeft(m_usernameField), tgui::bindBottom(m_passwordField) + 20);
+        m_rememberMeCheckbox->uncheck();
+
         // the login button
         m_loginButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_loginButton->setText("Login");
-        m_loginButton->setSize(tgui::bindWidth(m_passwordField) - 100, tgui::bindHeight(m_passwordField) - 10);
-        m_loginButton->setPosition(tgui::bindLeft(m_usernameField) + m_loginButton->getSize().x / 3.38, tgui::bindBottom(m_passwordField) + 20);
+        m_loginButton->setTextSize(20);
+        m_loginButton->setSize(tgui::bindWidth(m_passwordField) - 150, tgui::bindHeight(m_passwordField) + 5);
+        //m_loginButton->setPosition(tgui::bindLeft(m_usernameField) + m_loginButton->getSize().x / 3.38, tgui::bindBottom(m_passwordField) + 20);
+        m_loginButton->setPosition(tgui::bindLeft(m_passwordField), tgui::bindBottom(m_rememberMeCheckbox) + 10);
         //m_loginButton->connect("pressed", &GraphicalUI::getUIEvent, this, "login");
 
         //std::cout << m_usernameField->getPosition().x - m_loginButton->getPosition().x << " " << (m_usernameField->getPosition().x + m_usernameField->getSize().x) - (m_loginButton->getPosition().x + m_loginButton->getSize().x) << std::endl;
 
-        // the rememebr me checkbox
-        m_rememberMeCheckbox = tgui::Checkbox::create();//DEFAULT_TGUI_THEME);
-        m_rememberMeCheckbox->setText("Remember me");
-        m_rememberMeCheckbox->setSize(tgui::bindWidth(m_passwordField) / 10 - 20, tgui::bindHeight(m_passwordField) - 20);
-        m_rememberMeCheckbox->setPosition(tgui::bindLeft(m_passwordField) + 50, tgui::bindBottom(m_loginButton) + 10);
-        m_rememberMeCheckbox->uncheck();
-
         // the signup message displayed for user registration option
-        m_signupMessage->setText("New prattler?");
-        m_signupMessage->setTextSize(15);
+        m_signupMessage->setText("Need an account?");
+        //m_signupMessage->setTextSize(20);
         m_signupMessage->setTextColor(sf::Color{70, 66, 66});
         m_signupMessage->setPosition(tgui::bindLeft(m_usernameField) * m_usernameField->getSize().x * 0.005 + m_signupMessage->getSize().x , tgui::bindHeight(m_gui) / 1.09);
         //std::cout <<  m_signupMessage->getSize().x << std::endl;
@@ -119,16 +132,17 @@ namespace prattle
         // the button to go to signup screen
         m_signupScreenButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_signupScreenButton->setText("Sign Up!");
-        m_signupScreenButton->setTextSize(15);
-        m_signupScreenButton->setSize(tgui::bindWidth(m_passwordField) / 2.5, tgui::bindHeight(m_passwordField) - 10);
-        m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 3);
+        m_signupScreenButton->setTextSize(20);
+        m_signupScreenButton->setSize(tgui::bindWidth(m_passwordField) / 2.5 + 105, tgui::bindHeight(m_passwordField) + 10);
+        m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 15);
         //m_signupScreenButton->connect("pressed", &GraphicalUI::setState, this, State::Signup);
 
         // the details label on the signup screen
-        m_signupDetailsLabel->setText("Fill your details");
-        m_signupDetailsLabel->setTextSize(22);
-        m_signupDetailsLabel->setTextColor(sf::Color{70, 66, 66});
-        m_signupDetailsLabel->setPosition(tgui::bindWidth(m_gui) / 9, tgui::bindHeight(m_gui) / 2.25);
+        m_signupDetailsLabel->setText("Signup");
+        m_signupDetailsLabel->setTextSize(40);
+        m_signupDetailsLabel->setTextColor(sf::Color::White);
+        //m_signupDetailsLabel->setPosition(tgui::bindWidth(m_gui) / 9, tgui::bindHeight(m_gui) / 2.25);
+        m_signupDetailsLabel->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindTop(m_gui) + 20);
 
         m_signupButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_signupButton->setText("Signup");
@@ -150,13 +164,13 @@ namespace prattle
 
         /* chat screen widgets */
 
-        m_menu->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 50});
+        m_menu->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 10});
 
         m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_logoutButton->setText("Logout");
         m_logoutButton->setTextSize(15);
         m_logoutButton->setSize(100, 30);
-        m_logoutButton->setPosition(tgui::bindRight(m_gui) - m_logoutButton->getSize().x - 20, tgui::bindTop(m_gui) + 50 + 50 / 3);
+        m_logoutButton->setPosition(tgui::bindRight(m_gui) - m_logoutButton->getSize().x - 20, tgui::bindTop(m_gui) + 15);
         //m_logoutButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
         //m_logoutButton->connect("pressed", &GraphicalUI::getUIEvent, this, "logout");
 
@@ -165,22 +179,29 @@ namespace prattle
         m_connectedUser->setSize(m_connectedUser->getText().getSize() * 3, 15);
         m_connectedUser->setPosition(tgui::bindLeft(m_logoutButton) - m_connectedUser->getSize().x - 10, tgui::bindTop(m_logoutButton) + 15 / 1.6);
 
-        m_tabs->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 80, tgui::bindTop(m_gui) + 50 + 100});
+        m_tabs->setPosition(tgui::Layout{tgui::bindLeft(m_gui) + 80, tgui::bindTop(m_gui) + 91});
+        //m_frame->setSize(tgui::bindWidth(m_gui), tgui::bindBottom(m_tabs));
+        //m_frame->moveToFront();
 
         m_chatMessage->setText("Select a friend from your friendlist to begin chatting!");
         m_chatMessage->setTextSize(12);
         m_chatMessage->setTextColor(sf::Color{70, 66, 66});
         m_chatMessage->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 2 - 12);
 
+        m_chatBox  = tgui::TextBox::create(DEFAULT_TGUI_THEME);
         m_chatBox->setText("");
         m_chatBox->setTextSize(15);
         m_chatBox->setReadOnly(true);
-        m_chatBox->setSize(tgui::bindWidth(m_gui) - 110, tgui::bindHeight(m_gui) / 2);
-        m_chatBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_logoutButton) + 94);
+        m_chatBox->setSize(tgui::bindWidth(m_gui) - 110, tgui::bindBottom(m_gui) / 1.5 - 50);
+        m_chatBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_logoutButton) + 82);
 
+        // FRAME!
+        m_frame->setSize(tgui::bindWidth(m_gui), tgui::bindTop(m_chatBox));
+
+        m_inputBox = tgui::TextBox::create(DEFAULT_TGUI_THEME);
         m_inputBox->setText("");
         m_inputBox->setTextSize(15);
-        m_inputBox->setSize(tgui::bindWidth(m_chatBox), tgui::bindHeight(m_gui) / 8);
+        m_inputBox->setSize(tgui::bindWidth(m_chatBox), tgui::bindHeight(m_gui) / 8 - 20);
         m_inputBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_chatBox) + 10);
 
         m_chatWindowBorder = tgui::Picture::create(CHAT_WINDOW_BORDER);
@@ -201,6 +222,7 @@ namespace prattle
         // The background is common to all screens
         m_loginScreen->add(m_background);
         m_loginScreen->add(m_logo);
+        m_loginScreen->add(m_frame);
         m_loginScreen->add(m_loginMessage);
         m_loginScreen->add(m_usernameField);
         m_loginScreen->add(m_passwordField);
@@ -211,6 +233,7 @@ namespace prattle
 
         m_signupScreen->add(m_background);
         m_signupScreen->add(m_logo);
+        m_signupScreen->add(m_frame);
         m_signupScreen->add(m_signupDetailsLabel);
         m_signupScreen->add(m_signupButton);
         m_signupScreen->add(m_backButton);
@@ -221,12 +244,13 @@ namespace prattle
 
         m_chatScreen->add(m_background);
         m_chatScreen->add(m_menu);
+        m_chatScreen->add(m_frame);
         //m_chatScreen->add(m_friendList);
         m_chatScreen->add(m_connectedUser);
         m_chatScreen->add(m_logoutButton);
         m_chatScreen->add(m_tabs);
         m_chatScreen->add(m_chatMessage);
-        m_chatScreen->add(m_chatWindowBorder);
+        //m_chatScreen->add(m_chatWindowBorder);
         m_chatScreen->add(m_chatBox);
         m_chatScreen->add(m_inputBox);
 
@@ -370,6 +394,9 @@ namespace prattle
                             m_connectingScreen->setSize(static_cast<sf::Vector2f>(m_window.getSize()));
                             m_chatScreen->setSize(static_cast<sf::Vector2f>(m_window.getSize()));
                             m_background->setSize(static_cast<sf::Vector2f>(m_window.getSize()));
+                            //m_inactiveFilter.m_filter.setSize(static_cast<sf::Vector2f>(m_window.getSize()));
+                            //m_frame.setSize(static_cast<sf::Vector2f>(m_window.getSize()));
+                            //m_frame->setSize(static_cast<sf::Vector2f>(sf::Vector2f{m_window.getSize().x, m_window.getSize().y / 5}));
                             m_tabs->update();
                         }
                         break;
@@ -561,6 +588,10 @@ namespace prattle
     {
         m_window.clear();
         m_gui.draw();
+
+//        if (m_inactiveFilter.m_active)
+//            m_window.draw(m_inactiveFilter.m_filter);
+
         m_window.display();
     }
 
@@ -578,6 +609,16 @@ namespace prattle
             w->disable();
 
         m_alertBox->enable();
+        //m_inactiveFilter.m_active = true;
+    }
+
+    void GraphicalUI::closeAlert()
+    {
+        m_alertBox->hide();
+        //m_inactiveFilter.m_active = false;
+
+        for (auto w : m_gui.getWidgets())
+            w->enable();
     }
 
     void GraphicalUI::setInputText(const std::string& str)
@@ -643,14 +684,6 @@ namespace prattle
     void GraphicalUI::fillFriendList(const std::vector<std::string>& friends)
     {
         m_menu->initList(friends);
-    }
-
-    void GraphicalUI::closeAlert()
-    {
-        m_alertBox->hide();
-
-        for (auto w : m_gui.getWidgets())
-            w->enable();
     }
 
 //    UserInterface::UIEvent GraphicalUI::getUIEvent(const std::string& button)

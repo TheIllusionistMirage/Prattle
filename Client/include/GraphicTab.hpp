@@ -71,6 +71,7 @@ namespace prattle
             std::vector<sf::Sprite>           m_iconSprites;
             std::shared_ptr<sf::Font>         m_font;
             sf::Vector2f                      m_maxDefaultTabSize;
+            std::vector<bool>                 m_iconVisibility;
     };
 }
 
