@@ -39,7 +39,7 @@ namespace prattle
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
             bool mouseOnWidget(float x, float y);
             virtual Widget::Ptr clone() override;
-            virtual void setPosition(const tgui::Layout& position) override;
+            virtual void setPosition(const tgui::Layout2d& position);// override;
             sf::Vector2f getPosition();
             void setStatus(unsigned short status);  // 0 for the online sprite and 1 for the offline sprite
             unsigned int getStatus();  // 0 for the online sprite and 1 for the offline sprite

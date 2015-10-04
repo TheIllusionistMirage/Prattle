@@ -56,7 +56,8 @@ namespace prattle
         m_scrollerUpVisible = false;
         m_scrollerDownVisible = false;
 
-        m_defaultMessage = tgui::Label::create();
+        //m_defaultMessage = tgui::Label::create();
+        m_defaultMessage = std::make_shared<tgui::Label>();
         m_defaultMessage->setTextSize(12);
         m_defaultMessage->setTextColor(sf::Color{70, 66, 66});
         m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
@@ -74,8 +75,10 @@ namespace prattle
     void GraphicList::initialize(tgui::Container *const parent)
     {
         Widget::initialize(parent);
-        m_font = parent->getGlobalFont();
-        m_defaultMessage->setTextFont(m_font);
+        //m_font = parent->getGlobalFont();
+        m_font = parent->getFont();
+        //m_defaultMessage->setTextFont(m_font);
+        m_defaultMessage->setFont(m_font);
     }
 
     // the draw function as interhited from tgui::Widget.
@@ -145,8 +148,10 @@ namespace prattle
 //        if (m_pFont == nullptr)
 //        std::cout << "n" << std::endl;
         //m_items.back()->initialize(m_parent);
-        m_items.back()->getNotifWidget()->setTextFont(m_font);
-        m_items.back()->getTextWidget()->setTextFont(m_font);
+        //m_items.back()->getNotifWidget()->setTextFont(m_font);
+        m_items.back()->getNotifWidget()->setFont(m_font);
+        //m_items.back()->getTextWidget()->setTextFont(m_font);
+        m_items.back()->getTextWidget()->setFont(m_font);
         //m_items.back()->setFont(m_font);
 
         // the y-coord of the position is multiplied by 20, well,
@@ -220,7 +225,7 @@ namespace prattle
     }
 
     // set the position of the list box.
-    void GraphicList::setPosition(const tgui::Layout& position)
+    void GraphicList::setPosition(const tgui::Layout2d& position)
     {
         // The position is a Layout object is passed as the
         // parameter to be enable to use TGUI's excellent
@@ -463,7 +468,8 @@ namespace prattle
     void GraphicList::setDefaultMessage(const std::string& message)
     {
         m_defaultMessage->setTextSize(12);
-        m_defaultMessage->setTextFont(m_font);
+        //m_defaultMessage->setTextFont(m_font);
+        m_defaultMessage->setFont(m_font);
         m_defaultMessage->setTextColor(sf::Color{70, 66, 66});
         m_defaultMessage->setPosition(sf::Vector2f{getBounds().left + 5, getBounds().top + 5});
 
@@ -530,5 +536,16 @@ namespace prattle
         m_items.clear();
         if (!m_defaultMessage->isVisible())
             m_defaultMessage->show();
+    }
+
+    void GraphicList::deselectAll()
+    {
+        for (unsigned int i = 0; i < m_items.size(); i++)
+        {
+            m_items[i]->getTextWidget()->setTextSize(m_itemHeight);
+            m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
+        }
+        m_selected = nullptr;
+        std::cout << "Deselectall all" << std::endl;
     }
 }

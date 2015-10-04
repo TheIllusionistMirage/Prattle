@@ -6,9 +6,11 @@ namespace prattle
     {
         Widget::initialize(parent);
 
-        if (parent->getGlobalFont())
+        //if (parent->getGlobalFont())
+        if (parent->getFont())
         {
-            m_font = parent->getGlobalFont();
+            //m_font = parent->getGlobalFont();
+            m_font = parent->getFont();
             add(m_friendList);
             add(m_searchPanel);
         }
@@ -17,8 +19,12 @@ namespace prattle
     Menu::Menu() : m_friendList{std::make_shared<GraphicList>()},
                    m_searchField{std::make_shared<tgui::EditBox>()},
                    m_resultMessage{std::make_shared<tgui::Label>()},
-                   m_results{std::make_shared<tgui::ListBox>()}
+                   m_results{std::make_shared<tgui::ListBox>()},
+                   m_searchPanel{std::make_shared<tgui::Panel>()}//sf::Vector2f{m_searchField->getSize().x + 2 * 20, m_searchField->getSize().y + m_searchButton->getSize().y + 7 + 2 * 20});
     {
+        //m_theme = std::make_shared<tgui::Theme>("resources/widgets/Black.conf");
+        m_theme = std::make_shared<tgui::Theme>("resources/widgets/Black.txt");
+
         if (!m_menuItemTexture.loadFromFile("resources/images/custom/menu_items.png"))
             throw std::runtime_error("ERROR :: Unable to open image file \'menu_items.png\'.");
 
@@ -44,14 +50,16 @@ namespace prattle
                                   m_menuItemSprites[0].getGlobalBounds().width + m_menuItemSprites[1].getGlobalBounds().width + m_menuItemSprites[2].getGlobalBounds().width + m_menuItemSprites[3].getGlobalBounds().width + 3 * m_spacing,
                                   m_menuItemSprites[0].getGlobalBounds().height };
 
-        m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
+        //m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
+        m_friendList->setPosition(tgui::Layout2d{m_bounds.left + 5, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
         m_friendList->hide();
 
         m_searchField->setDefaultText("Search");
         m_searchField->setSize(200, 20);
         m_searchField->setPosition(20, 20);
 
-        m_searchButton = tgui::Button::create("resources/widgets/Black.conf");//, "search_button");
+        //m_searchButton = tgui::Button::create("resources/widgets/Black.conf");//, "search_button");
+        m_searchButton = m_theme->load("Button");
         m_searchButton->setText("Search");
         m_searchButton->setSize(200, 20);
         m_searchButton->setPosition(m_searchField->getPosition().x, m_searchField->getPosition().y + m_searchField->getSize().y + 7);
@@ -66,13 +74,17 @@ namespace prattle
         m_results->setPosition(m_resultMessage->getPosition().x, m_resultMessage->getPosition().y + m_resultMessage->getSize().y + 10);
         m_results->hide();
 
-        m_addFriendButton = tgui::Button::create("resources/widgets/Black.conf");//, "search_button");
+        //m_addFriendButton = tgui::Button::create("resources/widgets/Black.conf");//, "search_button");
+        m_addFriendButton = m_theme->load("Button");
         m_addFriendButton->setText("Add");
         m_addFriendButton->setSize(200, 20);
         m_addFriendButton->setPosition(m_results->getPosition().x, m_results->getPosition().y + m_results->getSize().y + 10);
         m_addFriendButton->hide();
 
-        m_searchPanel = tgui::Panel::create(sf::Vector2f{m_searchField->getSize().x + 2 * 20, m_searchField->getSize().y + m_searchButton->getSize().y + 7 + 2 * 20});
+        //m_searchPanel = tgui::Panel::create(sf::Vector2f{m_searchField->getSize().x + 2 * 20, m_searchField->getSize().y + m_searchButton->getSize().y + 7 + 2 * 20});
+        //m_searchPanel = m_theme->load("Panel");
+        //m_searchPanel = std::make_shared<tgui::Panel>(sf::Vector2f{m_searchField->getSize().x + 2 * 20, m_searchField->getSize().y + m_searchButton->getSize().y + 7 + 2 * 20});
+        m_searchPanel->setSize(sf::Vector2f{m_searchField->getSize().x + 2 * 20, m_searchField->getSize().y + m_searchButton->getSize().y + 7 + 2 * 20});
         m_searchPanel->setBackgroundColor(sf::Color{255, 224, 194});
         m_searchPanel->setPosition(m_menuItemSprites[1].getPosition().x, m_menuItemSprites[1].getPosition().y + m_menuItemSprites[1].getGlobalBounds().height + 5);
         m_searchPanel->hide();
@@ -242,7 +254,7 @@ namespace prattle
         m_searchField->keyPressed(event);
     }
 
-    void Menu::setPosition(const tgui::Layout& position)
+    void Menu::setPosition(const tgui::Layout2d& position)
     {
         sf::Vector2f p = position.getValue();
 
@@ -255,7 +267,8 @@ namespace prattle
         m_menuItemSprites[3].setPosition(sf::Vector2f{m_menuItemSprites[2].getPosition().x + m_menuItemSprites[2].getGlobalBounds().width + m_spacing, m_menuItemSprites[2].getPosition().y});
 
         //std::cout << "Pos : " << m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5 << std::endl;
-        m_friendList->setPosition(tgui::Layout{m_menuItemSprites[0].getPosition().x, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
+        //m_friendList->setPosition(tgui::Layout{m_menuItemSprites[0].getPosition().x, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
+        m_friendList->setPosition(tgui::Layout2d{m_menuItemSprites[0].getPosition().x, m_menuItemSprites[0].getPosition().y + m_menuItemSprites[0].getGlobalBounds().height + 5});
         m_searchPanel->setPosition(m_menuItemSprites[1].getPosition().x, m_menuItemSprites[1].getPosition().y + m_menuItemSprites[1].getGlobalBounds().height + 5);
         m_searchButton->setPosition(m_searchField->getPosition().x, m_searchField->getPosition().y + m_searchField->getSize().y + 7);
         m_resultMessage->setPosition(m_searchButton->getPosition().x, m_searchButton->getPosition().y + m_searchButton->getSize().y + 30);

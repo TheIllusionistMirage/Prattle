@@ -35,7 +35,7 @@ namespace prattle
             virtual void keyPressed(const sf::Event::KeyEvent& event) override;
             //void update();
             bool isFriendListButtonPressed();
-            virtual void setPosition(const tgui::Layout& position) override;
+            virtual void setPosition(const tgui::Layout2d& position);// override;
             sf::Vector2f getPosition();
             sf::Vector2f getSize();
 
@@ -69,6 +69,7 @@ namespace prattle
 
         private:
 
+            tgui::Theme::Ptr m_theme;
             sf::Texture m_menuItemTexture;
             std::vector<sf::Sprite> m_menuItemSprites;
             sf::FloatRect m_bounds;

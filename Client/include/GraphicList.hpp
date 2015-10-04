@@ -62,10 +62,14 @@ namespace prattle
 
             void select(const unsigned int& index);
 
+            void deselect(const unsigned int& index);
+
+            void deselectAll();
+
             std::string getSelected();
 
             // set the position of the list box.
-            virtual void setPosition(const tgui::Layout& position) override;
+            virtual void setPosition(const tgui::Layout2d& position);// override;
 
             sf::Vector2f getPosition();
 

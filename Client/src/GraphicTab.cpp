@@ -6,9 +6,11 @@ namespace prattle
     {
         tgui::Widget::initialize(parent);
 
-        if (parent->getGlobalFont())
+        //if (parent->getGlobalFont())
+        if (parent->getFont())
         {
-            m_font = parent->getGlobalFont();
+            //m_font = parent->getGlobalFont();
+            m_font = parent->getFont();
         }
     }
 
@@ -290,8 +292,10 @@ namespace prattle
                                                       m_absoluteBounds.top + 7});
 
         m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 15, sf::Color::White, m_GLItemTexPtr, status, 5));
-        m_items.back()->getTextWidget()->setTextFont(m_font);
-        m_items.back()->getNotifWidget()->setTextFont(m_font);
+        //m_items.back()->getTextWidget()->setTextFont(m_font);
+        m_items.back()->getTextWidget()->setFont(m_font);
+        //m_items.back()->getNotifWidget()->setTextFont(m_font);
+        m_items.back()->getNotifWidget()->setFont(m_font);
         m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
 
         m_tabVisibility.push_back(true);
@@ -476,7 +480,7 @@ namespace prattle
         }
     }
 
-    void GraphicTab::setPosition(const tgui::Layout& position)
+    void GraphicTab::setPosition(const tgui::Layout2d& position)
     {
         sf::Vector2f p = position.getValue();
 

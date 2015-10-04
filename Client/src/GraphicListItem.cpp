@@ -10,13 +10,15 @@ namespace prattle
         m_status = 0;
         m_spacing = 5;
 
-        m_notifText = tgui::Label::create();
+        //m_notifText = tgui::Label::create();
+        m_notifText = std::make_shared<tgui::Label>();
         m_notifText->setAutoSize(true);
         m_notifText->setText("");
         m_notifText->setTextSize(10);
         m_notifText->setTextColor(sf::Color::White);
 
-        m_itemText = tgui::Label::create();
+        //m_itemText = tgui::Label::create();
+        m_itemText = std::make_shared<tgui::Label>();
         m_itemText->setAutoSize(true);
         m_itemText->setText("GraphicListItem");
         m_itemText->setTextSize(10);
@@ -42,14 +44,17 @@ namespace prattle
         m_status = status;
         m_spacing = spacing;
 
-        m_notifText = tgui::Label::create();
+        //m_notifText = tgui::Label::create();
+        m_notifText = std::make_shared<tgui::Label>();
         m_notifText->setAutoSize(true);
         m_notifText->setText("");
         m_notifText->setTextSize(labelSize);
         m_notifText->setTextColor(labelColor);
 
-        m_itemText = tgui::Label::create();
-        m_itemText->setTextFont(m_font);
+        //m_itemText = tgui::Label::create();
+        m_itemText = std::make_shared<tgui::Label>();
+        //m_itemText->setTextFont(m_font);
+        m_itemText->setFont(m_font);
         m_itemText->setText(label);
         m_itemText->setAutoSize(true);
         m_itemText->setTextSize(labelSize);
@@ -70,12 +75,16 @@ namespace prattle
     {
         Widget::initialize(parent);
 
-        if (parent->getGlobalFont() != nullptr)
+        //if (parent->getGlobalFont() != nullptr)
+        if (parent->getFont() != nullptr)
         {
-            m_font = parent->getGlobalFont();
+            //m_font = parent->getGlobalFont();
+            m_font = parent->getFont();
             //m_itemText->setTextFont(m_font);
-            m_notifText->initialize(m_parent);
-            m_itemText->initialize(m_parent);
+            //m_notifText->initialize(m_parent);
+            m_notifText->setFont(m_parent->getFont());
+            //m_itemText->initialize(m_parent);
+            m_itemText->setFont(m_parent->getFont());
         }
     }
 
@@ -100,7 +109,7 @@ namespace prattle
         return std::make_shared<GraphicListItem>(* this);
     }
 
-    void GraphicListItem::setPosition(const tgui::Layout& position)
+    void GraphicListItem::setPosition(const tgui::Layout2d& position)
     {
         // The position is a Layout object is passed as the
         // parameter to be enable to use TGUI's excellent
