@@ -1,5 +1,6 @@
 #include <iostream>
 #include <exception>
+#include <fstream>
 #include "include/Client.hpp"
 #include "include/Logger.hpp"
 #include "include/TeeStream.hpp"
