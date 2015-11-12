@@ -14,7 +14,8 @@ namespace prattle
             typedef std::shared_ptr<const GraphicTab> ConstPtr;
 
         public:
-            void initialize(tgui::Container *const parent);
+            //void initialize(tgui::Container *const parent);
+            void initialize(std::shared_ptr<sf::Font> font);
             GraphicTab();
             ~GraphicTab();
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

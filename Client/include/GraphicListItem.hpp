@@ -36,6 +36,7 @@ namespace prattle
                             const float& spacing
                            );
             void initialize(tgui::Container *const parent);
+            //void initialize(std::shared_ptr<sf::Font> font);
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
             bool mouseOnWidget(float x, float y);
             virtual Widget::Ptr clone() override;
@@ -52,13 +53,13 @@ namespace prattle
             std::string getNotif();
 
         private:
-
             tgui::Label::Ptr             m_itemText;    // The label widget from TGUI.
             tgui::Label::Ptr             m_notifText;   // The label widget from TGUI.
             std::shared_ptr<sf::Texture> m_itemTexture; // The texture file for the graphic.
             sf::Sprite                   m_itemSprite;  // The Sprite of the graphic.
             sf::FloatRect                m_bounds;      // The rextangular boundary of the GraphicListItem object.
             float                        m_spacing;     // The amoutn of space between the graphic and the label.
+            float                        m_verSpace;    // Needed to display the text at correct postition.
             unsigned short               m_status;      // The status if the graphic image. In our very specific case
                                                         // it is used to calculate the texture rect of the graphic sprite.
             //std::shared_ptr<sf::Font>    m_font;

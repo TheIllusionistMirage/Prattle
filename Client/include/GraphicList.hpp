@@ -38,7 +38,8 @@ namespace prattle
             // the initialize() function is called from within
             // TGUI to initialize the font pointer with the
             // global font of the GUI.
-            void initialize(tgui::Container *const parent);
+            //void initialize(tgui::Container *const parent);
+            void initialize(std::shared_ptr<sf::Font> font);
 
             // the draw function as interhited from tgui::Widget.
             // This is called each frame automatically by TGUI.
@@ -139,7 +140,7 @@ namespace prattle
 
             std::shared_ptr<GraphicListItem>  m_selected;           // The currently selected list item.
 
-            //std::shared_ptr<sf::Font>         m_pFont;               // The global font fetched from the tgui::Gui object.
+            //std::shared_ptr<sf::Font>         m_font;               // The global font fetched from the tgui::Gui object.
 
             tgui::Label::Ptr                  m_defaultMessage;
     };

@@ -23,7 +23,8 @@ namespace prattle
             typedef std::shared_ptr<const Menu> ConstPtr;
 
             Menu();
-            void initialize(tgui::Container *const parent);
+            //void initialize(tgui::Container *const parent);
+            void initialize(std::shared_ptr<sf::Font> font);
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
             virtual Widget::Ptr clone() override;
             virtual bool mouseOnWidget(float x, float y);
@@ -87,6 +88,9 @@ namespace prattle
             tgui::Label::Ptr       m_resultMessage;
             tgui::ListBox::Ptr     m_results;
             tgui::Button::Ptr      m_addFriendButton;
+
+            // global font
+            //std::shared_ptr<sf::Font> m_font;
     };
 }
 

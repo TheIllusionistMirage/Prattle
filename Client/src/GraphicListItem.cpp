@@ -9,6 +9,7 @@ namespace prattle
     {
         m_status = 0;
         m_spacing = 5;
+        m_verSpace = 5;
 
         //m_notifText = tgui::Label::create();
         m_notifText = std::make_shared<tgui::Label>();
@@ -43,6 +44,7 @@ namespace prattle
     {
         m_status = status;
         m_spacing = spacing;
+        m_verSpace = 5;
 
         //m_notifText = tgui::Label::create();
         m_notifText = std::make_shared<tgui::Label>();
@@ -54,7 +56,16 @@ namespace prattle
         //m_itemText = tgui::Label::create();
         m_itemText = std::make_shared<tgui::Label>();
         //m_itemText->setTextFont(m_font);
-        m_itemText->setFont(m_font);
+
+        if (m_itemText->getParent() == nullptr)
+            std::cout << "No Parent" << std::endl;
+        else
+            std::cout << "Parent" << std::endl;
+
+        //m_font = m_itemText->getParent()->getFont();
+        //m_itemText->setFont(getParent()->getFont());
+
+        //m_itemText->setFont(m_font);
         m_itemText->setText(label);
         m_itemText->setAutoSize(true);
         m_itemText->setTextSize(labelSize);
@@ -73,7 +84,7 @@ namespace prattle
 
     void GraphicListItem::initialize(tgui::Container *const parent)
     {
-        Widget::initialize(parent);
+        //Widget::initialize(parent);
 
         //if (parent->getGlobalFont() != nullptr)
         if (parent->getFont() != nullptr)
@@ -133,8 +144,8 @@ namespace prattle
                                 };
 
         m_itemSprite.setPosition(p);
-        m_notifText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing, p.y);
-        m_itemText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, p.y);
+        m_notifText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing, p.y - m_verSpace);
+        m_itemText->setPosition(p.x + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, p.y - m_verSpace);
     }
 
     sf::Vector2f GraphicListItem::getPosition()
@@ -182,7 +193,7 @@ namespace prattle
     void GraphicListItem::setNotif(const std::string& notif)
     {
         m_notifText->setText(notif);
-        m_itemText->setPosition(m_bounds.left + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, m_bounds.top);
+        m_itemText->setPosition(m_bounds.left + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, m_bounds.top - m_verSpace);
 
         //std::cout << m_notifText->getText().toAnsiString() << std::endl;
     }

@@ -72,13 +72,27 @@ namespace prattle
     // the initialize() function is called from within
     // TGUI to initialize the font pointer with the
     // global font of the GUI.
-    void GraphicList::initialize(tgui::Container *const parent)
+    //void GraphicList::initialize(tgui::Container *const parent)
+    void GraphicList::initialize(std::shared_ptr<sf::Font> font)
     {
-        Widget::initialize(parent);
+        //Widget::initialize(parent);
         //m_font = parent->getGlobalFont();
-        m_font = parent->getFont();
-        //m_defaultMessage->setTextFont(m_font);
-        m_defaultMessage->setFont(m_font);
+//        m_font = parent->getFont();
+//        //m_defaultMessage->setTextFont(m_font);
+//
+//        if (m_font == nullptr)
+//            std::cout << "foo" << std::endl;
+//        else
+//            std::cout << "\nxyz" << std::endl;
+//        m_defaultMessage->setFont(m_font);
+
+        if (font == nullptr)
+            std::cout << "no global font! list" << std::endl;
+        else
+        {
+            std::cout << "global font found list" << std::endl;
+            m_font = font;
+        }
     }
 
     // the draw function as interhited from tgui::Widget.
@@ -144,6 +158,8 @@ namespace prattle
                                                             m_itemTexturePtr,
                                                             1,
                                                             5));
+        //m_items.back()->initialize();
+        //m_items.back()->setFont(m_font);
 
 //        if (m_pFont == nullptr)
 //        std::cout << "n" << std::endl;
@@ -378,9 +394,11 @@ namespace prattle
         for (unsigned int i = 0; i < m_items.size(); i++)
         {
             if (m_items[i]->mouseOnWidget(x, y))
-                m_items[i]->getTextWidget()->setTextSize(m_itemHeight + 2);
+                //m_items[i]->getTextWidget()->setTextSize(m_itemHeight + 2);
+                m_items[i]->getTextWidget()->setTextColor(sf::Color{160, 160, 160});
             else
-                m_items[i]->getTextWidget()->setTextSize(m_itemHeight);
+                //m_items[i]->getTextWidget()->setTextSize(m_itemHeight);
+                m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
         }
     }
 

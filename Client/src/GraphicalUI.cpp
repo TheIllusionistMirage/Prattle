@@ -12,7 +12,8 @@ namespace prattle
                                  m_menu{std::make_shared<Menu>()},
                                  //m_friendList{std::make_shared<GraphicList>()},
                                  m_connectedUser{std::make_shared<tgui::Label>()},
-                                 m_logoutButton{std::make_shared<tgui::Button>()},
+                                 //m_loginButton{std::make_shared<tgui::Button>()},
+                                 //m_logoutButton{std::make_shared<tgui::Button>()},
                                  m_tabs{std::make_shared<GraphicTab>()},
                                  //m_chatBox{std::make_shared<tgui::TextBox>()},
                                  //m_inputBox{std::make_shared<tgui::TextBox>()},
@@ -69,6 +70,7 @@ namespace prattle
         //m_inactiveFilter = tgui::Picture::create(INACTIVE_FILTER);
         m_inactiveFilter = std::make_shared<tgui::Picture>(INACTIVE_FILTER);
         m_inactiveFilter->setSmooth(true);
+        m_inactiveFilter->setPosition(0, 0);
         m_gui.add(m_inactiveFilter);
         m_inactiveFilter->hide();
 
@@ -138,7 +140,8 @@ namespace prattle
         //m_rememberMeCheckbox = std::make_shared<tgui::CheckBox>(DEFAULT_TGUI_THEME);
         m_rememberMeCheckbox = m_theme->load("Checkbox");
         m_rememberMeCheckbox->setText("Remember me");
-        m_rememberMeCheckbox->setSize(tgui::bindWidth(m_passwordField) / 10 - 20, tgui::bindHeight(m_passwordField) - 20);
+        //m_rememberMeCheckbox->setSize(tgui::bindWidth(m_passwordField) / 11, tgui::bindHeight(m_passwordField) / 2);
+        m_rememberMeCheckbox->setSize(25, 25);
         //m_rememberMeCheckbox->setPosition(tgui::bindLeft(m_passwordField) + 50, tgui::bindBottom(m_loginButton) + 10);
         m_rememberMeCheckbox->setPosition(tgui::bindLeft(m_usernameField), tgui::bindBottom(m_passwordField) + 20);
         m_rememberMeCheckbox->uncheck();
@@ -152,6 +155,7 @@ namespace prattle
         m_loginButton->setSize(tgui::bindWidth(m_passwordField) - 150, tgui::bindHeight(m_passwordField) + 5);
         //m_loginButton->setPosition(tgui::bindLeft(m_usernameField) + m_loginButton->getSize().x / 3.38, tgui::bindBottom(m_passwordField) + 20);
         m_loginButton->setPosition(tgui::bindLeft(m_passwordField), tgui::bindBottom(m_rememberMeCheckbox) + 10);
+        //m_loginButton->moveToFront();
         //m_loginButton->connect("pressed", &GraphicalUI::getUIEvent, this, "login");
 
         //std::cout << m_usernameField->getPosition().x - m_loginButton->getPosition().x << " " << (m_usernameField->getPosition().x + m_usernameField->getSize().x) - (m_loginButton->getPosition().x + m_loginButton->getSize().x) << std::endl;
@@ -166,7 +170,8 @@ namespace prattle
         // the button to go to signup screen
         //m_signupScreenButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         //m_signupScreenButton = std::make_shared<tgui::Button>(DEFAULT_TGUI_THEME);
-        m_signupScreenButton = m_loginButton = m_theme->load("Button");
+        //m_signupScreenButton = m_loginButton = m_theme->load("Button");
+        m_signupScreenButton = m_theme->load("Button");
         m_signupScreenButton->setText("Sign Up!");
         m_signupScreenButton->setTextSize(20);
         m_signupScreenButton->setSize(tgui::bindWidth(m_passwordField) / 2.5 + 105, tgui::bindHeight(m_passwordField) + 10);
@@ -182,14 +187,14 @@ namespace prattle
 
         //m_signupButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         //m_signupButton = std::make_shared<tgui::Button>(DEFAULT_TGUI_THEME);
-        m_signupButton = m_loginButton = m_theme->load("Button");
+        m_signupButton = m_theme->load("Button");
         m_signupButton->setText("Signup");
         m_signupButton->setTextSize(15);
         m_signupButton->setSize(tgui::bindWidth(m_passwordField), tgui::bindHeight(m_passwordField));
         m_signupButton->setPosition(tgui::bindLeft(m_passwordField), tgui::bindHeight(m_gui) / 1.3 - 3);
 
         //m_backButton = tgui::Button::create(DEFAULT_TGUI_THEME);
-        m_backButton = m_loginButton = m_theme->load("Button");
+        m_backButton = m_theme->load("Button");
         m_backButton->setText("Cancel");
         m_backButton->setTextSize(15);
         m_backButton->setSize(100, 30);
@@ -204,10 +209,11 @@ namespace prattle
         /* chat screen widgets */
 
         m_menu->setPosition(tgui::Layout2d{tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 10});
+        m_menu->initialize(m_gui.getFont());
         //m_menu->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 10);
 
         //m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
-        m_logoutButton = m_loginButton = m_theme->load("Button");
+        m_logoutButton = m_theme->load("Button");
         m_logoutButton->setText("Logout");
         m_logoutButton->setTextSize(15);
         m_logoutButton->setSize(100, 30);
@@ -221,6 +227,7 @@ namespace prattle
         m_connectedUser->setPosition(tgui::bindLeft(m_logoutButton) - m_connectedUser->getSize().x - 10, tgui::bindTop(m_logoutButton) + 15 / 1.6);
 
         m_tabs->setPosition(tgui::Layout2d{tgui::bindLeft(m_gui) + 80, tgui::bindTop(m_gui) + 91});
+        m_tabs->initialize(m_gui.getFont());
         //m_frame->setSize(tgui::bindWidth(m_gui), tgui::bindBottom(m_tabs));
         //m_frame->moveToFront();
 
@@ -244,7 +251,7 @@ namespace prattle
         m_inputBox = m_theme->load("TextBox");
         m_inputBox->setText("");
         m_inputBox->setTextSize(15);
-        m_inputBox->setSize(tgui::bindWidth(m_chatBox), tgui::bindHeight(m_gui) / 8 - 20);
+        m_inputBox->setSize(tgui::bindWidth(m_chatBox), tgui::bindHeight(m_gui) / 6);
         m_inputBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_chatBox) + 10);
 
         //m_chatWindowBorder = tgui::Picture::create(CHAT_WINDOW_BORDER);

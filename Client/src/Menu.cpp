@@ -2,17 +2,28 @@
 
 namespace prattle
 {
-    void Menu::initialize(tgui::Container *const parent)
+    //void Menu::initialize(tgui::Container *const parent)
+    void Menu::initialize(std::shared_ptr<sf::Font> font)
     {
-        Widget::initialize(parent);
+        //Widget::initialize(parent);
 
         //if (parent->getGlobalFont())
-        if (parent->getFont())
+//        if (parent->getFont())
+//        {
+//            //m_font = parent->getGlobalFont();
+//            m_font = parent->getFont();
+//            add(m_friendList);
+//            add(m_searchPanel);
+//        }
+//        else
+//            std::cout << "no global font!" << std::endl;
+
+        if (font == nullptr)
+            std::cout << "no global font!" << std::endl;
+        else
         {
-            //m_font = parent->getGlobalFont();
-            m_font = parent->getFont();
-            add(m_friendList);
-            add(m_searchPanel);
+            std::cout << "global font found" << std::endl;
+            m_font = font;
         }
     }
 
@@ -98,6 +109,24 @@ namespace prattle
     void Menu::initList(const std::vector<std::string>& friends)
     {
         //m_friendList->setPosition(tgui::Layout{m_bounds.left + 5, m_bounds.height + 50 + 5});
+
+        if (m_searchField->getFont() == nullptr)
+            m_searchField->setFont(m_font);
+
+        if (m_searchButton->getFont() == nullptr)
+            m_searchButton->setFont(m_font);
+
+        if (m_resultMessage->getFont() == nullptr)
+            m_resultMessage->setFont(m_font);
+
+        if (m_results->getFont() == nullptr)
+            m_results->setFont(m_font);
+
+        if (m_addFriendButton->getFont() == nullptr)
+            m_addFriendButton->setFont(m_font);
+
+        if (m_friendList->getFont() == nullptr)
+            m_friendList->initialize(m_font);
 
         for (auto& i : friends)
             m_friendList->addItem(i);
