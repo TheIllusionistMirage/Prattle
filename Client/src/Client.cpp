@@ -20,6 +20,27 @@ namespace prattle
         }
 
         changeState(UserInterface::State::Login);
+
+        parseLoginFile();
+
+        if (m_loginInfo.enabled)
+        {
+            changeState(UserInterface::State::Connecting);
+            m_loginReqId = m_network.send(Network::Task::Login, {
+                                           m_clientConf.addr,
+                                           std::to_string(m_clientConf.port),
+                                           m_loginInfo.username,
+                                           m_loginInfo.password });
+            //m_loginInfo.enabled = false;
+            m_ui->setUsernameLabel(m_loginInfo.username);
+            m_ui->enableAutoLogin(true);
+        }
+        else
+            m_ui->enableAutoLogin(false);
+
+
+//        if (m_autoLoginEnabled)
+//
     }
 
     void Client::run()
@@ -151,7 +172,7 @@ namespace prattle
                             }
                             else if (reply.type == Network::Reply::OfflineNotif)
                             {
-                                m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
+                                m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 1 is for offline, 1 is for online textures.
                                 isReplyOk = true;
                             }
                             else if (reply.type == Network::Reply::TaskSuccess)
@@ -235,9 +256,29 @@ namespace prattle
         }
 
         //Poll/update UI
+//        if (m_loginInfo.enabled)
+//        {
+//            changeState(UserInterface::State::Connecting);
+//            m_loginReqId = m_network.send(Network::Task::Login, {
+//                                           m_clientConf.addr,
+//                                           std::to_string(m_clientConf.port),
+//                                           m_loginInfo.username,
+//                                           m_loginInfo.password });
+//            //m_loginInfo.enabled = false;
+//            m_ui->setUsernameLabel(m_loginInfo.username);
+//        }
+
         auto event = m_ui->update();
         if (event == UserInterface::UIEvent::Closed)
+        {
+            m_network.send(Network::Task::Type::Logout);
+
+            if (m_ui->isAutoLoginEnabled())
+                rewriteLoginFile(true);
+            else
+                rewriteLoginFile(false);
             m_state = UserInterface::State::Exit;
+        }
         else if (event == UserInterface::UIEvent::StateChanged)
         {
             changeState(m_ui->getState());
@@ -253,12 +294,17 @@ namespace prattle
                         if (!m_ui->isStringWhitespace(m_ui->getUsername()) &&
                              !m_ui->isStringWhitespace(m_ui->getPassword()))
                         {
-                            changeState(UserInterface::State::Connecting);
+                            //m_loginInfo.enabled = false;
+                            m_loginInfo.username = m_ui->getUsername();
+                            m_loginInfo.password = m_ui->getPassword();
+
                             m_loginReqId = m_network.send(Network::Task::Login, {
                                            m_clientConf.addr,
                                            std::to_string(m_clientConf.port),
-                                           m_ui->getUsername(),
-                                           m_ui->getPassword() });
+                                           m_loginInfo.username,
+                                           m_loginInfo.password });
+
+                            changeState(UserInterface::State::Connecting);
                         }
                         else
                             m_ui->alert("Can't leave either login fields blank!");
@@ -303,6 +349,8 @@ namespace prattle
                             m_unsentMsgReqId.clear();
                             m_searchReqId = 0;
                             m_chatHistory.clear();
+                            m_ui->enableAutoLogin(false);
+                            rewriteLoginFile(false);
                             break;
                         case UserInterface::UIEvent::MessageSent:
                             m_unsentMsgReqId.push_back(m_network.send(Network::Task::SendMsg, {
@@ -327,8 +375,14 @@ namespace prattle
 
                         case UserInterface::UIEvent::TabSelected:
                             //
+                            //m_ui->setInputBufferText(m_ui->getSelectedFriend(), m_ui->getInputText());
+
+                            //std::cout << m_ui->getInputText() << std::endl;
                             m_ui->clearChat();
                             m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                            m_ui->setInputText(m_ui->getInputBufferText(m_ui->getSelectedFriend()));
+                            //std::cout << m_ui->getSelectedFriend() << " " << m_ui->getInputBufferText(m_ui->getSelectedFriend()) << std::endl;
+                            //std::cout << "cur tab : " << m_ui->getSelectedFriend() << std::endl;
                             m_ui->insertNotif(m_ui->getSelectedFriend(), "");
                             break;
 
@@ -420,6 +474,104 @@ namespace prattle
             }
         }
     }
+
+    void Client::parseLoginFile()
+    {
+        std::ifstream loginFile{m_loginFilePath, std::ios::in};
+        if (!loginFile.is_open() || !loginFile.good())
+        {
+            ERR_LOG("FATAL ERROR :: Error reading from \'" + m_loginFilePath + "\'.");
+            throw std::runtime_error("FATAL ERROR :: Error reading from \'" + m_loginFilePath + "\'.");
+        }
+
+        const std::regex fieldPattern("(\\w+):([^:]+):"),
+                            commentPattern("\\s*#.*");
+        enum DataType { BOOL, STRING };
+
+        //Maps the field name in the config file to (data type, pointer to variable) of the field
+        std::map<std::string, std::pair<DataType,void*>> fieldsMap;
+        fieldsMap.insert({"signed_in", {BOOL, &m_loginInfo.enabled}});
+        fieldsMap.insert({"username", {STRING, &m_loginInfo.username}});
+        fieldsMap.insert({"password", {STRING, &m_loginInfo.password}});
+
+        std::string line;
+        std::getline(loginFile, line);
+        for (unsigned int i = 1; !loginFile.eof(); std::getline(loginFile, line), i++)
+        {
+            std::string field;
+            std::string value;
+            std::smatch match;
+            if(line.empty() || std::regex_match(line, commentPattern))
+                continue;
+            else if(std::regex_match(line, match, fieldPattern))
+            {
+                field = match[1].str();
+                value = match[2].str();
+            }
+            else
+            {
+                WRN_LOG("Invalid field in config file : \n\t" + line);
+                continue;
+            }
+
+            auto mapping = fieldsMap.find(field);
+            if(mapping == fieldsMap.end())
+            {
+                WRN_LOG("Warning : Unrecognized field in conifg file, ignoring.");
+            }
+            else
+            {
+                switch(mapping->second.first)
+                {
+                    case BOOL:
+                        //*static_cast<bool*>(mapping->second.second) = value;
+                        if (value == "yes" || value == "YES")
+                            *static_cast<bool*>(mapping->second.second) = true;
+                        else
+                            *static_cast<bool*>(mapping->second.second) = false;
+                        break;
+                    case STRING:
+                        *static_cast<std::string*>(mapping->second.second) = value;
+                        break;
+                    default:
+                        WRN_LOG("Unhandled data type");
+                        break;
+                }
+            }
+        }
+
+        loginFile.close();
+
+        std::cout << "Login conf :-"<< std::endl;
+        std::cout <<m_loginInfo.enabled << std::endl;
+        std::cout << m_loginInfo.username << std::endl;
+        std::cout << m_loginInfo.password << std::endl << std::endl;;
+    }
+
+    void Client::rewriteLoginFile(bool autologin)
+    {
+        //m_loginInfo.enabled = autologin;
+        std::fstream loginFile{m_loginFilePath, std::ios::out};
+        if (!loginFile.is_open() || !loginFile.good())
+        {
+            ERR_LOG("FATAL ERROR :: Error reading from \'" + m_loginFilePath + "\'.");
+            throw std::runtime_error("FATAL ERROR :: Error reading from \'" + m_loginFilePath + "\'.");
+        }
+
+        if (autologin)
+        {
+            loginFile << "signed_in:yes:" << std::endl;
+            loginFile << "username:" << m_loginInfo.username << ":" << std::endl;
+            loginFile << "password:" << m_loginInfo.password << ":" << std::endl;
+        }
+        else
+        {
+            loginFile << "signed_in:no:" << std::endl;
+        }
+
+        loginFile.close();
+    }
+
     void Client::changeState(UserInterface::State s)
     {
         m_state = s;

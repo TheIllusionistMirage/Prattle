@@ -81,10 +81,15 @@ namespace prattle
             void draw() override;
 
             void alert(const std::string& message) override;
+            bool isAutoLoginEnabled() override;
+            void enableAutoLogin(bool enable) override;
 
+            void setInputBufferText(const std::string& user, const std::string& message) override;
+            std::string getInputBufferText(const std::string& user) override;
             void setInputText(const std::string& str) override;
             std::string getInputText() override;
             std::string getUsername() override;
+            void setUsernameLabel(const std::string& username) override;
             std::string getSelectedFriend() override;
             std::string getPassword() override;
             std::string getSearchString() override;
@@ -161,6 +166,7 @@ namespace prattle
             GraphicTab::Ptr        m_tabs;
             tgui::TextBox::Ptr     m_chatBox;
             tgui::TextBox::Ptr     m_inputBox;
+            std::map<std::string, std::string> m_inputBuffer;
             tgui::Picture::Ptr     m_chatWindowBorder;
             tgui::Label::Ptr       m_chatMessage;
             tgui::ChildWindow::Ptr m_alertBox;

@@ -27,9 +27,12 @@ namespace prattle
 
         private:
             void parseConfigFile();
+            void parseLoginFile();
+            void rewriteLoginFile(bool autologin);
             void changeState(UserInterface::State s);
 
             const std::string m_configFilePath = "resources/config/client.conf";
+            const std::string m_loginFilePath = "resources/config/login.conf";
             UserInterface::State m_state;
 
             Network m_network;
@@ -48,6 +51,15 @@ namespace prattle
                 int port;
                 std::string ui;
             } m_clientConf;
+
+            // stores auto-login options
+            struct LoginInfo
+            {
+                bool enabled;
+                std::string username;
+                std::string password;
+            } m_loginInfo;
+            //bool m_autoLoginEnabled;
 
             std::map<std::string, std::string> m_chatHistory;
     };

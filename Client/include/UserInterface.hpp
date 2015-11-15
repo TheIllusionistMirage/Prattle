@@ -54,10 +54,15 @@ namespace prattle
             virtual void draw() = 0;
 
             virtual void alert(const std::string& message) = 0;
+            virtual bool isAutoLoginEnabled() = 0;
+            virtual void enableAutoLogin(bool enable) = 0;
 
+            virtual void setInputBufferText(const std::string& user, const std::string& message) = 0;
+            virtual std::string getInputBufferText(const std::string& user) = 0;
             virtual void setInputText(const std::string& str = "") = 0;
             virtual std::string getInputText() = 0;
             virtual std::string getUsername() = 0;
+            virtual void setUsernameLabel(const std::string& username) = 0;
             virtual std::string getSelectedFriend() = 0;
             virtual std::string getPassword() = 0;
             virtual std::string getSearchString() = 0;

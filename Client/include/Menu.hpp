@@ -68,6 +68,8 @@ namespace prattle
 
             std::string getNotif(const std::string& friendLabel);
 
+            //std::string getSelectedTab();
+
         private:
 
             tgui::Theme::Ptr m_theme;

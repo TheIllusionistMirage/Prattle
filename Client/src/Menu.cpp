@@ -385,4 +385,9 @@ namespace prattle
     {
         m_friendList->getNotifOfItem(friendLabel);
     }
+
+//    std::string Menu::getSelectedTab()
+//    {
+//        m_friend
+//    }
 }

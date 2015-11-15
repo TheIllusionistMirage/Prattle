@@ -78,8 +78,8 @@ namespace prattle
         m_logo = std::make_shared<tgui::Picture>(LOGO);
         m_logo->setSmooth(true);
         //m_logo->setSize(tgui::bindWidth(m_gui) / 2, tgui::bindWidth(m_gui) / (2 * 1.333333333));
-        m_logo->scale(0.5, 0.5);
-        m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x - 20, tgui::bindTop(m_gui) + m_logo->getSize().y / 2 + 10);
+        //m_logo->scale(0.8, 0.8);
+        m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x * 1.5 + 100, tgui::bindTop(m_gui) + m_logo->getSize().y * 1.5 + 50);
 
         //m_frame = tgui::Picture::create(FRAME);
         m_frame = std::make_shared<tgui::Picture>(FRAME);
@@ -232,9 +232,14 @@ namespace prattle
         //m_frame->moveToFront();
 
         m_chatMessage->setText("Select a friend from your friendlist to begin chatting!");
-        m_chatMessage->setTextSize(12);
+        m_chatMessage->setTextSize(14);
         m_chatMessage->setTextColor(sf::Color{70, 66, 66});
-        m_chatMessage->setPosition(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 2 - 12);
+        //m_chatMessage->setPosition(tgui::bindWidth(m_gui) / 2, tgui::bindHeight(m_gui) / 2);
+
+//        m_chatMessage->setPosition(tgui::bindWidth(m_gui) / 4 - m_chatMessage->getSize().x / 2,
+//                                    tgui::bindHeight(m_gui) / 2 - m_chatMessage->getSize().y / 2);
+        //m_chatMessage->setPosition({"(&.size - size) / 2"});
+        m_chatMessage->setPosition({"(&.w - w) / 2"}, {"(&.h - h) / 2"});
 
         //m_chatBox  = tgui::TextBox::create(DEFAULT_TGUI_THEME);
         m_chatBox  = m_theme->load("TextBox");
@@ -249,7 +254,7 @@ namespace prattle
 
         //m_inputBox = tgui::TextBox::create(DEFAULT_TGUI_THEME);
         m_inputBox = m_theme->load("TextBox");
-        m_inputBox->setText("");
+        m_inputBox->setText("Enter message here");
         m_inputBox->setTextSize(15);
         m_inputBox->setSize(tgui::bindWidth(m_chatBox), tgui::bindHeight(m_gui) / 6);
         m_inputBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_chatBox) + 10);
@@ -451,6 +456,8 @@ namespace prattle
                             //m_inactiveFilter.m_filter.setSize(static_cast<sf::Vector2f>(m_window.getSize()));
                             //m_frame.setSize(static_cast<sf::Vector2f>(m_window.getSize()));
                             //m_frame->setSize(static_cast<sf::Vector2f>(sf::Vector2f{m_window.getSize().x, m_window.getSize().y / 5}));
+//                            m_chatMessage->setPosition(m_chatMessage->getPosition().x - m_chatMessage->getSize().x / 2,
+//                                                        m_chatMessage->getPosition().y - m_chatMessage->getSize().y / 2);
                             m_tabs->update();
                         }
                         break;
@@ -485,9 +492,9 @@ namespace prattle
                                         }
                                         else if (m_state == State::Chatting)
                                         {
-                                            if (event.key.shift && m_inputBox->isFocused())
-                                                m_inputBox->addText("\n");
-                                            if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
+                                            if (event.key.shift && m_inputBox->isFocused());
+                                                //m_inputBox->addText("\n");
+                                            else if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
                                             {
                                                 //setInputText(getInputText().substr(0, getInputText().length() - 1));
                                                 DBG_LOG("Attempt to send message");
@@ -503,6 +510,33 @@ namespace prattle
                         break;
                     case sf::Event::MouseButtonPressed:
                         {
+//                            if (!isMouseOver(m_inputBox))
+//                            {
+//                                m_inputBox->unfocus();
+//                                printf("abc\n");
+//                            }
+//                            else
+//                            {
+//                                m_inputBox->focus();
+//                                printf("def\n");
+//                            }
+
+                            // set default text of input box
+                            //if (!m_inputBox->isFocused())
+                            if (!isMouseOver(m_inputBox))
+                            {
+                                if (isStringWhitespace(m_inputBox->getText()))
+                                    m_inputBox->setText("Enter message here");
+                            }
+                            else
+                            {
+                                if (m_inputBox->getText().toAnsiString() == "Enter message here" ||
+                                     isStringWhitespace(m_inputBox->getText().toAnsiString()))
+                                    m_inputBox->setText("");
+
+                                //std::cout << "S:" << m_inputBox->getText().toAnsiString() << ":S" <<std::endl;
+                            }
+
                             // if alertbox is visible, all other widgets freeze
                             // and are inactive. So don't update them.
                             if (!m_alertBox->isVisible())
@@ -549,7 +583,7 @@ namespace prattle
                                       getState() == State::Chatting)
                                     return UserInterface::UIEvent::AddFriend;
 
-                                // get current mouse poitner position in the render window
+                                // get current mouse pointer position in the render window
                                 sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
                                 // if the mouse poitner is over friendlist, and
@@ -562,16 +596,15 @@ namespace prattle
                                     if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
                                     {
                                         m_tabs->focusTab(m_menu->getSelectedFriend());
-                                        m_menu->getFriendlist()->hide();
-                                        m_menu->getFriendlist()->deselectAll();
+                                        m_inputBox->focus();
                                     }
                                     else
                                     {
-                                        //m_tabs->addTab(L"Êg");
                                         m_tabs->addTab(m_menu->getSelectedFriend(), m_menu->getStatus(m_menu->getSelectedFriend()));
-                                        m_menu->getFriendlist()->hide();
-                                        m_menu->getFriendlist()->deselectAll();
+                                        m_inputBox->focus();
                                     }
+
+                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
 
                                     m_menu->getFriendlist()->hide();
                                     m_menu->getFriendlist()->deselectAll();
@@ -580,7 +613,12 @@ namespace prattle
 
                                 //else
                                 if (m_tabs->mouseOnWidget(mousePos.x, mousePos.y) && m_tabs->getTabCount() > 0)
+                                {
+                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
+                                    //std::cout << m_tabs->getSelectedTabLabel() << " " << m_inputBox->getText().toAnsiString() << std::endl;
+                                    //std::cout << "last tab : " << m_tabs->getSelectedTabLabel() << std::endl;
                                     return UIEvent::TabSelected;
+                                }
 
                                 if (m_menu->getFriendlist()->isVisible() && !(m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) || m_menu->getItemBounds(0).contains(mousePos.x, mousePos.y)))
                                     m_menu->getFriendlist()->hide();
@@ -616,6 +654,9 @@ namespace prattle
                     m_chatBox->show();
                     m_inputBox->show();
                     m_chatWindowBorder->show();
+
+                    //if (!isStringWhitespace(m_inputBox->getText()))
+                    m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
                 }
                 else
                 {
@@ -673,6 +714,19 @@ namespace prattle
         //m_inactiveFilter.m_active = true;
     }
 
+    bool GraphicalUI::isAutoLoginEnabled()
+    {
+        return m_rememberMeCheckbox->isChecked();
+    }
+
+    void GraphicalUI::enableAutoLogin(bool enable)
+    {
+        if (enable)
+            m_rememberMeCheckbox->check();
+        else
+            m_rememberMeCheckbox->uncheck();
+    }
+
     void GraphicalUI::closeAlert()
     {
         m_inactiveFilter->hide();
@@ -697,6 +751,11 @@ namespace prattle
     std::string GraphicalUI::getUsername()
     {
         return m_usernameField->getText();
+    }
+
+    void GraphicalUI::setUsernameLabel(const std::string& username)
+    {
+        m_connectedUser->setText(username);
     }
 
     std::string GraphicalUI::getSelectedFriend()
@@ -747,6 +806,9 @@ namespace prattle
     void GraphicalUI::fillFriendList(const std::vector<std::string>& friends)
     {
         m_menu->initList(friends);
+
+        for (auto& i : friends)
+            m_inputBuffer.insert({i, ""});
     }
 
 //    UserInterface::UIEvent GraphicalUI::getUIEvent(const std::string& button)
@@ -807,6 +869,16 @@ namespace prattle
         {
             m_inactiveFilter->hide();
         }
+    }
+
+    void GraphicalUI::setInputBufferText(const std::string& user, const std::string& message)
+    {
+        m_inputBuffer[user] = message;
+    }
+
+    std::string GraphicalUI::getInputBufferText(const std::string& user)
+    {
+        return m_inputBuffer[user];
     }
 
 //    std::string GraphicalUI::getFocusedTab()
