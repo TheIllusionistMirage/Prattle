@@ -116,6 +116,10 @@ namespace prattle
 
             //std::string getFocusedTab() override;
 
+            // GUI only methods
+            void animateButton(tgui::Button::Ptr button);
+            void animatePanel(tgui::Panel::Ptr panel);
+
         private:
             void closeAlert();
 

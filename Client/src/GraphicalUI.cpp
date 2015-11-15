@@ -157,6 +157,7 @@ namespace prattle
         m_loginButton->setPosition(tgui::bindLeft(m_passwordField), tgui::bindBottom(m_rememberMeCheckbox) + 10);
         //m_loginButton->moveToFront();
         //m_loginButton->connect("pressed", &GraphicalUI::getUIEvent, this, "login");
+        m_loginButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_loginButton);
 
         //std::cout << m_usernameField->getPosition().x - m_loginButton->getPosition().x << " " << (m_usernameField->getPosition().x + m_usernameField->getSize().x) - (m_loginButton->getPosition().x + m_loginButton->getSize().x) << std::endl;
 
@@ -172,11 +173,12 @@ namespace prattle
         //m_signupScreenButton = std::make_shared<tgui::Button>(DEFAULT_TGUI_THEME);
         //m_signupScreenButton = m_loginButton = m_theme->load("Button");
         m_signupScreenButton = m_theme->load("Button");
-        m_signupScreenButton->setText("Sign Up!");
+        m_signupScreenButton->setText("Sign me up!");
         m_signupScreenButton->setTextSize(20);
         m_signupScreenButton->setSize(tgui::bindWidth(m_passwordField) / 2.5 + 105, tgui::bindHeight(m_passwordField) + 10);
         m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 15);
         //m_signupScreenButton->connect("pressed", &GraphicalUI::setState, this, State::Signup);
+        m_signupScreenButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_signupScreenButton);
 
         // the details label on the signup screen
         m_signupDetailsLabel->setText("Signup");
@@ -192,6 +194,7 @@ namespace prattle
         m_signupButton->setTextSize(15);
         m_signupButton->setSize(tgui::bindWidth(m_passwordField), tgui::bindHeight(m_passwordField));
         m_signupButton->setPosition(tgui::bindLeft(m_passwordField), tgui::bindHeight(m_gui) / 1.3 - 3);
+        m_signupButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_signupButton);
 
         //m_backButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         m_backButton = m_theme->load("Button");
@@ -200,6 +203,7 @@ namespace prattle
         m_backButton->setSize(100, 30);
         m_backButton->setPosition(tgui::bindLeft(m_signupButton), tgui::bindHeight(m_gui) / 1.15);
         //m_backButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
+        m_backButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_backButton);
 
         m_connectingText->setText("Connecting...");
         m_connectingText->setTextSize(22);
@@ -220,6 +224,7 @@ namespace prattle
         m_logoutButton->setPosition(tgui::bindRight(m_gui) - m_logoutButton->getSize().x - 20, tgui::bindTop(m_gui) + 15);
         //m_logoutButton->connect("pressed", &GraphicalUI::setState, this, State::Login);
         //m_logoutButton->connect("pressed", &GraphicalUI::getUIEvent, this, "logout");
+        m_logoutButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_logoutButton);
 
         m_connectedUser->setText("Username goes here");
         m_connectedUser->setTextSize(12);
@@ -310,6 +315,11 @@ namespace prattle
         m_chatScreen->add(m_chatBox);
         m_chatScreen->add(m_inputBox);
 
+//        m_loginScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
+//        m_signupScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
+//        m_connectingScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
+//        m_chatScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
+
         m_loginScreen->hide();
         m_signupScreen->hide();
         m_connectingScreen->hide();
@@ -363,6 +373,12 @@ namespace prattle
     void GraphicalUI::setState(UserInterface::State s)
     {
         m_state = s;
+        //std::cout << "zxcv" << std::endl;
+
+        //m_loginScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
+//        m_signupScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
+//        m_connectingScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
+//        m_chatScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
 
         if (m_usernameField->getParent() != nullptr && m_passwordField->getParent() != nullptr)
         {
@@ -377,9 +393,11 @@ namespace prattle
                 m_loginScreen->add(m_passwordField);
 
                 m_loginScreen->show();
+                //m_loginScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
                 m_signupScreen->hide();
                 m_connectingScreen->hide();
                 m_chatScreen->hide();
+                //animatePanel(m_loginScreen);
                 break;
             case UserInterface::State::Signup:
                 m_signupScreen->add(m_usernameField);
@@ -387,21 +405,26 @@ namespace prattle
 
                 m_loginScreen->hide();
                 m_signupScreen->show();
+                //m_signupScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
                 m_connectingScreen->hide();
                 m_chatScreen->hide();
+                //animatePanel(m_signupScreen);
                 break;
             case UserInterface::State::Connecting:
                 m_loginScreen->hide();
                 m_signupScreen->hide();
                 m_connectingScreen->show();
                 m_chatScreen->hide();
+                //animatePanel(m_connectingScreen);
                 break;
             case UserInterface::State::Chatting:
                 m_loginScreen->hide();
                 m_signupScreen->hide();
                 m_connectingScreen->hide();
                 m_chatScreen->show();
+                //m_chatScreen->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(800));
                 m_connectedUser->setText(m_usernameField->getText());
+                //animatePanel(m_chatScreen);
                 break;
             case UserInterface::State::Exit:
                 break;
@@ -545,29 +568,30 @@ namespace prattle
                                 // or logout buttons. TGUI already allows signals
                                 // to handle button press events but doing the
                                 // following is easier and less code.
-                                if (isMouseOver(m_loginButton) && getState() == State::Login)
-                                    return UserInterface::UIEvent::UserLogin;
-
-                                if (isMouseOver(m_signupScreenButton) && getState() == State::Login)
-                                {
-                                    setState(State::Signup);
-                                    return UserInterface::UIEvent::StateChanged;
-                                }
-
-                                if (isMouseOver(m_backButton) && getState() == State::Signup)
-                                {
-                                    setState(State::Login);
-                                    return UserInterface::UIEvent::StateChanged;
-                                }
-
-                                if (isMouseOver(m_signupButton) && getState() == State::Signup)
-                                {
-                                    //DBG_LOG("Signup triggered from clicking the signup button.");
-                                    return UserInterface::UIEvent::UserSignup;
-                                }
-
-                                if (isMouseOver(m_logoutButton) && getState() == State::Chatting)
-                                    return UserInterface::UIEvent::Disconnect;
+//                                if (isMouseOver(m_loginButton) && getState() == State::Login)
+//                                    return UserInterface::UIEvent::UserLogin;
+//
+//                                if (isMouseOver(m_signupScreenButton) && getState() == State::Login)
+//                                {
+//                                    setState(State::Signup);
+//                                    //animatePanel(m_signupScreen);
+//                                    return UserInterface::UIEvent::StateChanged;
+//                                }
+//
+//                                if (isMouseOver(m_backButton) && getState() == State::Signup)
+//                                {
+//                                    setState(State::Login);
+//                                    return UserInterface::UIEvent::StateChanged;
+//                                }
+//
+//                                if (isMouseOver(m_signupButton) && getState() == State::Signup)
+//                                {
+//                                    //DBG_LOG("Signup triggered from clicking the signup button.");
+//                                    return UserInterface::UIEvent::UserSignup;
+//                                }
+//
+//                                if (isMouseOver(m_logoutButton) && getState() == State::Chatting)
+//                                    return UserInterface::UIEvent::Disconnect;
 
                                 auto sp = m_menu->getMenuItem(Menu::Item::SearchPanel);
 
@@ -633,6 +657,42 @@ namespace prattle
                             }
                         }
                         break;
+                        case sf::Event::MouseButtonReleased:
+                        {
+                            //if (isMouseOver(m_signupScreenButton))
+                                //animatePanel(m_signupScreen);
+                            if (isMouseOver(m_loginButton) && getState() == State::Login)
+                            {
+                                return UserInterface::UIEvent::UserLogin;
+                            }
+
+                            if (isMouseOver(m_signupScreenButton) && getState() == State::Login)
+                            {
+                                setState(State::Signup);
+                                animatePanel(m_signupScreen);
+                                return UserInterface::UIEvent::StateChanged;
+                            }
+
+                            if (isMouseOver(m_backButton) && getState() == State::Signup)
+                            {
+                                setState(State::Login);
+                                animatePanel(m_loginScreen);
+                                return UserInterface::UIEvent::StateChanged;
+                            }
+
+                            if (isMouseOver(m_signupButton) && getState() == State::Signup)
+                            {
+                                //DBG_LOG("Signup triggered from clicking the signup button.");
+                                //animatePanel(m_connectingScreen);
+                                return UserInterface::UIEvent::UserSignup;
+                            }
+
+                            if (isMouseOver(m_logoutButton) && getState() == State::Chatting)
+                            {
+                                return UserInterface::UIEvent::Disconnect;
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -684,7 +744,7 @@ namespace prattle
 
     void GraphicalUI::draw()
     {
-        m_window.clear();
+        m_window.clear(sf::Color::White);
         m_gui.draw();
 
 //        if (m_inactiveFilter.m_active)
@@ -885,4 +945,14 @@ namespace prattle
 //    {
 //        return m_tabs->getSelectedTabLabel();
 //    }
+
+    void GraphicalUI::animateButton(tgui::Button::Ptr button)
+    {
+        button->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(500));
+    }
+
+    void GraphicalUI::animatePanel(tgui::Panel::Ptr panel)
+    {
+        panel->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(500));
+    }
 }
