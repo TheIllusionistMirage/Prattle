@@ -566,35 +566,6 @@ namespace prattle
                             // and are inactive. So don't update them.
                             if (!m_alertBox->isVisible())
                             {
-                                // check if mouse pointer is over login, signup
-                                // or logout buttons. TGUI already allows signals
-                                // to handle button press events but doing the
-                                // following is easier and less code.
-//                                if (isMouseOver(m_loginButton) && getState() == State::Login)
-//                                    return UserInterface::UIEvent::UserLogin;
-//
-//                                if (isMouseOver(m_signupScreenButton) && getState() == State::Login)
-//                                {
-//                                    setState(State::Signup);
-//                                    //animatePanel(m_signupScreen);
-//                                    return UserInterface::UIEvent::StateChanged;
-//                                }
-//
-//                                if (isMouseOver(m_backButton) && getState() == State::Signup)
-//                                {
-//                                    setState(State::Login);
-//                                    return UserInterface::UIEvent::StateChanged;
-//                                }
-//
-//                                if (isMouseOver(m_signupButton) && getState() == State::Signup)
-//                                {
-//                                    //DBG_LOG("Signup triggered from clicking the signup button.");
-//                                    return UserInterface::UIEvent::UserSignup;
-//                                }
-//
-//                                if (isMouseOver(m_logoutButton) && getState() == State::Chatting)
-//                                    return UserInterface::UIEvent::Disconnect;
-
                                 auto sp = m_menu->getMenuItem(Menu::Item::SearchPanel);
 
                                 auto c = std::static_pointer_cast<tgui::Container>(sp);
@@ -610,7 +581,6 @@ namespace prattle
                                     return UserInterface::UIEvent::AddFriend;
 
                                 // get current mouse pointer position in the render window
-//                                sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
                                 // if the mouse poitner is over friendlist, and
                                 // friendlist is visible, and the selected item
@@ -630,59 +600,30 @@ namespace prattle
                                         m_inputBox->focus();
                                     }
 
-                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
-
                                     m_menu->getFriendlist()->hide();
                                     m_menu->getFriendlist()->deselectAll();
-                                    //std::cout << "tab selected 1" << std::endl;
-                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
+
                                     return UIEvent::TabSelected;
                                 }
 
-                                //else
                                 if (m_tabs->mouseOnWidget(mousePos.x, mousePos.y) && m_tabs->getTabCount() > 0)
                                 {
-                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
-                                    //std::cout << m_tabs->getSelectedTabLabel() << " " << m_inputBox->getText().toAnsiString() << std::endl;
-                                    //std::cout << "last tab : " << m_tabs->getSelectedTabLabel() << std::endl;
-                                    //std::cout << "tab selected 2" << std::endl;
-                                    //std::cout << "tab name : " << m_tabs->getSelectedTabLabel() << std::endl;
-                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
                                     if (m_tabs->mouseOverClose(mousePos.x, mousePos.y))
                                     {
                                         int index = m_tabs->getSelectedTabIndex();
                                         if (m_tabs->getTabCount() > 0)
-//                                        {
-//                                            if (i + 1 < m_tabs->getTabCount)
-//                                            {
-//                                                //select(m_items[i + 1]->getTextWidget()->getText());
-//                                                focusTab(m_items[i + 1]->getTextWidget()->getText());
-//                                            }
-//
-//                                            else if (int(i - 1) >= 0)
-//                                            {
-//                                                //select(m_items[i - 1]->getTextWidget()->getText());
-//                                                focusTab(m_items[i - 1]->getTextWidget()->getText());
-//
-//                                            }
-//                                        }
                                         {
                                             if (index + 1 < m_tabs->getTabCount())
                                             {
-                                                //select(m_items[i + 1]->getTextWidget()->getText());
-                                                //focusTab(m_items[index + 1]->getTextWidget()->getText());
                                                 m_tabs->focusTab(index + 1);
                                             }
 
                                             else if (int(index - 1) >= 0)
                                             {
-                                                //select(m_items[i - 1]->getTextWidget()->getText());
-                                                //focusTab(m_items[index - 1]->getTextWidget()->getText());
                                                 m_tabs->focusTab(index - 1);
                                             }
                                         }
 
-                                        //deselect();
                                         m_tabs->removeTab(index);
                                     }
 
@@ -704,8 +645,12 @@ namespace prattle
                         break;
                         case sf::Event::MouseButtonReleased:
                         {
-                            //if (isMouseOver(m_signupScreenButton))
-                                //animatePanel(m_signupScreen);
+
+                            // check if mouse pointer is over login, signup
+                            // or logout buttons. TGUI already allows signals
+                            // to handle button press events but doing the
+                            // following is easier and less code.
+
                             if (isMouseOver(m_loginButton) && getState() == State::Login)
                             {
                                 return UserInterface::UIEvent::UserLogin;
@@ -768,14 +713,6 @@ namespace prattle
                     m_chatWindowBorder->show();
 
                     m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
-                    //if (!isStringWhitespace(m_inputBox->getText()))
-                    system("clear");
-                    //std::cout << m_tabs->getSelectedTabLabel() << std::endl;
-                    for (auto& i : m_inputBuffer)
-                        std::cout << i.first + " " + i.second << std::endl;
-                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
-                    //m_tabs->focusTab(m_tabs->getSelectedTabLabel());
-                    std::cout << m_tabs->getSelectedTabLabel() <<std::endl;
                 }
                 else
                 {
