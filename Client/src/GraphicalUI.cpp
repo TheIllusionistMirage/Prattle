@@ -157,7 +157,7 @@ namespace prattle
         m_loginButton->setPosition(tgui::bindLeft(m_passwordField), tgui::bindBottom(m_rememberMeCheckbox) + 10);
         //m_loginButton->moveToFront();
         //m_loginButton->connect("pressed", &GraphicalUI::getUIEvent, this, "login");
-        m_loginButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_loginButton);
+        //m_loginButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_loginButton);
 
         //std::cout << m_usernameField->getPosition().x - m_loginButton->getPosition().x << " " << (m_usernameField->getPosition().x + m_usernameField->getSize().x) - (m_loginButton->getPosition().x + m_loginButton->getSize().x) << std::endl;
 
@@ -178,7 +178,7 @@ namespace prattle
         m_signupScreenButton->setSize(tgui::bindWidth(m_passwordField) / 2.5 + 105, tgui::bindHeight(m_passwordField) + 10);
         m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 15);
         //m_signupScreenButton->connect("pressed", &GraphicalUI::setState, this, State::Signup);
-        m_signupScreenButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_signupScreenButton);
+        //m_signupScreenButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_signupScreenButton);
 
         // the details label on the signup screen
         m_signupDetailsLabel->setText("Signup");
@@ -442,6 +442,8 @@ namespace prattle
         {
             sf::Event event;
 
+            sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+
             while (m_window.pollEvent(event))
             {
                 m_gui.handleEvent(event);
@@ -608,7 +610,7 @@ namespace prattle
                                     return UserInterface::UIEvent::AddFriend;
 
                                 // get current mouse pointer position in the render window
-                                sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+//                                sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
 
                                 // if the mouse poitner is over friendlist, and
                                 // friendlist is visible, and the selected item
@@ -632,6 +634,8 @@ namespace prattle
 
                                     m_menu->getFriendlist()->hide();
                                     m_menu->getFriendlist()->deselectAll();
+                                    //std::cout << "tab selected 1" << std::endl;
+                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
                                     return UIEvent::TabSelected;
                                 }
 
@@ -641,6 +645,47 @@ namespace prattle
                                     //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
                                     //std::cout << m_tabs->getSelectedTabLabel() << " " << m_inputBox->getText().toAnsiString() << std::endl;
                                     //std::cout << "last tab : " << m_tabs->getSelectedTabLabel() << std::endl;
+                                    //std::cout << "tab selected 2" << std::endl;
+                                    //std::cout << "tab name : " << m_tabs->getSelectedTabLabel() << std::endl;
+                                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
+                                    if (m_tabs->mouseOverClose(mousePos.x, mousePos.y))
+                                    {
+                                        int index = m_tabs->getSelectedTabIndex();
+                                        if (m_tabs->getTabCount() > 0)
+//                                        {
+//                                            if (i + 1 < m_tabs->getTabCount)
+//                                            {
+//                                                //select(m_items[i + 1]->getTextWidget()->getText());
+//                                                focusTab(m_items[i + 1]->getTextWidget()->getText());
+//                                            }
+//
+//                                            else if (int(i - 1) >= 0)
+//                                            {
+//                                                //select(m_items[i - 1]->getTextWidget()->getText());
+//                                                focusTab(m_items[i - 1]->getTextWidget()->getText());
+//
+//                                            }
+//                                        }
+                                        {
+                                            if (index + 1 < m_tabs->getTabCount())
+                                            {
+                                                //select(m_items[i + 1]->getTextWidget()->getText());
+                                                //focusTab(m_items[index + 1]->getTextWidget()->getText());
+                                                m_tabs->focusTab(index + 1);
+                                            }
+
+                                            else if (int(index - 1) >= 0)
+                                            {
+                                                //select(m_items[i - 1]->getTextWidget()->getText());
+                                                //focusTab(m_items[index - 1]->getTextWidget()->getText());
+                                                m_tabs->focusTab(index - 1);
+                                            }
+                                        }
+
+                                        //deselect();
+                                        m_tabs->removeTab(index);
+                                    }
+
                                     return UIEvent::TabSelected;
                                 }
 
@@ -693,6 +738,13 @@ namespace prattle
                             }
                         }
                         break;
+
+                    case sf::Event::TextEntered:
+                        {
+                            //if (m_inputBox->isFocused())
+                              //  m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -715,8 +767,15 @@ namespace prattle
                     m_inputBox->show();
                     m_chatWindowBorder->show();
 
-                    //if (!isStringWhitespace(m_inputBox->getText()))
                     m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
+                    //if (!isStringWhitespace(m_inputBox->getText()))
+                    system("clear");
+                    //std::cout << m_tabs->getSelectedTabLabel() << std::endl;
+                    for (auto& i : m_inputBuffer)
+                        std::cout << i.first + " " + i.second << std::endl;
+                    //m_inputBuffer[m_tabs->getSelectedTabLabel()] = m_inputBox->getText().toAnsiString();
+                    //m_tabs->focusTab(m_tabs->getSelectedTabLabel());
+                    std::cout << m_tabs->getSelectedTabLabel() <<std::endl;
                 }
                 else
                 {

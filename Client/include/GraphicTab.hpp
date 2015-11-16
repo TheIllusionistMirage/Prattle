@@ -21,6 +21,7 @@ namespace prattle
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
             virtual Widget::Ptr clone() override;
             bool mouseOnWidget(float x, float y);
+            bool mouseOverClose(float x, float y);
             virtual void mouseMoved(float x, float y) override;
             virtual void leftMousePressed(float x, float y) override;
             void addTab(const std::string& tabLabel);

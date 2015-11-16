@@ -93,7 +93,7 @@ namespace prattle
             for (unsigned int i = 0; i < m_tabs.size(); i++)
             {
                 if (m_selected != m_items[i]->getTextWidget()->getText())
-                            m_tabs[i].setTexture(m_tabActiveTexture);
+                    m_tabs[i].setTexture(m_tabActiveTexture);
                 m_iconVisibility[i] = false;
             }
 
@@ -130,6 +130,7 @@ namespace prattle
             }
             //for (unsigned int i = 0; i < m_tabs.size(); i++)
                 //m_iconVisibility[i] = false;
+            //std::cout << "foo" << std::endl;
         }
     }
 
@@ -143,7 +144,8 @@ namespace prattle
                 {
                     if (m_tabs[i].getGlobalBounds().contains(x, y) && m_tabVisibility[i])
                     {
-                        select(m_items[i]->getTextWidget()->getText());
+                        //select(m_items[i]->getTextWidget()->getText());
+                        focusTab(m_items[i]->getTextWidget()->getText());
                         m_tabs[i].setTexture(m_tabTexture);
                     }
                     else
@@ -152,25 +154,31 @@ namespace prattle
                             m_tabs[i].setTexture(m_tabActiveTexture);
                     }
 
-                    if (m_iconSprites[i].getGlobalBounds().contains(x, y) && m_tabVisibility[i])
-                    {
-                        //removeTab(i);
-
-                        if (m_tabs.size() > 0)
-                        {
-                            if (i + 1 < m_tabs.size())
-                                select(m_items[i + 1]->getTextWidget()->getText());
-                            else if (int(i - 1) >= 0)
-                            {
-
-                            select(m_items[i - 1]->getTextWidget()->getText());
-                            }
-                        }
-
-                        //deselect();
-                        removeTab(i);
-                    }
+//                    if (m_iconSprites[i].getGlobalBounds().contains(x, y) && m_tabVisibility[i])
+//                    {
+//                        //removeTab(i);
+//
+//                        if (m_tabs.size() > 0)
+//                        {
+//                            if (i + 1 < m_tabs.size())
+//                            {
+//                                //select(m_items[i + 1]->getTextWidget()->getText());
+//                                focusTab(m_items[i + 1]->getTextWidget()->getText());
+//                            }
+//
+//                            else if (int(i - 1) >= 0)
+//                            {
+//                                //select(m_items[i - 1]->getTextWidget()->getText());
+//                                focusTab(m_items[i - 1]->getTextWidget()->getText());
+//
+//                            }
+//                        }
+//
+//                        //deselect();
+//                        //removeTab(i);
+//                    }
                 }
+
 
                 if (m_leftArrow.getGlobalBounds().contains(x, y) && m_leftArrowVisibile)
                 {
@@ -217,6 +225,14 @@ namespace prattle
                 }
             }
         }
+    }
+
+    bool GraphicTab::mouseOverClose(float x, float y)
+    {
+        for (unsigned int i = 0; i < m_tabs.size(); i++)
+            if (m_iconSprites[i].getGlobalBounds().contains(x, y) && m_tabVisibility[i])
+                return true;
+        return false;
     }
 
     void GraphicTab::addTab(const std::string& tabLabel)
@@ -448,10 +464,10 @@ namespace prattle
         {
             if (i == index)
             {
-                if (index > 0)
-                {
-                    select(m_items[index - 1]->getTextWidget()->getText());
-                }
+////                if (index > 0)
+////                {
+////                    select(m_items[index - 1]->getTextWidget()->getText());
+////                }
 
                 m_absoluteBounds = sf::FloatRect{m_absoluteBounds.left, m_absoluteBounds.top, m_absoluteBounds.width - (m_tabs.back().getSize().x + 2), m_tabs.back().getSize().y};
                 m_items.erase(m_items.begin() + i);
