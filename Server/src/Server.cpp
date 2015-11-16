@@ -156,6 +156,7 @@ namespace prattle
             m_selector.add(*newClient);
             newClient->setBlocking(false);
             m_new_connections.push_back(std::move(newClient));
+            DBG_LOG("New connection");
         }
     }
 
@@ -560,7 +561,7 @@ namespace prattle
 
     void Server::handleNewConnection()
     {
-        for(auto itr = m_new_connections.begin() ; itr != m_new_connections.end(); )//i++)
+        for(auto itr = m_new_connections.begin() ; itr != m_new_connections.end(); itr++)
         {
             if (m_selector.isReady(**itr))
             {
@@ -573,7 +574,8 @@ namespace prattle
                     {
                         if (request == LOGIN)
                         {
-                            DBG_LOG("Login attempt by a new connection.");
+                            //DBG_LOG("Login attempt by a new connection.");
+                            DBG_LOG("LOGIN requested received from a new connection");
                             std::string rid, sender, plainPassword;
                             if (packet >> rid >> sender >> plainPassword)
                             {
@@ -581,7 +583,7 @@ namespace prattle
                                 {
                                     sf::Packet loginResult;
                                     loginResult << LOGIN_SUCCESS << rid << sf::Uint32(db.getFriends(sender).size());
-                                    DBG_LOG("Friends: " + std::to_string(db.getFriends(sender).size()));
+
                                     for (auto& friendName : db.getFriends(sender))
                                         loginResult << friendName;
 
@@ -594,7 +596,7 @@ namespace prattle
                                         continue;
                                     }
 
-                                    std::cout << "[" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
+                                    //std::cout << "[" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
                                     DBG_LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
                                     auto itr_end = m_messages.upper_bound(sender);
                                     for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
@@ -624,9 +626,11 @@ namespace prattle
                                             }
                                             else
                                                 ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
+
                                             //Notify `sender` that friendName is online
                                             statusPacket.clear();
                                             statusPacket << STATUS_ONLINE << friendName;
+
                                             if(send(statusPacket, sender))
                                             {
                                                 DBG_LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
@@ -636,7 +640,7 @@ namespace prattle
                                         }
                                     }
 
-//                                    auto sender_friends = db.getFriends(sender);
+/*//                                    auto sender_friends = db.getFriends(sender);
 //                                    for (auto& friendName : sender_friends)
 //                                    {
 //                                        auto friend_itr = m_clients.find(friendName);
@@ -661,7 +665,7 @@ namespace prattle
 //                                            else
 //                                                ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
 //                                        }
-//                                    }
+//                                    }*/
                                 }
                                 else
                                 {
@@ -684,6 +688,7 @@ namespace prattle
                         }
                         else if (request == SIGNUP)
                         {
+                            DBG_LOG("SIGNUP requested received from a new connection");
                             std::string rid, sender, plainPassword;
                             if (packet >> rid >> sender >> plainPassword)
                             {
@@ -718,12 +723,12 @@ namespace prattle
                                 ERR_LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
                             }
                         }
-                        else if(request == "controller_attach")
+                        else if(request == S_CONTROLLER_ATTACH)
                         {
                             sf::Packet reply;
                             if(m_controller)
                             {
-                                reply << "A controller is already attached.";
+                                reply << "A controller is already attached. Skipping.";
                                 m_selector.remove(**itr);
                             }
                             else
@@ -739,8 +744,8 @@ namespace prattle
                                 }
                                 else
                                 {
-                                    reply << "Invalid Passphrase !";
-                                    WRN_LOG("Wrong passphrase given by controller !");
+                                    reply << "Invalid Passphrase!";
+                                    WRN_LOG("Wrong passphrase given by controller!");
                                     m_controller = std::move(*itr);
                                     sendController(reply);
                                     m_selector.remove(*m_controller);
@@ -759,8 +764,27 @@ namespace prattle
                         ERR_LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
                     }
                 }
-                else if (status == sf::Socket::Disconnected || status == sf::Socket::Error)
+                else if (status == sf::Socket::Disconnected ||
+                          status == sf::Socket::Error)
                 {
+                    DBG_LOG("New connection disconnected");
+                    m_selector.remove(**itr);
+                    itr = m_new_connections.erase(itr);
+                }
+
+                else if (status == sf::Socket::NotReady ||
+                       status == sf::Socket::Partial)
+                {
+
+                    DBG_LOG("New connection disconnected");
+                    sf::Packet errPacket;
+                    std::string msg = "[Prattle Server] :: Unable to handle request.\n";
+                    errPacket << msg;
+                    if ((*itr)->send(errPacket) != sf::Socket::Done)
+                    {
+                        ERR_LOG("ERROR :: Error in sending error message to the remote client from the server");
+                    }
+
                     m_selector.remove(**itr);
                     itr = m_new_connections.erase(itr);
                 }
@@ -778,12 +802,12 @@ namespace prattle
             packet >> request;
             sf::Packet reply;
             packet << request;
-            if(request == "shutdown")
+            if(request == S_CONTROLLER_SHUTDOWN)
             {
                 reply << "ack";
                 shutdown();
             }
-            else if(request == "show_logged_users")
+            else if(request == S_CONTROLLER_SHOW_USERS)
             {
                 std::string replyStr;
                 for(auto& i : m_clients)
@@ -796,7 +820,7 @@ namespace prattle
 //                    replyStr = "None.";
                 reply << "ack" << replyStr;
             }
-            else if(request == "print_stats")
+            else if(request == S_CONTROLLER_STATS)
             {
                 std::string replyStr;
                 replyStr += "Uptime : " + std::to_string(m_clock.getElapsedTime().asSeconds()/60.f) + " minutes\n";
@@ -804,7 +828,7 @@ namespace prattle
                 replyStr += "New Connections pending : " + std::to_string(m_new_connections.size());
                 reply << "ack" << replyStr;
             }
-            else if(request == "remove_user")
+            else if(request == S_CONTROLLER_REMOVE_USER)
             {
                 std::string user;
                 packet >> user;
@@ -820,7 +844,7 @@ namespace prattle
             }
             else
             {
-                reply << "That command is unavailable.";
+                reply << "Unrecognized command! (see help for usage)";
             }
             sendController(reply);
         }
