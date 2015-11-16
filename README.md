@@ -21,7 +21,7 @@ For the details about the communication protocols we use, take a look at the [ne
 NOTE
 =====
 
-We have not yet started with the security layer, so it's not recommened at this stage that Prattle be used for IM communication!
+We have not yet started with the security layer, so it's NOT recommended at that Prattle be used for IM communication at this stage!
 
 
 Authors
