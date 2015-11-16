@@ -93,7 +93,7 @@ namespace prattle
                             if (m_network.isConnected())
                                 m_ui->alert("Wrong username/password combination!");
                             else
-                                m_ui->alert("Unable to connect to server!");
+                                m_ui->alert("Unable to connect to server! Please check your internet connection.");
                             changeState(UserInterface::State::Login);
                             m_network.reset();
                         }
@@ -195,7 +195,7 @@ namespace prattle
                                     else
                                         m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + "\n" + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1);
 
-                                    m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
+                                    m_ui->addToChatArea(m_loginInfo.username + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
                                     m_ui->setInputText("");
                                     DBG_LOG("Successfully sent message");
                                     m_unsentMsgReqId.erase(msgId);
@@ -305,6 +305,7 @@ namespace prattle
                                            m_loginInfo.password });
 
                             changeState(UserInterface::State::Connecting);
+                            m_ui->setUsernameLabel(m_ui->getUsername());
                         }
                         else
                             m_ui->alert("Can't leave either login fields blank!");

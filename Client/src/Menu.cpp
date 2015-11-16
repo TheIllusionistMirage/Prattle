@@ -253,10 +253,12 @@ namespace prattle
                 m_friendList->leftMousePressed(x, y);
                 if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
                     m_friendList->hide();
+                    //m_friendList->hideWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
             }
             else
                 if (m_menuItemSprites[0].getGlobalBounds().contains(x, y))
                     m_friendList->show();
+                    //m_friendList->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
 
             if (m_searchPanel->isVisible())
             {
@@ -264,11 +266,13 @@ namespace prattle
 
                 if (m_menuItemSprites[1].getGlobalBounds().contains(x, y))
                     m_searchPanel->hide();
+                    //m_searchPanel->hideWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
             }
             else
                 if (m_menuItemSprites[1].getGlobalBounds().contains(x, y))
                 {
                     m_searchPanel->show();
+                    //m_searchPanel->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
                 }
         }
     }
