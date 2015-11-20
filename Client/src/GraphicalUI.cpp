@@ -78,8 +78,9 @@ namespace prattle
         m_logo = std::make_shared<tgui::Picture>(LOGO);
         m_logo->setSmooth(true);
         //m_logo->setSize(tgui::bindWidth(m_gui) / 2, tgui::bindWidth(m_gui) / (2 * 1.333333333));
-        //m_logo->scale(0.8, 0.8);
-        m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x * 1.5 + 100, tgui::bindTop(m_gui) + m_logo->getSize().y * 1.5 + 50);
+        m_logo->scale(0.7, 0.7);
+        //m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x, tgui::bindTop(m_gui) + m_logo->getSize().y + 50);
+        m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x - 20, tgui::bindTop(m_gui) + m_logo->getSize().y + 50);
 
         //m_frame = tgui::Picture::create(FRAME);
         m_frame = std::make_shared<tgui::Picture>(FRAME);
@@ -524,10 +525,9 @@ namespace prattle
                                         }
                                         else if (m_state == State::Chatting)
                                         {
-                                            //if (event.key.shift && m_inputBox->isFocused());
+                                            if (event.key.shift && m_inputBox->isFocused());
                                                 //m_inputBox->addText("\n");
-                                            //else
-                                            if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
+                                            else if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
                                             {
                                                 //setInputText(getInputText().substr(0, getInputText().length() - 1));
                                                 DBG_LOG("Attempt to send message");
