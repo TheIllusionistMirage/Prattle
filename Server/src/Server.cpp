@@ -309,23 +309,18 @@ namespace prattle
             else if (request == SEARCH_USER)
             {
                 std::string rid, query;
-                DBG_LOG("foo1");
+
                 if (packet >> rid >> query)
                 {
                     sf::Packet searchResult;
-                    DBG_LOG("foo2");
+
                     auto matches = db.getMatchingUsers(query);
                     if (matches.size() > 0)
                     {
-                        DBG_LOG("foo3");
-
                         searchResult << SEARCH_USER_RESULTS << rid << sf::Uint32(matches.size());
 
                         for (auto& i : matches)
-                        {
                             searchResult << i;
-                            //std::cout << i << std::endl;
-                        }
                     }
                     else
                     {
@@ -338,7 +333,7 @@ namespace prattle
                         ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
                     }
                     else
-                        std::cout <<"Sent results" << std::endl;
+                        std::cout << "Sent results" << std::endl;
                 }
                 else
                 {
