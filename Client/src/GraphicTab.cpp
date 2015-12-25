@@ -3,25 +3,25 @@
 namespace prattle
 {
     //void GraphicTab::initialize(tgui::Container *const parent)
-    void GraphicTab::initialize(std::shared_ptr<sf::Font> font)
-    {
-        //tgui::Widget::initialize(parent);
-
-        //if (parent->getGlobalFont())
-//        if (parent->getFont())
+//    void GraphicTab::initialize(std::shared_ptr<sf::Font> font)
+//    {
+//        //tgui::Widget::initialize(parent);
+//
+//        //if (parent->getGlobalFont())
+////        if (parent->getFont())
+////        {
+////            //m_font = parent->getGlobalFont();
+////            m_font = parent->getFont();
+////        }
+//
+//        if (font == nullptr)
+//            std::cout << "no global font! list" << std::endl;
+//        else
 //        {
-//            //m_font = parent->getGlobalFont();
-//            m_font = parent->getFont();
+//            std::cout << "global font found list" << std::endl;
+//            m_font = font;
 //        }
-
-        if (font == nullptr)
-            std::cout << "no global font! list" << std::endl;
-        else
-        {
-            std::cout << "global font found list" << std::endl;
-            m_font = font;
-        }
-    }
+//    }
 
     GraphicTab::GraphicTab()
     {
@@ -260,8 +260,9 @@ namespace prattle
                                                       m_absoluteBounds.top + 7});
 
         m_items.push_back(std::make_shared<GraphicListItem>(tabLabel, 10, sf::Color::White, m_GLItemTexPtr, 1, 5));
-        m_items.back()->getTextWidget()->setFont(m_font);
-        m_items.back()->getNotifWidget()->setFont(m_font);
+        //m_items.back()->getTextWidget()->setFont(m_font);
+        //m_items.back()->getNotifWidget()->setFont(m_font);
+        m_items.back()->setFont(m_font);
         m_items.back()->setPosition(sf::Vector2f{m_tabs.back().getPosition().x + 7, m_absoluteBounds.top + 7});
 
         m_tabVisibility.push_back(true);
@@ -769,5 +770,12 @@ namespace prattle
         m_leftArrowVisibile = false;
         m_rightArrowVisibile = false;
         m_iconVisibility.clear();
+    }
+
+    void GraphicTab::setFont(std::shared_ptr<sf::Font> font)
+    {
+        m_font = font;
+        for (auto& i : m_items)
+            i->setFont(font);
     }
 }

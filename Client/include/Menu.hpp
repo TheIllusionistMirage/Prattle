@@ -7,7 +7,7 @@
 
 namespace prattle
 {
-    class Menu : public tgui::Container// tgui::Widget
+    class Menu : public tgui::Container
     {
         public:
             enum class Item
@@ -23,8 +23,7 @@ namespace prattle
             typedef std::shared_ptr<const Menu> ConstPtr;
 
             Menu();
-            //void initialize(tgui::Container *const parent);
-            void initialize(std::shared_ptr<sf::Font> font);
+            //void initialize(std::shared_ptr<sf::Font> font);
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
             virtual Widget::Ptr clone() override;
             virtual bool mouseOnWidget(float x, float y);

@@ -73,27 +73,27 @@ namespace prattle
     // TGUI to initialize the font pointer with the
     // global font of the GUI.
     //void GraphicList::initialize(tgui::Container *const parent)
-    void GraphicList::initialize(std::shared_ptr<sf::Font> font)
-    {
-        //Widget::initialize(parent);
-        //m_font = parent->getGlobalFont();
-//        m_font = parent->getFont();
-//        //m_defaultMessage->setTextFont(m_font);
+//    void GraphicList::initialize(std::shared_ptr<sf::Font> font)
+//    {
+//        //Widget::initialize(parent);
+//        //m_font = parent->getGlobalFont();
+////        m_font = parent->getFont();
+////        //m_defaultMessage->setTextFont(m_font);
+////
+////        if (m_font == nullptr)
+////            std::cout << "foo" << std::endl;
+////        else
+////            std::cout << "\nxyz" << std::endl;
+////        m_defaultMessage->setFont(m_font);
 //
-//        if (m_font == nullptr)
-//            std::cout << "foo" << std::endl;
+//        if (font == nullptr)
+//            std::cout << "no global font! list" << std::endl;
 //        else
-//            std::cout << "\nxyz" << std::endl;
-//        m_defaultMessage->setFont(m_font);
-
-        if (font == nullptr)
-            std::cout << "no global font! list" << std::endl;
-        else
-        {
-            std::cout << "global font found list" << std::endl;
-            m_font = font;
-        }
-    }
+//        {
+//            std::cout << "global font found list" << std::endl;
+//            m_font = font;
+//        }
+//    }
 
     // the draw function as interhited from tgui::Widget.
     // This is called each frame automatically by TGUI.
@@ -159,15 +159,15 @@ namespace prattle
                                                             1,
                                                             5));
         //m_items.back()->initialize();
-        //m_items.back()->setFont(m_font);
+        m_items.back()->setFont(m_font);
 
 //        if (m_pFont == nullptr)
 //        std::cout << "n" << std::endl;
         //m_items.back()->initialize(m_parent);
         //m_items.back()->getNotifWidget()->setTextFont(m_font);
-        m_items.back()->getNotifWidget()->setFont(m_font);
-        //m_items.back()->getTextWidget()->setTextFont(m_font);
-        m_items.back()->getTextWidget()->setFont(m_font);
+//        m_items.back()->getNotifWidget()->setFont(m_font);
+//        //m_items.back()->getTextWidget()->setTextFont(m_font);
+//        m_items.back()->getTextWidget()->setFont(m_font);
         //m_items.back()->setFont(m_font);
 
         // the y-coord of the position is multiplied by 20, well,
@@ -471,6 +471,10 @@ namespace prattle
     void GraphicList::setFont(std::shared_ptr<sf::Font> font)
     {
         //m_pFont = font;
+        m_font = font;
+        for (auto& i : m_items)
+            i->setFont(font);
+        m_defaultMessage->setFont(font);
     }
 
     sf::FloatRect GraphicList::getBounds()

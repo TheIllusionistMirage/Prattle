@@ -214,7 +214,8 @@ namespace prattle
         /* chat screen widgets */
 
         m_menu->setPosition(tgui::Layout2d{tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 10});
-        m_menu->initialize(m_gui.getFont());
+        //m_menu->initialize(m_gui.getFont());
+        m_menu->setFont(m_gui.getFont());
         //m_menu->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindTop(m_gui) + 10);
 
         //m_logoutButton = tgui::Button::create(DEFAULT_TGUI_THEME);
@@ -234,7 +235,8 @@ namespace prattle
         m_connectedUser->setPosition(tgui::bindLeft(m_logoutButton) - m_connectedUser->getSize().x - 10, tgui::bindTop(m_logoutButton) + 15 / 1.6);
 
         m_tabs->setPosition(tgui::Layout2d{tgui::bindLeft(m_gui) + 80, tgui::bindTop(m_gui) + 91});
-        m_tabs->initialize(m_gui.getFont());
+        //m_tabs->initialize(m_gui.getFont());
+        m_tabs->setFont(m_gui.getFont());
         //m_frame->setSize(tgui::bindWidth(m_gui), tgui::bindBottom(m_tabs));
         //m_frame->moveToFront();
 
@@ -498,6 +500,13 @@ namespace prattle
                         {
                             switch (event.key.code)
                             {
+                                case sf::Keyboard::Escape:
+                                    {
+                                        if (m_alertBox->isVisible())// && m_alertBox->isFocused())
+                                            closeAlert();
+                                    }
+                                    break;
+
                                 case sf::Keyboard::F4:
                                     {
                                         if (event.key.alt)
@@ -507,31 +516,34 @@ namespace prattle
 
                                 case sf::Keyboard::Return:
                                     {
-                                        // fill username/password and hit enter
-                                        // instead of having to reach for the
-                                        // mouse to click the login button
-                                        if (m_state == State::Login &&
-                                             !isStringWhitespace(getUsername()) &&
-                                              !isStringWhitespace(getPassword()))
+                                        if (!m_alertBox->isVisible())
                                         {
-                                            return UIEvent::UserLogin;
-                                        }
-                                        else if (m_state == State::Signup &&
-                                             !isStringWhitespace(getUsername()) &&
-                                              !isStringWhitespace(getPassword()))
-                                        {
-                                            DBG_LOG("Signup triggered by pressing return.");
-                                            return UIEvent::UserSignup;
-                                        }
-                                        else if (m_state == State::Chatting)
-                                        {
-                                            if (event.key.shift && m_inputBox->isFocused());
-                                                //m_inputBox->addText("\n");
-                                            else if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
+                                            // fill username/password and hit enter
+                                            // instead of having to reach for the
+                                            // mouse to click the login button
+                                            if (m_state == State::Login &&
+                                                 !isStringWhitespace(getUsername()) &&
+                                                  !isStringWhitespace(getPassword()))
                                             {
-                                                //setInputText(getInputText().substr(0, getInputText().length() - 1));
-                                                DBG_LOG("Attempt to send message");
-                                                return UIEvent::MessageSent;
+                                                return UIEvent::UserLogin;
+                                            }
+                                            else if (m_state == State::Signup &&
+                                                 !isStringWhitespace(getUsername()) &&
+                                                  !isStringWhitespace(getPassword()))
+                                            {
+                                                DBG_LOG("Signup triggered by pressing return.");
+                                                return UIEvent::UserSignup;
+                                            }
+                                            else if (m_state == State::Chatting)
+                                            {
+                                                if (event.key.shift && m_inputBox->isFocused());
+                                                    //m_inputBox->addText("\n");
+                                                else if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
+                                                {
+                                                    //setInputText(getInputText().substr(0, getInputText().length() - 1));
+                                                    DBG_LOG("Attempt to send message");
+                                                    return UIEvent::MessageSent;
+                                                }
                                             }
                                         }
                                     }
@@ -959,10 +971,12 @@ namespace prattle
     void GraphicalUI::animateButton(tgui::Button::Ptr button)
     {
         button->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(500));
+        //button->showWithEffect(tgui::ShowAnimationType::SlideFromLeft, sf::milliseconds(500));
     }
 
     void GraphicalUI::animatePanel(tgui::Panel::Ptr panel)
     {
-        panel->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(500));
+        panel->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(1000));
+        //panel->showWithEffect(tgui::ShowAnimationType::SlideFromTop, sf::milliseconds(500));
     }
 }

@@ -82,22 +82,22 @@ namespace prattle
     // This function is declared in tgui::Widget and will fetch the
     // global font currently used by tgui::Gui object.
 
-    void GraphicListItem::initialize(tgui::Container *const parent)
-    {
-        //Widget::initialize(parent);
-
-        //if (parent->getGlobalFont() != nullptr)
-        if (parent->getFont() != nullptr)
-        {
-            //m_font = parent->getGlobalFont();
-            m_font = parent->getFont();
-            //m_itemText->setTextFont(m_font);
-            //m_notifText->initialize(m_parent);
-            m_notifText->setFont(m_parent->getFont());
-            //m_itemText->initialize(m_parent);
-            m_itemText->setFont(m_parent->getFont());
-        }
-    }
+//    void GraphicListItem::initialize(tgui::Container *const parent)
+//    {
+//        //Widget::initialize(parent);
+//
+//        //if (parent->getGlobalFont() != nullptr)
+//        if (parent->getFont() != nullptr)
+//        {
+//            //m_font = parent->getGlobalFont();
+//            m_font = parent->getFont();
+//            //m_itemText->setTextFont(m_font);
+//            //m_notifText->initialize(m_parent);
+//            m_notifText->setFont(m_parent->getFont());
+//            //m_itemText->initialize(m_parent);
+//            m_itemText->setFont(m_parent->getFont());
+//        }
+//    }
 
     // The draw(), mouseOnWidget() and clone() methods are declared
     // in tgui::Widget class, and these have to be overridden in
@@ -190,10 +190,18 @@ namespace prattle
         m_itemSprite.setTextureRect(sf::IntRect{10 * m_status, 0, 10, 10});
     }
 
+    void GraphicListItem::setFont(std::shared_ptr<sf::Font> font)
+    {
+        m_notifText->setFont(font);
+        m_itemText->setFont(font);
+    }
+
     void GraphicListItem::setNotif(const std::string& notif)
     {
         m_notifText->setText(notif);
         m_itemText->setPosition(m_bounds.left + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, m_bounds.top - m_verSpace);
+
+        m_bounds.width = m_bounds.left + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x;
 
         //std::cout << m_notifText->getText().toAnsiString() << std::endl;
     }

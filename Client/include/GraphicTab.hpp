@@ -15,7 +15,7 @@ namespace prattle
 
         public:
             //void initialize(tgui::Container *const parent);
-            void initialize(std::shared_ptr<sf::Font> font);
+            //void initialize(std::shared_ptr<sf::Font> font);
             GraphicTab();
             ~GraphicTab();
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
@@ -44,6 +44,7 @@ namespace prattle
             void setStatusOfItem(const std::string& item, unsigned int status);
             void setNotifOfItem(const std::string& listItem, const std::string& notif);
             std::string getNotifOfItem(const std::string& listItem);
+            void setFont(std::shared_ptr<sf::Font> font);
             void clear();
 
         private:
@@ -71,7 +72,7 @@ namespace prattle
             std::string                       m_selected;
             sf::Texture                       m_iconTexture;
             std::vector<sf::Sprite>           m_iconSprites;
-            std::shared_ptr<sf::Font>         m_font;
+            //std::shared_ptr<sf::Font>         m_font;
             sf::Vector2f                      m_maxDefaultTabSize;
             std::vector<bool>                 m_iconVisibility;
     };

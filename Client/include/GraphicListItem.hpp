@@ -35,7 +35,7 @@ namespace prattle
                             const unsigned short& status,
                             const float& spacing
                            );
-            void initialize(tgui::Container *const parent);
+            //void initialize(tgui::Container *const parent);
             //void initialize(std::shared_ptr<sf::Font> font);
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
             bool mouseOnWidget(float x, float y);
@@ -48,7 +48,7 @@ namespace prattle
             tgui::Label::Ptr getTextWidget();
             sf::FloatRect getBounds();
             void loadTexture(const std::string& file);
-            //void setFont(std::shared_ptr<sf::Font> font);
+            void setFont(std::shared_ptr<sf::Font> font);
             void setNotif(const std::string& notif = "");
             std::string getNotif();
 

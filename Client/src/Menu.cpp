@@ -3,29 +3,16 @@
 namespace prattle
 {
     //void Menu::initialize(tgui::Container *const parent)
-    void Menu::initialize(std::shared_ptr<sf::Font> font)
-    {
-        //Widget::initialize(parent);
-
-        //if (parent->getGlobalFont())
-//        if (parent->getFont())
-//        {
-//            //m_font = parent->getGlobalFont();
-//            m_font = parent->getFont();
-//            add(m_friendList);
-//            add(m_searchPanel);
-//        }
-//        else
+//    void Menu::initialize(std::shared_ptr<sf::Font> font)
+//    {
+//        if (font == nullptr)
 //            std::cout << "no global font!" << std::endl;
-
-        if (font == nullptr)
-            std::cout << "no global font!" << std::endl;
-        else
-        {
-            std::cout << "global font found" << std::endl;
-            m_font = font;
-        }
-    }
+//        else
+//        {
+//            std::cout << "global font found" << std::endl;
+//            m_font = font;
+//        }
+//    }
 
     Menu::Menu() : m_friendList{std::make_shared<GraphicList>()},
                    m_searchField{std::make_shared<tgui::EditBox>()},
@@ -126,7 +113,8 @@ namespace prattle
             m_addFriendButton->setFont(m_font);
 
         if (m_friendList->getFont() == nullptr)
-            m_friendList->initialize(m_font);
+            //m_friendList->initialize(m_font);
+            m_friendList->setFont(m_font);
 
         for (auto& i : friends)
             m_friendList->addItem(i);
@@ -153,6 +141,7 @@ namespace prattle
     {
         m_font = font;
         m_friendList->setFont(m_font);
+        m_searchPanel->setFont(font);
     }
 
     void Menu::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -211,7 +200,8 @@ namespace prattle
                     m_addFriendButton->mouseMoved(x, y);
                 }
 
-                m_searchPanel->mouseMoved(x, y);
+                //if (m_searchPanel->mouseOnWidget(x, y))
+                    m_searchPanel->mouseMoved(x, y);
             }
 
             for (unsigned int i = 0; i < m_menuItemSprites.size(); i++)
@@ -262,6 +252,8 @@ namespace prattle
 
             if (m_searchPanel->isVisible())
             {
+                //m_searchField->leftMousePressed(x, y);
+                //m_searchButton->leftMousePressed(x, y);
                 m_searchPanel->leftMousePressed(x, y);
 
                 if (m_menuItemSprites[1].getGlobalBounds().contains(x, y))

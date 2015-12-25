@@ -39,7 +39,7 @@ namespace prattle
             // TGUI to initialize the font pointer with the
             // global font of the GUI.
             //void initialize(tgui::Container *const parent);
-            void initialize(std::shared_ptr<sf::Font> font);
+            //void initialize(std::shared_ptr<sf::Font> font);
 
             // the draw function as interhited from tgui::Widget.
             // This is called each frame automatically by TGUI.
