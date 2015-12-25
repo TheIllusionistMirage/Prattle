@@ -309,27 +309,36 @@ namespace prattle
             else if (request == SEARCH_USER)
             {
                 std::string rid, query;
+                DBG_LOG("foo1");
                 if (packet >> rid >> query)
                 {
+                    sf::Packet searchResult;
+                    DBG_LOG("foo2");
                     auto matches = db.getMatchingUsers(query);
                     if (matches.size() > 0)
                     {
-                        sf::Packet searchResult;
+                        DBG_LOG("foo3");
+
                         searchResult << SEARCH_USER_RESULTS << rid << sf::Uint32(matches.size());
 
                         for (auto& i : matches)
                         {
                             searchResult << i;
-                            std::cout << i << std::endl;
+                            //std::cout << i << std::endl;
                         }
-
-                        if (!send(searchResult, sender))
-                        {
-                            ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
-                        }
-                        else
-                            std::cout <<"Sent results" << std::endl;
                     }
+                    else
+                    {
+                        DBG_LOG("No matches found!");
+                        searchResult << SEARCH_USER_RESULTS << rid << 0;
+                    }
+
+                    if (!send(searchResult, sender))
+                    {
+                        ERR_LOG("ERROR :: Failed to send search results to \'" + sender + "\'.");
+                    }
+                    else
+                        std::cout <<"Sent results" << std::endl;
                 }
                 else
                 {
@@ -604,6 +613,9 @@ namespace prattle
                                         if ((*itr)->send(itr_2->second) != sf::Socket::Done)
                                         {
                                             ERR_LOG("ERROR :: Error in sending packet from " + itr_2->first + " to " + sender + ".");
+                                            m_selector.remove(**itr);
+                                            itr = m_new_connections.erase(itr);
+                                            continue;
                                         }
                                     }
                                     m_messages.erase(sender);
@@ -625,7 +637,12 @@ namespace prattle
                                                 DBG_LOG("Notified \'" + friendName + "\' that \'" + sender + "\' logged in");
                                             }
                                             else
+                                            {
                                                 ERR_LOG("ERROR :: Error in sending status to \'" + friendName + "\' from the server");
+                                                m_selector.remove(**itr);
+                                                itr = m_new_connections.erase(itr);
+                                                continue;
+                                            }
 
                                             //Notify `sender` that friendName is online
                                             statusPacket.clear();
@@ -636,7 +653,12 @@ namespace prattle
                                                 DBG_LOG("Notified \'" + sender + "\' that \'" + friendName + "\' is online");
                                             }
                                             else
+                                            {
                                                 ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
+                                                m_selector.remove(**itr);
+                                                itr = m_new_connections.erase(itr);
+                                                continue;
+                                            }
                                         }
                                     }
 
@@ -665,7 +687,11 @@ namespace prattle
 //                                            else
 //                                                ERR_LOG("ERROR :: Error in sending notification to \'" + sender + "\' from the server");
 //                                        }
-//                                    }*/
+//                                    }
+
+*/
+
+
                                 }
                                 else
                                 {
@@ -673,17 +699,25 @@ namespace prattle
                                     std::string details = "ERROR :: The username-password combination is not recognized.";
                                     loginResult << LOGIN_FAILURE << rid << sender << details;
 
-                                    if ((*itr)->send(loginResult))
+                                    if (!((*itr)->send(loginResult)))
                                     {
-                                        //ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
-                                    }
-                                    else
                                         ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about invalid username-password combination they used to login.");
+                                        m_selector.remove(**itr);
+                                        itr = m_new_connections.erase(itr);
+                                        continue;
+                                    }
+
+                                    DBG_LOG("Login attempt with invalid password/username.\nConnection closed.");
+
+                                    m_selector.remove(**itr);
+                                    itr = m_new_connections.erase(itr);
                                 }
                             }
                             else
                             {
                                 ERR_LOG("ERROR :: A damaged packet, requesting a new connection, was received by the server.");
+                                m_selector.remove(**itr);
+                                itr = m_new_connections.erase(itr);
                             }
                         }
                         else if (request == SIGNUP)
@@ -702,7 +736,12 @@ namespace prattle
                                         DBG_LOG("Notified '" + sender + "\' about signup success.");
                                     }
                                     else
+                                    {
                                         ERR_LOG("ERROR :: Could not send signup acknowledgment to \'" + sender + "\'.");
+                                        m_selector.remove(**itr);
+                                        itr = m_new_connections.erase(itr);
+                                        continue;
+                                    }
 
                                     m_selector.remove(**itr);
                                     itr = m_new_connections.erase(itr);
@@ -715,6 +754,9 @@ namespace prattle
                                     if (!send(signupResult, sender))
                                     {
                                         ERR_LOG("ERROR :: Unable to notify \'" + sender + "\' about unsuccessful attempt to sign up");
+                                        m_selector.remove(**itr);
+                                        itr = m_new_connections.erase(itr);
+                                        continue;
                                     }
                                 }
                             }
@@ -783,10 +825,18 @@ namespace prattle
                     if ((*itr)->send(errPacket) != sf::Socket::Done)
                     {
                         ERR_LOG("ERROR :: Error in sending error message to the remote client from the server");
+                        m_selector.remove(**itr);
+                        itr = m_new_connections.erase(itr);
+                        continue;
                     }
 
                     m_selector.remove(**itr);
                     itr = m_new_connections.erase(itr);
+//                    if (itr != m_new_connections.end())
+//                        std::cout << "itr != nullptr" << std::endl;
+//                    else
+//                        std::cout << "Size of new conn. : " << m_new_connections.size() << std::endl;
+//                    itr++;
                 }
             }
         }
