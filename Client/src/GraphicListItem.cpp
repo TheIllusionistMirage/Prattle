@@ -10,6 +10,7 @@ namespace prattle
         m_status = 0;
         m_spacing = 5;
         m_verSpace = 5;
+        m_active = true;
 
         //m_notifText = tgui::Label::create();
         m_notifText = std::make_shared<tgui::Label>();
@@ -45,6 +46,7 @@ namespace prattle
         m_status = status;
         m_spacing = spacing;
         m_verSpace = 5;
+        m_active = true;
 
         //m_notifText = tgui::Label::create();
         m_notifText = std::make_shared<tgui::Label>();
@@ -57,10 +59,10 @@ namespace prattle
         m_itemText = std::make_shared<tgui::Label>();
         //m_itemText->setTextFont(m_font);
 
-        if (m_itemText->getParent() == nullptr)
-            std::cout << "No Parent" << std::endl;
-        else
-            std::cout << "Parent" << std::endl;
+//        if (m_itemText->getParent() == nullptr)
+//            std::cout << "No Parent" << std::endl;
+//        else
+//            std::cout << "Parent" << std::endl;
 
         //m_font = m_itemText->getParent()->getFont();
         //m_itemText->setFont(getParent()->getFont());
@@ -110,12 +112,12 @@ namespace prattle
         target.draw(*m_itemText, states);
     }
 
-    bool GraphicListItem::mouseOnWidget(float x, float y)
+    bool GraphicListItem::mouseOnWidget(float x, float y) const
     {
         return m_bounds.contains(x,y);
     }
 
-    tgui::Widget::Ptr GraphicListItem::clone()
+    tgui::Widget::Ptr GraphicListItem::clone() const
     {
         return std::make_shared<GraphicListItem>(* this);
     }
@@ -209,6 +211,30 @@ namespace prattle
     std::string GraphicListItem::getNotif()
     {
         return m_notifText->getText().toAnsiString();
+    }
+
+    void GraphicListItem::setActive(const std::string& username,
+                                    bool active)
+    {
+        if (active)
+        {
+            m_notifText->setText("");
+            m_itemText->setTextColor(sf::Color::Black);
+            m_active = true;
+        }
+        else
+        {
+            m_notifText->setText("(*) ");
+            m_itemText->setTextColor(sf::Color{102, 153, 153});
+            m_active = false;
+        }
+
+        m_itemText->setPosition(m_bounds.left + m_itemSprite.getGlobalBounds().width + m_spacing + m_notifText->getSize().x, m_bounds.top - m_verSpace);
+    }
+
+    bool GraphicListItem::isActive()
+    {
+        return m_active;
     }
 
 //    void GraphicListItem::setFont(std::shared_ptr<sf::Font> font)

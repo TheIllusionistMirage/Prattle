@@ -18,10 +18,12 @@ namespace prattle
         m_connected = false;
         m_idCounter = 0;
     }
+
     Network::RequestId Network::generateId()
     {
         return ++m_idCounter;
     }
+
     Network::RequestId Network::send(Task::Type task, const std::vector<std::string>& args)
     {
         //If task is not Login or Signup and the socket is disconnected, return InvalidRequest
@@ -142,14 +144,19 @@ namespace prattle
             break;
             case Task::Type::AddFriend:
             {
-                DBG_LOG("Searching task added");
+                DBG_LOG("Add friend task added");
+
                 if (args.size() != 1)
-                    throw std::invalid_argument("Wrong number of arguments provided for task: Add Friend");
+                    throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Add Friend");
+
                 if (!m_tasks.empty())
-                    WRN_LOG("Warning: Trying to search on a new server but the task list is not empty. It is cleared.");
+                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the task list is not empty. It is cleared.");
+
                 m_tasks.clear();
+
                 if (!m_replies.empty())
-                    WRN_LOG("Warning: Trying to search on a new server but the replies stack is not empty. It is cleared.");
+                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the replies list is not empty. It is cleared.");
+
                 m_replies.clear();
 
                 m_tasks.push_front(Task{
@@ -159,6 +166,7 @@ namespace prattle
 
                 sf::Packet packet;
                 packet << ADD_FRIEND << std::to_string(rid) << args[0];
+
                 auto status = m_socket.send(packet);
 
                 if(status == sf::Socket::Status::Done)
@@ -167,15 +175,90 @@ namespace prattle
                     return rid;
                 }
                 else
-                    ERR_LOG("ERROR in sending search packet to sever!");
+                    ERR_LOG("ERROR in sending add friend packet to sever!");
             }
             break;
+
+            case Task::Type::FriendRequestAccept:
+            {
+                DBG_LOG("Friend request accept task added");
+
+                if (args.size() != 1)
+                    throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Friend Request Accept");
+
+                if (!m_tasks.empty())
+                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the task list is not empty. It is cleared.");
+
+                m_tasks.clear();
+
+                if (!m_replies.empty())
+                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the replies list is not empty. It is cleared.");
+
+                m_replies.clear();
+
+                m_tasks.push_front(Task{
+                                  rid = generateId(),
+                                  Task::Type::FriendRequestAccept,
+                                  std::chrono::steady_clock::now()});
+
+                sf::Packet packet;
+                packet << ADD_FRIEND_ACCEPT << std::to_string(rid) << args[0];
+
+                auto status = m_socket.send(packet);
+
+                if(status == sf::Socket::Status::Done)
+                {
+                    DBG_LOG("Friend request accept packet sent to server");
+                    return rid;
+                }
+                else
+                    ERR_LOG("ERROR in sending friend request accept packet to sever!");
+            }
+            break;
+
+            case Task::Type::FriendRequestIgnore:
+            {
+                DBG_LOG("Friend request ignore task added");
+
+                if (args.size() != 1)
+                    throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Friend Request ignore");
+
+                if (!m_tasks.empty())
+                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the task list is not empty. It is cleared.");
+
+                m_tasks.clear();
+
+                if (!m_replies.empty())
+                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the replies list is not empty. It is cleared.");
+
+                m_replies.clear();
+
+                m_tasks.push_front(Task{
+                                  rid = generateId(),
+                                  Task::Type::FriendRequestIgnore,
+                                  std::chrono::steady_clock::now()});
+
+                sf::Packet packet;
+                packet << ADD_FRIEND_IGNORE << std::to_string(rid) << args[0];
+
+                auto status = m_socket.send(packet);
+
+                if(status == sf::Socket::Status::Done)
+                {
+                    DBG_LOG("Friend request ignore packet sent to server");
+                    return rid;
+                }
+                else
+                    ERR_LOG("ERROR in sending friend request ignore packet to sever!");
+            }
+            break;
+
             case Task::Type::Logout:
-                DBG_LOG("Network: Logging out");
+                DBG_LOG("Network :: Logging out");
                 reset();
                 break;
             default:
-                ERR_LOG("Unhandled task");
+                ERR_LOG("FATAL ERROR :: Unhandled task");
                 break;
         }
         return rid;
@@ -266,6 +349,7 @@ namespace prattle
         {
             sf::Packet response;
             auto status = m_socket.receive(response);
+
             if (status == sf::Socket::Done)
             {
                 std::string reply, temp;
@@ -296,7 +380,17 @@ namespace prattle
                                             reply == STATUS_ONLINE ? Reply::Type::OnlineNotif : Reply::Type::OfflineNotif,// Reply::Type::OnlineNotif,
                                             {sender} });
                     }
-                    else if (reply == ADD_FRIEND)
+//                    else if (reply == ADD_FRIEND)
+//                    {
+//                        std::string sender;
+//                        response >> sender;
+//
+//                        m_replies.push_front(Reply{
+//                                            InvalidRequest,
+//                                            Reply::Type::TaskSuccess,
+//                                            {sender} });
+//                    }
+                    else if (reply == ADD_FRIEND_REQ)
                     {
                         std::string sender;
                         response >> sender;
@@ -304,8 +398,24 @@ namespace prattle
                         m_replies.push_front(Reply{
                                             InvalidRequest,
                                             Reply::Type::TaskSuccess,
-                                            {sender} });
+                                            {sender}});
                     }
+
+                    else if (reply == ADD_FRIEND_SUCCESS)
+                    {
+                        std::string friendname;
+
+                        response >> friendname;
+
+                        m_replies.push_front(Reply{
+                                            InvalidRequest,
+                                            Reply::Type::FriendAdded,
+                                            {friendname}});
+
+                        DBG_LOG("Add friend task completed");
+                        //m_tasks.erase(res);
+                    }
+
                     else
                     {
                         if (response >> temp)
@@ -388,21 +498,36 @@ namespace prattle
                                     else
                                         ERR_LOG("Damaged packet received");
                                 }
-                                else if (reply == ADD_FRIEND_SUCCESS ||
-                                          reply == ADD_FRIEND_FAILURE)
+
+                                else if (reply == ADD_FRIEND_REQ_SUCCESS ||
+                                          reply == ADD_FRIEND_REQ_FAILURE)
                                 {
                                     std::string result;
-
                                     response >> result;
 
                                     m_replies.push_front(Reply{
                                                         rid,
                                                         Reply::Type::TaskSuccess,
                                                         {result}});
-
-                                    DBG_LOG("Add friend task completed");
+                                    DBG_LOG("Friend request sent to \'" + result + "\'.");
                                     m_tasks.erase(res);
                                 }
+//                                else if (reply == ADD_FRIEND_SUCCESS ||
+//                                          reply == ADD_FRIEND_FAILURE)
+//                                {
+//                                    std::string result;
+//
+//                                    response >> result;
+//
+//                                    m_replies.push_front(Reply{
+//                                                        rid,
+//                                                        Reply::Type::TaskSuccess,
+//                                                        {result}});
+//
+//                                    DBG_LOG("Add friend task completed");
+//                                    m_tasks.erase(res);
+//                                }
+
                                 else
                                     ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
                             }

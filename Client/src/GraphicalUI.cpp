@@ -102,13 +102,22 @@ namespace prattle
         m_gui.add(m_alertBox);
 
         //m_alertFrame = tgui::Picture::create(ALERT_FRAME);
-        m_alertFrame = std::make_shared<tgui::Picture>(ALERT_FRAME);
-        m_alertFrame->setSize(m_alertBox->getSize().x,
-                              m_alertBox->getSize().y);
-        m_alertBox->add(m_alertFrame);
+//        m_alertFrame = std::make_shared<tgui::Picture>(ALERT_FRAME);
+//        m_alertFrame->setSize(m_alertBox->getSize().x,
+//                              m_alertBox->getSize().y);
+//        m_alertBox->add(m_alertFrame);
 
         m_alertMessage->setTextColor(sf::Color{118, 118, 118});
         m_alertBox->add(m_alertMessage);
+
+        m_alertYesButton = m_theme->load("Button");
+        m_alertYesButton->setText("Accept");
+        m_alertBox->add(m_alertYesButton);
+        //m_alertBox->connect();
+
+        m_alertNoButton = m_theme->load("Button");
+        m_alertNoButton->setText("Ignore");
+        m_alertBox->add(m_alertNoButton);
 
         /* initialization of widgets for the login screen */
 
@@ -348,6 +357,7 @@ namespace prattle
         m_chatBox->moveToFront();
         m_inputBox->moveToFront();
         m_menu->resetList();
+        m_menu->resetSearchPanel();
         m_menu->moveToFront();
         m_tabs->clear();
     }
@@ -609,22 +619,32 @@ namespace prattle
 
                                 if (m_menu->getFriendlist()->getBounds().contains(mousePos.x, mousePos.y) && m_menu->getFriendlist()->isVisible() && m_menu->getSelectedFriend() != "")
                                 {
-                                    if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
+                                    ///////////////
+                                    if (!m_menu->getFriendlist()->isListItemActive(m_menu->getSelectedFriend()))
                                     {
-                                        m_tabs->focusTab(m_menu->getSelectedFriend());
-                                        m_inputBox->focus();
+                                        alert(m_menu->getSelectedFriend() + " has sent you a friend request.", true);
+                                        //m_menu->getFriendlist()->setListItemActive(m_menu->getSelectedFriend(), true);
+                                        return UIEvent::None;
                                     }
                                     else
                                     {
-                                        m_tabs->addTab(m_menu->getSelectedFriend(), m_menu->getStatus(m_menu->getSelectedFriend()));
-                                        m_inputBox->focus();
+                                        if (m_tabs->isTabPresent(m_menu->getSelectedFriend()))
+                                        {
+                                            m_tabs->focusTab(m_menu->getSelectedFriend());
+                                            m_inputBox->focus();
+                                        }
+                                        else
+                                        {
+                                            m_tabs->addTab(m_menu->getSelectedFriend(), m_menu->getStatus(m_menu->getSelectedFriend()));
+                                            m_inputBox->focus();
+                                        }
+
+                                        m_menu->getFriendlist()->hide();
+                                        //m_menu->getFriendlist()->hideWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
+                                        m_menu->getFriendlist()->deselectAll();
+
+                                        return UIEvent::TabSelected;
                                     }
-
-                                    m_menu->getFriendlist()->hide();
-                                    //m_menu->getFriendlist()->hideWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
-                                    m_menu->getFriendlist()->deselectAll();
-
-                                    return UIEvent::TabSelected;
                                 }
 
                                 if (m_tabs->mouseOnWidget(mousePos.x, mousePos.y) && m_tabs->getTabCount() > 0)
@@ -660,7 +680,10 @@ namespace prattle
                                                             m_menu->getMenuItem(Menu::Item::SearchPanel)->getSize().y,
                                                            };
                                 if (m_menu->getMenuItem(Menu::Item::SearchPanel)->isVisible() && !(bounds.contains(mousePos.x, mousePos.y) || m_menu->getItemBounds(1).contains(mousePos.x, mousePos.y)))
+                                {
                                     m_menu->getMenuItem(Menu::Item::SearchPanel)->hide();
+                                    m_menu->resetSearchPanel();
+                                }
                             }
                         }
                         break;
@@ -702,6 +725,27 @@ namespace prattle
                                 if (isMouseOver(m_logoutButton) && getState() == State::Chatting)
                                 {
                                     return UserInterface::UIEvent::Disconnect;
+                                }
+
+                                if (isMouseOver(m_alertYesButton) && getState() == State::Chatting)
+                                    return UIEvent::AddFriendAccept;
+
+                                if (isMouseOver(m_alertYesButton) && getState() == State::Chatting)
+                                    return UIEvent::AddFriendReject;
+                            }
+                            else
+                            {
+                                // find whether the user accepts/ignores a friend request
+                                if (isMouseOver(m_alertYesButton) && State::Chatting)
+                                {
+                                    closeAlert();
+                                    return UserInterface::UIEvent::AddFriendAccept;
+                                }
+
+                                if (isMouseOver(m_alertNoButton) && State::Chatting)
+                                {
+                                    closeAlert();
+                                    return UserInterface::UIEvent::AddFriendReject;
                                 }
                             }
                         }
@@ -772,7 +816,7 @@ namespace prattle
         m_window.display();
     }
 
-    void GraphicalUI::alert(const std::string& message)
+    void GraphicalUI::alert(const std::string& message, const bool choice)
     {
         //m_inactiveFilter->show();
         m_inactiveFilter->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
@@ -783,6 +827,25 @@ namespace prattle
         m_alertMessage->setPosition(50, 50);
         m_alertBox->setPosition(tgui::bindWidth(m_gui) / 2 - m_alertBox->getSize().x / 2,
                                 tgui::bindHeight(m_gui) / 2 - m_alertBox->getSize().y / 2);
+
+        m_alertYesButton->setSize(80, 25);
+        m_alertNoButton->setSize(80, 25);
+
+        m_alertYesButton->setPosition(m_alertMessage->getPosition().x + m_alertMessage->getSize().x / 5, m_alertMessage->getPosition().y + m_alertMessage->getSize().y + 5);
+        m_alertNoButton->setPosition(m_alertYesButton->getPosition().x + m_alertYesButton->getSize().x + 20, m_alertYesButton->getPosition().y);
+        //m_alertNoButton->hide();
+
+        if (choice)
+        {
+            m_alertYesButton->show();
+            m_alertNoButton->show();
+        }
+        else
+        {
+            m_alertYesButton->hide();
+            m_alertNoButton->hide();
+        }
+
         //m_alertBox->show();
         m_alertBox->moveToFront();
         m_alertBox->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
@@ -940,6 +1003,11 @@ namespace prattle
             m_window.setTitle("* " + TITLE);
     }
 
+    void GraphicalUI::setFriendActive(const std::string& friendName, bool active)
+    {
+        m_menu->getFriendlist()->setListItemActive(friendName, active);
+    }
+
     void GraphicalUI::setSpaceInactive(bool active)
     {
         if (active)
@@ -978,5 +1046,10 @@ namespace prattle
     {
         panel->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(1000));
         //panel->showWithEffect(tgui::ShowAnimationType::SlideFromTop, sf::milliseconds(500));
+    }
+
+    void GraphicalUI::deselectAll()
+    {
+        m_menu->getFriendlist()->deselectAll();
     }
 }

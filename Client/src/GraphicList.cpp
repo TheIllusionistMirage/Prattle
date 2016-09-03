@@ -133,12 +133,12 @@ namespace prattle
     // this method returns true only if mouse is
     // inside the panel and automatically called
     // from within TGUI if a mouse hover happens.
-    bool GraphicList::mouseOnWidget(float x, float y)
+    bool GraphicList::mouseOnWidget(float x, float y) const
     {
         return m_boundary.getGlobalBounds().contains(x,y);
     }
 
-    tgui::Widget::Ptr GraphicList::clone()
+    tgui::Widget::Ptr GraphicList::clone() const
     {
         return std::make_shared<GraphicList>(* this);
     }
@@ -183,6 +183,10 @@ namespace prattle
         // unhide the down scroller
         if (m_boundary.getSize().y < m_items.size() * 20)
             m_scrollerDownVisible = true;
+
+        //deselectAll();
+
+        //std::cout << "Selected : " << getSelected() << std::endl;
     }
 
     // remove items when the index of the item to be removed is known
@@ -208,6 +212,8 @@ namespace prattle
         if (m_items.size() == 0)
             if (!m_defaultMessage->isVisible())
                 m_defaultMessage->show();
+
+        //deselectAll();
     }
 
     // remove items when the label of the item to be removed is known
@@ -230,6 +236,8 @@ namespace prattle
         if (m_items.size() == 0)
             if (!m_defaultMessage->isVisible())
                 m_defaultMessage->show();
+
+        //deselectAll();
     }
 
     std::string GraphicList::getSelected()
@@ -393,12 +401,29 @@ namespace prattle
         // default size.
         for (unsigned int i = 0; i < m_items.size(); i++)
         {
-            if (m_items[i]->mouseOnWidget(x, y))
-                //m_items[i]->getTextWidget()->setTextSize(m_itemHeight + 2);
-                m_items[i]->getTextWidget()->setTextColor(sf::Color{160, 160, 160});
-            else
-                //m_items[i]->getTextWidget()->setTextSize(m_itemHeight);
-                m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
+//            if (m_items[i]->isListItemInactive())
+//            {
+//                // do nothing...
+//            }
+            //else
+            {
+                if (m_items[i]->mouseOnWidget(x, y))
+                    //m_items[i]->getTextWidget()->setTextSize(m_itemHeight + 2);
+                {
+                    if (!m_items[i]->isActive())
+                        m_items[i]->getTextWidget()->setTextColor(sf::Color{102, 153, 153});
+                    else
+                        m_items[i]->getTextWidget()->setTextColor(sf::Color{160, 160, 160});
+                }
+                else
+                    //m_items[i]->getTextWidget()->setTextSize(m_itemHeight);
+                {
+                    if (!m_items[i]->isActive())
+                        m_items[i]->getTextWidget()->setTextColor(sf::Color{102, 153, 153});
+                    else
+                        m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
+                }
+            }
         }
     }
 
@@ -412,14 +437,20 @@ namespace prattle
         // color to a different one.
         for (unsigned int i = 0; i < m_items.size(); i++)
         {
-            if (m_items[i]->mouseOnWidget(x, y))
+//            if (!m_items[i]->isActive())
+//            {
+//                m_selected = m_items[i];
+//            }
+//            else
             {
-                m_items[i]->getTextWidget()->setTextColor(sf::Color::White);
-                m_selected = m_items[i];
+                if (m_items[i]->mouseOnWidget(x, y))
+                {
+                    m_items[i]->getTextWidget()->setTextColor(sf::Color::White);
+                    m_selected = m_items[i];
+                }
+                else
+                    m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
             }
-            else
-                m_items[i]->getTextWidget()->setTextColor(sf::Color::Black);
-
         }
 
         if (m_scrollerDown.getGlobalBounds().contains(x, y) && m_scrollerDownVisible)
@@ -550,6 +581,37 @@ namespace prattle
                 return i->getNotif();
             }
         }
+    }
+
+    void GraphicList::setListItemActive(const std::string& listItem, bool active)
+    {
+        for (auto& i : m_items)
+        {
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                i->setActive(listItem, active);
+                return;
+            }
+        }
+    }
+
+    bool GraphicList::isListItemActive(const std::string& listItem)
+    {
+        for (auto& i : m_items)
+        {
+            //std::cout << "i : " + i->getTextWidget()->getText().toAnsiString() << std::endl;
+
+            if (i->getTextWidget()->getText() == listItem)
+            {
+                return i->isActive();
+            }
+
+            //std::cout << "foo" << std::endl;
+        }
+
+        //std::cout << "foo" << std::endl;
+
+        //return false;
     }
 
     void GraphicList::clear()

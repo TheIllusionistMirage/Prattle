@@ -41,6 +41,7 @@ namespace prattle
             std::vector<Network::RequestId> m_unsentMsgReqId;
             Network::RequestId m_searchReqId = -1;
             Network::RequestId m_addFriendReqId = -1;
+            Network::RequestId m_friendReqAccIgId = -1;
 
             std::unique_ptr<UserInterface> m_ui;
 

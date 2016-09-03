@@ -2,7 +2,7 @@ Button {
     NormalImage     : "Black.png" Part( 0, 64, 45, 50) Middle(10, 0, 25, 50);
     HoverImage      : "Black.png" Part(45, 64, 45, 50) Middle(10, 0, 25, 50);
     DownImage       : "Black.png" Part(90, 64, 45, 50) Middle(10, 0, 25, 50);
-    TextColorNormal : rgb(255, 255, 255);
+    TextColorNormal : rgb(190, 190, 190);
     TextColorHover  : rgb(250, 250, 250);
     TextColorDown   : rgb(250, 250, 250);
 }
@@ -16,18 +16,18 @@ ChatBox {
 Checkbox {
     UncheckedImage      : "Black.png" Part(124, 0, 32, 32);
     CheckedImage        : "Black.png" Part(156, 0, 32, 32);
-#    UncheckedHoverImage : "Black.png" Part(188, 0, 32, 32);
-#    CheckedHoverImage   : "Black.png" Part(220, 0, 32, 32);
-    TextColorNormal     : rgb(70, 66, 66);
-    TextColorHover      : rgb(100, 100, 100);
+    UncheckedHoverImage : "Black.png" Part(188, 0, 32, 32);
+    CheckedHoverImage   : "Black.png" Part(220, 0, 32, 32);
+    TextColorNormal     : rgb(190, 190, 190);
+    TextColorHover      : rgb(250, 250, 250);
 }
 
 ChildWindow {
     TitlebarImage   : "Black.png" Part(48, 154, 75, 25) Middle(25, 0, 25, 25);
-    TitleColor      : rgb(70, 66, 66);
+    TitleColor      : rgb(190, 190, 190);
     BackgroundColor : rgb( 80,  80,  80);
     BorderColor     : rgb(0, 0, 0);
-#    Borders         : (1, 1, 1, 1);
+    Borders         : (1, 1, 1, 1);
     DistanceToSide  : 5;
     CloseButton     : "ChildWindowCloseButton";
 }
@@ -53,11 +53,11 @@ EditBox {
     NormalImage : "Black.png" Part(0, 114, 60, 40) Middle(15, 0, 30, 40);
     HoverImage  : "Black.png" Part(0, 114, 60, 40) Middle(15, 0, 30, 40);
 
-    TextColor                   : rgb(70, 66, 66);
+    TextColor                   : rgb(190, 190, 190);
     SelectedTextColor           : rgb(255, 255, 255);
-    SelectedTextBackgroundColor : rgb( 255, 144, 0);
+    SelectedTextBackgroundColor : rgb( 10, 110, 255);
     DefaultTextColor            : rgb(120, 120, 120);
-    CaretColor                  : rgb(70, 66, 66);
+    CaretColor                  : rgb(110, 110, 255);
     Padding                     : (6, 4, 6, 4);
 }
 
@@ -146,12 +146,10 @@ Tab {
 
 TextBox {
     BackgroundImage             : "Black.png" Part(0, 154, 48, 48) Middle(16, 16, 16, 16);
-    TextColor                   : rgb(70, 66, 66);
-#    SelectedTextColor           : rgb(255, 255, 255);
-#    SelectedTextBackgroundColor : rgb( 10, 110, 255);
+    TextColor                   : rgb(190, 190, 190);
     SelectedTextColor           : rgb(255, 255, 255);
-    SelectedTextBackgroundColor : rgb( 255, 144, 0);
-    CaretColor                  : rgb(70, 66, 66);
+    SelectedTextBackgroundColor : rgb( 10, 110, 255);
+    CaretColor                  : rgb(110, 110, 255);
     Padding                     : (3, 3, 3, 3);
     Scrollbar                   : "Scrollbar";
 }

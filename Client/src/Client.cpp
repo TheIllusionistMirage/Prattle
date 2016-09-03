@@ -91,9 +91,9 @@ namespace prattle
                         else if (reply.type == Network::Reply::TaskError)
                         {
                             if (m_network.isConnected())
-                                m_ui->alert("Wrong username/password combination!");
+                                m_ui->alert("Wrong username/password combination!", false);
                             else
-                                m_ui->alert("Unable to connect to server! Please check your internet connection.");
+                                m_ui->alert("Unable to connect to server! Please check your internet connection.", false);
                             changeState(UserInterface::State::Login);
                             m_network.reset();
                         }
@@ -101,7 +101,7 @@ namespace prattle
                         {
                             //todo: look at the reply and display the specific error/issue through the ui
 
-                            m_ui->alert("Unable to login!");
+                            m_ui->alert("Unable to login!", false);
                             changeState(UserInterface::State::Login);
                             m_network.reset();
 
@@ -115,14 +115,14 @@ namespace prattle
                             m_network.reset();
                             m_ui->reset();
                             changeState(UserInterface::State::Login);
-                            m_ui->alert("Signup successful! Login to start chatting!");
+                            m_ui->alert("Signup successful! Login to start chatting!", false);
                             m_signupReqId = -1;
                         }
                         else
                         {
                             //todo: look at the reply and display the specific error/issue through the ui
 
-                            m_ui->alert("Unable to Signup!");
+                            m_ui->alert("Unable to Signup!", false);
                             changeState(UserInterface::State::Signup);
                             m_network.reset();
                             m_signupReqId = -1;
@@ -177,9 +177,26 @@ namespace prattle
                             }
                             else if (reply.type == Network::Reply::TaskSuccess)
                             {
-                                m_ui->addFriend(reply.args[0]);
+                                //m_ui->addFriend(reply.args[0]);
                                 m_chatHistory[reply.args[0]] = "";
+                                //isReplyOk = true;
+
+                                //m_ui->alert(reply.args[0] + " has sent you a friend request", true);
+                                m_ui->addFriend(reply.args[0]);
+                                //m_ui->deselectAll();
+                                //m_ui->insertNotif(reply.args[0], "(*) ");
+
+                                ///////
+
+                                m_ui->setFriendActive(reply.args[0], false);
+
+                                m_addFriendReqId = -1;
                                 isReplyOk = true;
+                            }
+                            else if (reply.type == Network::Reply::FriendAdded)
+                            {
+                                m_ui->alert(reply.args[0] + " has sent you a friend request", false);
+                                m_ui->setFriendActive(reply.args[0], true);
                             }
                         }
 
@@ -205,7 +222,7 @@ namespace prattle
                             }
                             else if (msgId == m_unsentMsgReqId.end())
                             {
-                                m_ui->alert("Unable to send message to \'" + m_ui->getSelectedFriend() + "\'!");
+                                m_ui->alert("Unable to send message to \'" + m_ui->getSelectedFriend() + "\'!", false);
                                 isReplyOk = true;
                             }
                         }
@@ -236,12 +253,25 @@ namespace prattle
 
                         if (reply.id == m_addFriendReqId && reply.type == Network::Reply::TaskSuccess)
                         {
-                            std::cout << "Reply : " << reply.id << m_addFriendReqId << std::endl;
-                            std::cout << "Recieved : " << reply.args[0] << std::endl;
-                            m_ui->addFriend(reply.args[0]);
-                            m_chatHistory[reply.args[0]] = "";
-                            isReplyOk = true;
-                            m_addFriendReqId = -1;
+                            //std::cout << "Reply : " << reply.id << m_addFriendReqId << std::endl;
+                            //std::cout << "Recieved : " << reply.args[0] << std::endl;
+                            //std::cout << "Recieved : +" << reply.args[0].substr(0, 5) << "+" << std::endl;
+
+                            if (reply.args[0].substr(0, 5) == "ERROR")
+                            {
+                                m_ui->alert(reply.args[0].substr(9, reply.args[0].size()), false);
+                                isReplyOk = true;
+                                m_addFriendReqId = -1;
+                            }
+                            else
+                            {
+                                //std::cout << "REQ ID : " << m_addFriendReqId << std::endl;
+                                //m_ui->addFriend(reply.args[0]);
+                                //m_chatHistory[reply.args[0]] = "";
+                                m_ui->alert("Friend request sent to \'" + reply.args[0] + "\'!", false);
+                                isReplyOk = true;
+                                m_addFriendReqId = -1;
+                            }
                         }
 
                         if (!isReplyOk)
@@ -308,7 +338,7 @@ namespace prattle
                             m_ui->setUsernameLabel(m_ui->getUsername());
                         }
                         else
-                            m_ui->alert("Can't leave either login fields blank!");
+                            m_ui->alert("Can't leave either login fields blank!", false);
                     }
                     else if (event == UserInterface::UIEvent::StateChanged)
                     {}
@@ -330,7 +360,7 @@ namespace prattle
                                 DBG_LOG("Signup event.");
                             }
                             else
-                                m_ui->alert("Can't leave either signup fields blank!");
+                                m_ui->alert("Can't leave either signup fields blank!", false);
                     }
                     else
                         WRN_LOG("Unexpected UIEvent received in Signup State. Event code: " + std::to_string(event));
@@ -372,7 +402,7 @@ namespace prattle
                                 std::cout << m_ui->getSearchString() << std::endl;
                             }
                             else
-                                m_ui->alert("Search string cannot be empty!");
+                                m_ui->alert("Search string cannot be empty!", false);
 
                         case UserInterface::UIEvent::TabSelected:
                             //
@@ -397,6 +427,31 @@ namespace prattle
                                 DBG_LOG("Add friend task added.");
                             }
                             break;
+
+                        case UserInterface::UIEvent::AddFriendAccept:
+                            {
+                                //m_friendReqAccIgId = m_network.send(Network::Task::FriendRequestAccept, {m_ui->});
+
+                                DBG_LOG("Clicked on yes");
+                                //m_ui->setFriendInactive(m_ui->getSelectedFriend(), true);
+                                //m_ui->alert(m_ui->getSelectedFriend() + " has sent you a friend request", true);
+
+                                DBG_LOG("Selected friend : " + m_ui->getSelectedResult());
+
+//                                m_addFriendReqId = m_network.send(Network::Task::FriendRequestAccept,
+//                                                                  {m_ui->getSelectedResult()});
+                            }
+                            break;
+
+                        case UserInterface::UIEvent::AddFriendReject:
+                            {
+                                DBG_LOG("Clicked on no");
+
+                                m_addFriendReqId = m_network.send(Network::Task::FriendRequestIgnore,
+                                                                  {m_ui->getSelectedResult()});
+                            }
+                            break;
+
                         default:
                             WRN_LOG("Unhandled or unexpected UIEvent received in Chatting state.");
                     }

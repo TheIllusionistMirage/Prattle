@@ -80,7 +80,7 @@ namespace prattle
             UserInterface::UIEvent update() override;
             void draw() override;
 
-            void alert(const std::string& message) override;
+            void alert(const std::string& message, bool choice) override;
             bool isAutoLoginEnabled() override;
             void enableAutoLogin(bool enable) override;
 
@@ -112,6 +112,8 @@ namespace prattle
 
             void insertNotif(const std::string& friendName, const std::string& notif = "") override;
 
+            void setFriendActive(const std::string& friendName, bool active = false) override;
+
             void setSpaceInactive(bool active);
 
             //std::string getFocusedTab() override;
@@ -119,6 +121,9 @@ namespace prattle
             // GUI only methods
             void animateButton(tgui::Button::Ptr button);
             void animatePanel(tgui::Panel::Ptr panel);
+
+            // temp functions
+            void deselectAll() override;
 
         private:
             void closeAlert();
@@ -176,6 +181,8 @@ namespace prattle
             tgui::ChildWindow::Ptr m_alertBox;
             tgui::Picture::Ptr     m_alertFrame;
             tgui::Label::Ptr       m_alertMessage;
+            tgui::Button::Ptr      m_alertYesButton;
+            tgui::Button::Ptr      m_alertNoButton;
     };
 }
 

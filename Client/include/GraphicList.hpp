@@ -48,9 +48,10 @@ namespace prattle
             // this method returns true only if mouse is
             // inside the panel and automatically called
             // from within TGUI if a mouse hover happens.
-            bool mouseOnWidget(float x, float y);
+            bool mouseOnWidget(float x, float y) const override;
 
-            virtual Widget::Ptr clone() override;;
+            //virtual Widget::Ptr clone() override;
+            virtual Widget::Ptr clone() const override;
 
             // add a new list item to the list box.
             void addItem(const std::string& label);
@@ -107,6 +108,10 @@ namespace prattle
             void setNotifOfItem(const std::string& listItem, const std::string& notif);
 
             std::string getNotifOfItem(const std::string& listItem);
+
+            void setListItemActive(const std::string& listItem, bool active = false);
+
+            bool isListItemActive(const std::string& listItem);
 
             void clear();
 

@@ -57,7 +57,9 @@ namespace prattle
         m_searchField->setPosition(20, 20);
 
         //m_searchButton = tgui::Button::create("resources/widgets/Black.conf");//, "search_button");
+        //m_searchButton = m_theme->load("Button");
         m_searchButton = m_theme->load("Button");
+
         m_searchButton->setText("Search");
         m_searchButton->setSize(200, 20);
         m_searchButton->setPosition(m_searchField->getPosition().x, m_searchField->getPosition().y + m_searchField->getSize().y + 7);
@@ -113,7 +115,6 @@ namespace prattle
             m_addFriendButton->setFont(m_font);
 
         if (m_friendList->getFont() == nullptr)
-            //m_friendList->initialize(m_font);
             m_friendList->setFont(m_font);
 
         for (auto& i : friends)
@@ -156,12 +157,12 @@ namespace prattle
             target.draw(*m_searchPanel, states);
     }
 
-    tgui::Widget::Ptr Menu::clone()
+    tgui::Widget::Ptr Menu::clone() const
     {
         return std::make_shared<Menu>(* this);
     }
 
-    bool Menu::mouseOnWidget(float x, float y)
+    bool Menu::mouseOnWidget(float x, float y) const
     {
         if (m_bounds.contains(x,y) || (m_friendList->mouseOnWidget(x, y) && m_friendList->isVisible()))
             return true;
@@ -169,13 +170,16 @@ namespace prattle
             return true;
         else
         {
-            mouseLeftWidget();
+            //mouseLeftWidget();
             return false;
         }
     }
 
     void Menu::mouseMoved(float x, float y)
     {
+        if (!(m_bounds.contains(x,y) || (m_friendList->mouseOnWidget(x, y) && m_friendList->isVisible()) || (m_searchPanel->mouseOnWidget(x, y) && m_searchPanel->isVisible())))
+            mouseLeftWidget();
+
         if (mouseOnWidget(x, y))
         {
             if (m_searchPanel->isVisible())
@@ -201,7 +205,7 @@ namespace prattle
                 }
 
                 //if (m_searchPanel->mouseOnWidget(x, y))
-                    m_searchPanel->mouseMoved(x, y);
+                m_searchPanel->mouseMoved(x, y);
             }
 
             for (unsigned int i = 0; i < m_menuItemSprites.size(); i++)
@@ -257,7 +261,10 @@ namespace prattle
                 m_searchPanel->leftMousePressed(x, y);
 
                 if (m_menuItemSprites[1].getGlobalBounds().contains(x, y))
+                {
                     m_searchPanel->hide();
+                    resetSearchPanel();
+                }
                     //m_searchPanel->hideWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
             }
             else
@@ -277,6 +284,12 @@ namespace prattle
     void Menu::keyPressed(const sf::Event::KeyEvent& event)
     {
         m_searchField->keyPressed(event);
+    }
+
+    void Menu::leftMouseReleased(float x, float y)
+    {
+        m_friendList->leftMouseReleased(x, y);
+        m_searchPanel->leftMouseReleased(x, y);
     }
 
     void Menu::setPosition(const tgui::Layout2d& position)
@@ -370,6 +383,13 @@ namespace prattle
     std::string Menu::getSelectedResult()
     {
         return m_results->getSelectedItem().toAnsiString();
+    }
+
+    void Menu::resetSearchPanel()
+    {
+        m_searchField->setText("");
+        m_results->removeAllItems();
+        m_searchPanel->setSize(sf::Vector2f{m_searchField->getSize().x + 2 * 20, m_searchField->getSize().y + m_searchButton->getSize().y + 7 + 2 * 20});
     }
 
     void Menu::setNotif(const std::string& friendLabel, const std::string& notif)

@@ -38,8 +38,8 @@ namespace prattle
             //void initialize(tgui::Container *const parent);
             //void initialize(std::shared_ptr<sf::Font> font);
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-            bool mouseOnWidget(float x, float y);
-            virtual Widget::Ptr clone() override;
+            bool mouseOnWidget(float x, float y) const override;
+            virtual Widget::Ptr clone() const override;
             virtual void setPosition(const tgui::Layout2d& position);// override;
             sf::Vector2f getPosition();
             void setStatus(unsigned short status);  // 0 for the online sprite and 1 for the offline sprite
@@ -51,6 +51,9 @@ namespace prattle
             void setFont(std::shared_ptr<sf::Font> font);
             void setNotif(const std::string& notif = "");
             std::string getNotif();
+            void setActive(const std::string& username,
+                           bool active = true);
+            bool isActive();
 
         private:
             tgui::Label::Ptr             m_itemText;    // The label widget from TGUI.
@@ -63,6 +66,7 @@ namespace prattle
             unsigned short               m_status;      // The status if the graphic image. In our very specific case
                                                         // it is used to calculate the texture rect of the graphic sprite.
             //std::shared_ptr<sf::Font>    m_font;
+            bool                         m_active;
     };
 }
 

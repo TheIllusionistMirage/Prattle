@@ -41,6 +41,8 @@ namespace prattle
                 TabSelected ,
                 Search      ,
                 AddFriend   ,
+                AddFriendAccept,
+                AddFriendReject,
                 None        ,
                 Closed      ,
                 Disconnect
@@ -53,7 +55,7 @@ namespace prattle
             virtual UIEvent update() = 0;
             virtual void draw() = 0;
 
-            virtual void alert(const std::string& message) = 0;
+            virtual void alert(const std::string& message, bool choice) = 0;
             virtual bool isAutoLoginEnabled() = 0;
             virtual void enableAutoLogin(bool enable) = 0;
 
@@ -81,7 +83,11 @@ namespace prattle
             virtual void addFriend(const std::string& friendName) = 0;
 
             virtual void insertNotif(const std::string& friendName, const std::string& notif = "") = 0;
+            virtual void setFriendActive(const std::string& friendName, bool active = false) = 0;
             //virtual std::string getFocusedTab() = 0;
+
+            // temp func
+            virtual void deselectAll() = 0;
 
 //            protected:
 //                State m_state;

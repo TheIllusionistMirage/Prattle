@@ -25,11 +25,12 @@ namespace prattle
             Menu();
             //void initialize(std::shared_ptr<sf::Font> font);
             virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-            virtual Widget::Ptr clone() override;
-            virtual bool mouseOnWidget(float x, float y);
+            virtual Widget::Ptr clone() const override;
+            virtual bool mouseOnWidget(float x, float y) const override;
             virtual void mouseMoved(float x, float y) override;
             virtual void mouseLeftWidget() override;
             virtual void leftMousePressed(float x, float y) override;
+            virtual void leftMouseReleased(float x, float y) override;
             virtual void mouseWheelMoved(int delta, int x, int y) override;
             virtual void textEntered(sf::Uint32 key) override;
             virtual void keyPressed(const sf::Event::KeyEvent& event) override;
@@ -62,6 +63,8 @@ namespace prattle
             void closeSearchPanel();
 
             std::string getSelectedResult();
+
+            void resetSearchPanel();
 
             void setNotif(const std::string& friendLabel, const std::string& notif = "");
 

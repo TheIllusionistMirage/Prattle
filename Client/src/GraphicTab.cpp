@@ -82,12 +82,25 @@ namespace prattle
             target.draw(m_rightArrow, states);
     }
 
-    tgui::Widget::Ptr GraphicTab::clone()
+    tgui::Widget::Ptr GraphicTab::clone() const
     {
         return std::make_shared<GraphicTab>(* this);
     }
 
-    bool GraphicTab::mouseOnWidget(float x, float y)
+    bool GraphicTab::mouseOnWidget(float x, float y) const
+    {
+//        if (!m_absoluteBounds.contains(x,y))
+//            for (unsigned int i = 0; i < m_tabs.size(); i++)
+//            {
+//                if (m_selected != m_items[i]->getTextWidget()->getText())
+//                    m_tabs[i].setTexture(m_tabActiveTexture);
+//                m_iconVisibility[i] = false;
+//            }
+
+        return m_absoluteBounds.contains(x,y);
+    }
+
+    void GraphicTab::mouseMoved(float x, float y)
     {
         if (!m_absoluteBounds.contains(x,y))
             for (unsigned int i = 0; i < m_tabs.size(); i++)
@@ -97,11 +110,6 @@ namespace prattle
                 m_iconVisibility[i] = false;
             }
 
-        return m_absoluteBounds.contains(x,y);
-    }
-
-    void GraphicTab::mouseMoved(float x, float y)
-    {
         if (m_tabs.size() && m_items.size())
         {
             if (mouseOnWidget(x, y))
