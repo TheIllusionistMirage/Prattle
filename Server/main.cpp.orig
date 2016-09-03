@@ -19,7 +19,7 @@ int main()
 {
     try
     {
-        std::ofstream logFile("prattle_server_log.txt");
+        std::ofstream logFile("server_log.txt");
         prattle::TeeStream tee(std::cerr, logFile);
         prattle::Logger::getLogger()->setStream(&tee);
         prattle::Logger::getLogger()->setLoggingLevel(prattle::Logger::Debug);

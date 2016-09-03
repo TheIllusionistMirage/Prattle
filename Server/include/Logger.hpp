@@ -4,7 +4,7 @@
     ===========================
 
     Provides a very basic error logging system.The results of the log file can
-    be found in 'server_log.txt' in the directory containing the Server binary.
+    be found in 'prattle_server_log.txt' in the directory containing the Server binary.
 
 */
 

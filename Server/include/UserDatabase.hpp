@@ -55,7 +55,9 @@ namespace prattle
                                                                 // Returns if the addition was successful.
             bool isUserRegistered(const std::string& username);     // Returns true if 'username' is registered.
 
-            std::vector<std::string> getMatchingUsers(const std::string& str);
+            std::vector<std::string> getMatchingUsers(const std::string& sender, const std::string& str);
+
+            const std::vector<std::string> getAllUsernames();
 
             const std::vector<std::string>& getFriends(const std::string& username);
 

@@ -38,12 +38,25 @@ namespace prattle
     const std::string SEARCH_USER_RESULTS = "search_user_results";
 
     const std::string ADD_FRIEND          = "add_friend";
-    const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
-    const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
+    const std::string ADD_FRIEND_REQ_SUCCESS = "add_friend_req_success";
+    const std::string ADD_FRIEND_REQ_FAILURE = "add_friend_req_failure";
+    const std::string ADD_FRIEND_SUCCESS = "add_friend_success";
+    const std::string ADD_FRIEND_FAILURE = "add_friend_failure";
+    const std::string ADD_FRIEND_REQ = "add_friend_req";
+    const std::string ADD_FRIEND_ACCEPT = "add_friend_accept";
+    const std::string ADD_FRIEND_IGNORE = "add_friend_ignore";
+    //const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
+    //const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
     //const std::string ADD_NEW_FRIEND      = "add_new_friend";
 
     const std::string STATUS_ONLINE       = "status_online";
     const std::string STATUS_OFFLINE      = "status_offline";
+
+    const std::string S_CONTROLLER_ATTACH  = "controller_attach";
+    const std::string S_CONTROLLER_SHUTDOWN = "controller_shutdown";
+    const std::string S_CONTROLLER_SHOW_USERS = "show_logged_users";
+    const std::string S_CONTROLLER_STATS  = "print_stats";
+    const std::string S_CONTROLLER_REMOVE_USER = "remove_user";
 
     // Class Server which is the main component for Prattle's Server. It controls
     // the overall chat process as described in the beginning of this file.
@@ -82,6 +95,8 @@ namespace prattle
             sf::SocketSelector m_selector;      // Selector class for interacting with multiple sockets.
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;
                                                 // The TcpSockets that act as clients.
+            std::map<std::string, std::vector<std::string>> m_friendReqs;
+                                                // stores friend requests
             bool m_running;                     // Boolean to indicate the running state of the server.
             UserDatabase db;                    // The user database object that handles or database related tasks.
             sf::Time timeOut;                   // The timeout limit for waiting on packets/connections.

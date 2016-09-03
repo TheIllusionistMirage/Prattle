@@ -22,6 +22,14 @@ namespace prattle
         return records.find(username) != records.end();
     }
 
+    const std::vector<std::string> UserDatabase::getAllUsernames()
+    {
+        std::vector<std::string> usernames;
+        for (auto& i : records)
+            usernames.push_back(i.first);
+        return usernames;
+    }
+
     const std::vector<std::string>& UserDatabase::getFriends(const std::string& username)
     {
         auto itr = records.find(username);
@@ -40,13 +48,14 @@ namespace prattle
         return records.size();
     }
 
-    std::vector<std::string> UserDatabase::getMatchingUsers(const std::string& str)
+    std::vector<std::string> UserDatabase::getMatchingUsers(const std::string& sender, const std::string& str)
     {
         std::vector<std::string> matches;
         for (auto& i : records)
         {
             if (i.first.find(str) != std::string::npos)
-                matches.push_back(i.first);
+                if (i.first != sender)
+                    matches.push_back(i.first);
         }
 
         return matches;
@@ -98,6 +107,15 @@ namespace prattle
         {
             auto& user_rec = records[username];
             auto& friend_rec = records[friendname];
+
+            for (auto& i : user_rec.friends)
+                if (i == friendname)
+                    return false;
+
+            for (auto& j : friend_rec.friends)
+                if (j == username)
+                    return false;
+
 
             user_rec.friends.push_back(friendname);
             friend_rec.friends.push_back(username);

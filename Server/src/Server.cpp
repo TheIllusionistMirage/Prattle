@@ -19,6 +19,10 @@ namespace prattle
     {
         parseConfigFile();
 
+        auto users = db.getAllUsernames();
+        for (auto &itr : users)
+            m_friendReqs.insert(std::make_pair(itr, std::vector<std::string>{}));
+
         if (m_server_port == -1)
         {
             ERR_LOG("FATAL ERROR :: Server's open port unspecified! Please check \'" + SERVER_CONFIG_FILE + "\' for any erroneous values.");
@@ -223,6 +227,7 @@ namespace prattle
 
                     // Inform online friends of itr->first about his status
                     const auto& itr_friends = db.getFriends(itr->first);
+                    std::map<std::string, std::vector<std::string>>::iterator jtr;
                     for (auto& friendName : itr_friends)
                     {
                         auto friend_itr = m_clients.find(friendName);
@@ -239,6 +244,9 @@ namespace prattle
                         }
                     }
                     itr = m_clients.erase(itr);
+//                    jtr = m_friendReqs.find(itr->first);
+//                    if (jtr != m_friendReqs.end())
+//                        m_friendReqs.erase(jtr);
                     continue;
                 }
             }
@@ -258,7 +266,8 @@ namespace prattle
 
         if (packet >> request)
         {
-            DBG_LOG("req : " + request);
+            DBG_LOG("New client request : " + request);
+
             if (request == SEND_MSG)
             {
                 std::string rid, receiver, data;
@@ -314,7 +323,7 @@ namespace prattle
                 {
                     sf::Packet searchResult;
 
-                    auto matches = db.getMatchingUsers(query);
+                    auto matches = db.getMatchingUsers(sender, query);
                     if (matches.size() > 0)
                     {
                         searchResult << SEARCH_USER_RESULTS << rid << sf::Uint32(matches.size());
@@ -343,70 +352,269 @@ namespace prattle
             else if (request == ADD_FRIEND)
             {
                 std::string rid, user;
+
                 if (packet >> rid >> user)
                 {
+                    sf::Packet result;
+
+                    // not sure why doing this check cause any 'user' that
+                    // was sent using the add_friend protocol was first
+                    // already verfied by the search protocol
                     if (db.isUserRegistered(user))
                     {
-                        db.addNewFriend(sender, user);
-                        sf::Packet result;
-                        result << ADD_FRIEND_SUCCESS << rid << user;
+                        m_friendReqs.at(user).push_back(user);
+
+                        result << ADD_FRIEND_REQ_SUCCESS << rid << user;
+
                         if (send(result, sender))
-                        {
-                            DBG_LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
-                        }
+                            DBG_LOG("\'" + sender + "\' sent a friend request to \'" + user + "\'");
                         else
-                            ERR_LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+                            ERR_LOG("Unable to notify \'" + sender + "\' about friend request to \'" + user + "\'");
 
-
-                        result.clear();
-                        auto friend_itr = m_clients.find(user);
-                        if (friend_itr != m_clients.end()) //if the friend is online
+                        // if 'user' is online, prompt him about the new request
+                        auto f_itr = m_clients.find(user);
+                        if (f_itr != m_clients.end())
                         {
-                            //Notify `sender` of his new friend
-                            result << ADD_FRIEND << sender;
+                            result.clear();
+                            result << ADD_FRIEND_REQ << sender;
+
                             if (send(result, user))
-                            {
-                                DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
-                            }
+                                DBG_LOG("Forwarded \'" + sender + "\'\'s friend request to \'" + user + "\'");
                             else
-                                ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
-
-                            //Notify both of each other's online presence
-                            sf::Packet statusPacket;
-                            statusPacket << STATUS_ONLINE << user;
-                            if(send(statusPacket, sender))
-                            {
-                                DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
-                            }
-                            else
-                                ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
-
-                            statusPacket.clear();
-                            statusPacket << STATUS_ONLINE << sender;
-                            if(send(statusPacket, user))
-                            {
-                                DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
-                            }
-                            else
-                                ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
+                                ERR_LOG("Unable to forward \'" + sender + "\' \'s friend request to \'" + user + "\'");
                         }
+                        else // else store the req
+                            m_friendReqs[user].push_back(sender);
                     }
                     else
                     {
-                        sf::Packet result;
-                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
-                        result << ADD_FRIEND_FAILURE << rid << details;
-                        if (!send(result, sender))
-                        {
-                            ERR_LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
-                        }
+                        result << ADD_FRIEND_REQ_FAILURE << rid << user;
+
+                        if (send(result, sender))
+                            DBG_LOG("Notified \'" + sender + "\' about friend request failure to \'" + user + "\'");
+                        else
+                            ERR_LOG("Unable to notify \'" + sender + "\' about friend request failure to \'" + user + "\'");
                     }
                 }
                 else
-                {
-                    ERR_LOG("ERROR while extracting data from packet.");
-                }
+                    ERR_LOG("ERROR :: Unable to extract data from packet.");
             }
+
+            else if (request == ADD_FRIEND_ACCEPT)
+            {
+                std::string rid, user;
+
+                if (packet >> rid >> user)
+                {
+                    sf::Packet result;
+
+                    DBG_LOG("Sender : " + sender + ", user : " + user);
+
+                    if (db.isUserRegistered(user))
+                    {
+                        if (db.addNewFriend(sender, user))
+                        {
+                            result.clear();
+                            result << ADD_FRIEND_SUCCESS << sender;
+
+                            if (send(result, user))
+                                DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+                            else
+                                ERR_LOG("ERROR :: Failed to send success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+
+                            result.clear();
+                            result << ADD_FRIEND_REQ_SUCCESS << rid << user;
+
+                            if (send(result, sender))
+                                DBG_LOG("Sent friend req accept success to \'" + sender + "\'");
+                            else
+                                ERR_LOG("Error in sending friend req accept success to \'" + sender + "\'");
+
+                            auto friend_itr = m_clients.find(user);
+                            if (friend_itr != m_clients.end()) //if the friend is online
+                            {
+                                sf::Packet statusPacket;
+                                statusPacket << STATUS_ONLINE << user;
+                                if(send(statusPacket, sender))
+                                {
+                                    DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
+                                }
+                                else
+                                    ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
+
+                                statusPacket.clear();
+                                statusPacket << STATUS_ONLINE << sender;
+                                if(send(statusPacket, user))
+                                {
+                                    DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
+                                }
+                                else
+                                    ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
+                            }
+                        }
+                        else
+                        {
+                            sf::Packet result;
+                            std::string details = "ERROR :: Unable to add \'" + user + "\' as a friend of \'" + sender + "\'.";
+                            result << ADD_FRIEND_FAILURE << rid << details;
+                            if (!send(result, sender))
+                            {
+                                ERR_LOG("ERROR :: Unable to add \'" + user + "\' as a friend of \'" + sender + "\'.");
+                                ERR_LOG("ERROR :: Unable to add \'" + sender + "\' as a friend of \'" + user + "\'.");
+                            }
+                        }
+                    }
+                    else
+                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
+                }
+                else
+                    ERR_LOG("ERROR :: Unable to extract data from packet.");
+            }
+
+            else if (request == ADD_FRIEND_IGNORE)
+            {
+            }
+//            else if (request == ADD_FRIEND_ACCEPT)
+//            {
+//                std::string rid, user;
+//
+//                if (packet >> rid >> user)
+//                {
+//                    sf::Packet result;
+//
+//                    if (db.isUserRegistered(user))
+//                    {
+//                        if (db.addNewFriend(sender, user))
+//                        {
+//                            result.clear();
+//                            result << ADD_FRIEND_SUCCESS << user;
+//
+//                            if (send(result, user))
+//                                DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+//                            else
+//                                ERR_LOG("ERROR :: Failed to send success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+//
+//                            auto friend_itr = m_clients.find(user);
+//                            if (friend_itr != m_clients.end()) //if the friend is online
+//                            {
+//                                sf::Packet statusPacket;
+//                                statusPacket << STATUS_ONLINE << user;
+//                                if(send(statusPacket, sender))
+//                                {
+//                                    DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
+//                                }
+//                                else
+//                                    ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
+//
+//                                statusPacket.clear();
+//                                statusPacket << STATUS_ONLINE << sender;
+//                                if(send(statusPacket, user))
+//                                {
+//                                    DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
+//                                }
+//                                else
+//                                    ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
+//                            }
+//                        }
+//                        else
+//                        {
+//                            sf::Packet result;
+//                            std::string details = "ERROR :: Unable to add \'" + user + "\' as a friend of \'" + sender + "\'.";
+//                            result << ADD_FRIEND_FAILURE << rid << details;
+//                            if (!send(result, sender))
+//                            {
+//                                ERR_LOG("ERROR :: Unable to add \'" + user + "\' as a friend of \'" + sender + "\'.");
+//                                ERR_LOG("ERROR :: Unable to add \'" + sender + "\' as a friend of \'" + user + "\'.");
+//                            }
+//                        }
+//                    }
+//                    else
+//                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
+//                }
+//                else
+//                    ERR_LOG("ERROR :: Unable to extract data from packet.");
+//            }
+
+//            else if (request == ADD_FRIEND)
+//            {
+//                std::string rid, user;
+//                if (packet >> rid >> user)
+//                {
+//                    if (db.isUserRegistered(user))
+//                    {
+//                        if (db.addNewFriend(sender, user))
+//                        {
+//                            sf::Packet result;
+//                            result << ADD_FRIEND_SUCCESS << rid << user;
+//                            if (send(result, sender))
+//                            {
+//                                DBG_LOG("Sent success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+//                            }
+//                            else
+//                                ERR_LOG("ERROR :: Failed to send success info to \'" + sender + "\' for successfully adding \'" + user + "\' as a friend.");
+//
+//
+//                            result.clear();
+//                            auto friend_itr = m_clients.find(user);
+//                            if (friend_itr != m_clients.end()) //if the friend is online
+//                            {
+//                                //Notify `user` of his new friend
+//                                result << ADD_FRIEND << sender;
+//                                if (send(result, user))
+//                                {
+//                                    DBG_LOG("Sent success info to \'" + user + "\' for successfully adding \'" + sender + "\' as a friend.");
+//                                }
+//                                else
+//                                    ERR_LOG("ERROR :: Error in sending friend add acknowledgement to \'" + user + "\'");
+//
+//                                //Notify both of each other's online presence
+//                                sf::Packet statusPacket;
+//                                statusPacket << STATUS_ONLINE << user;
+//                                if(send(statusPacket, sender))
+//                                {
+//                                    DBG_LOG("Notified \'" + sender + "\' that \'" + user + "\' is online");
+//                                }
+//                                else
+//                                    ERR_LOG("ERROR :: Error in sending status to \'" + sender + "\' from the server");
+//
+//                                statusPacket.clear();
+//                                statusPacket << STATUS_ONLINE << sender;
+//                                if(send(statusPacket, user))
+//                                {
+//                                    DBG_LOG("Notified \'" + user + "\' that \'" + sender + "\' is online");
+//                                }
+//                                else
+//                                    ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
+//                            }
+//                        }
+//                        else
+//                        {
+//                            sf::Packet result;
+//                            std::string details = "ERROR :: Unable to add \'" + user + "\' as a friend of \'" + sender + "\'.";
+//                            result << ADD_FRIEND_FAILURE << rid << details;
+//                            if (!send(result, sender))
+//                            {
+//                                ERR_LOG("ERROR :: Unable to add \'" + user + "\' as a friend of \'" + sender + "\'.");
+//                                ERR_LOG("ERROR :: Unable to add \'" + sender + "\' as a friend of \'" + user + "\'.");
+//                            }
+//                        }
+//                    }
+//                    else
+//                    {
+//                        sf::Packet result;
+//                        std::string details = "ERROR :: \'" + user + "\' is not a registered member.";
+//                        result << ADD_FRIEND_FAILURE << rid << details;
+//                        if (!send(result, sender))
+//                        {
+//                            ERR_LOG("ERROR :: Failed to send failure info to \'" + sender + "\' about an unsuccessful attempt to \'" + user + "\' as a friend.");
+//                        }
+//                    }
+//                }
+//                else
+//                {
+//                    ERR_LOG("ERROR while extracting data from packet.");
+//                }
+//            }
         }
         else
         {
@@ -616,6 +824,7 @@ namespace prattle
                                     m_messages.erase(sender);
                                     m_clients.insert(std::make_pair(sender, std::move(*itr)));
                                     itr = m_new_connections.erase(itr);
+                                    //m_friendReqs.insert(std::make_pair(sender, std::vector<std::string>{}));
 
                                     ///
                                     auto sender_friends = db.getFriends(sender);
@@ -656,6 +865,28 @@ namespace prattle
                                             }
                                         }
                                     }
+
+//                                    // send any pending friend requests
+//                                    auto jtr = m_friendReqs.find(sender);
+//
+//                                    if (jtr != m_friendReqs.end())
+//                                    {
+//                                        //for (auto& j : jtr->second)
+//                                        std::vector<std::string>::iterator j;
+//                                        for (j = jtr->second.begin(); j != jtr->second.end(); j++)
+//                                        {
+//                                            sf::Packet frndpack;
+//                                            frndpack << ADD_FRIEND_REQ << *j;
+//
+//                                            if (send(frndpack, sender))
+//                                            {
+//                                                DBG_LOG("foo Forwarded pending friend request from \'" + *j + "\' to \'" + sender + "\'");
+//                                                jtr->second.erase(j);
+//                                            }
+//                                            else
+//                                                ERR_LOG("Unable to forward pending friend request from \'" + *j + "\' to \'" + sender + "\'");
+//                                        }
+//                                    }
 
 /*//                                    auto sender_friends = db.getFriends(sender);
 //                                    for (auto& friendName : sender_friends)
@@ -723,6 +954,7 @@ namespace prattle
                             {
                                 if (db.addNewUser(sender, plainPassword))
                                 {
+                                    m_friendReqs.insert(std::make_pair(sender, std::vector<std::string>{}));
                                     sf::Packet signupResult;
                                     signupResult << SIGNUP_SUCCESS << rid;
 
