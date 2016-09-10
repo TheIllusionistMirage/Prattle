@@ -108,6 +108,8 @@ namespace prattle
 
             std::string getSelectedResult() override;
 
+            std::string getSelectedFriendItem() override;
+
             void addFriend(const std::string& friendName) override;
 
             void insertNotif(const std::string& friendName, const std::string& notif = "") override;

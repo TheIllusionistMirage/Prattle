@@ -987,9 +987,15 @@ namespace prattle
         return m_menu->getSelectedResult();
     }
 
+    std::string GraphicalUI::getSelectedFriendItem()
+    {
+        return std::static_pointer_cast<GraphicList>(m_menu->getMenuItem(Menu::Item::FriendPanel))->getSelected();
+    }
+
     void GraphicalUI::addFriend(const std::string& friendName)
     {
         std::static_pointer_cast<GraphicList>(m_menu->getMenuItem(Menu::Item::FriendPanel))->addItem(friendName);
+//        m_menu->getFriendList()->addItem(friendName);
     }
 
     void GraphicalUI::insertNotif(const std::string& friendName, const std::string& notif)

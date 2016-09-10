@@ -147,6 +147,7 @@ namespace prattle
 
                             if (reply.type == Network::Reply::RecievedMessage)
                             {
+                                //if (m_ui->getSelectedFriendItem() == reply.args[0])
                                 if (m_ui->getSelectedFriend() == reply.args[0])
                                     m_ui->addToChatArea(reply.args[0] + " : " + reply.args[1]);
                                 if (m_chatHistory.find(reply.args[0])->second == "")
@@ -175,29 +176,104 @@ namespace prattle
                                 m_ui->setStatusOfFriend(reply.args[0], 1);  // remember from GraphicListItem class, 1 is for offline, 1 is for online textures.
                                 isReplyOk = true;
                             }
-                            else if (reply.type == Network::Reply::TaskSuccess)
-                            {
-                                //m_ui->addFriend(reply.args[0]);
-                                m_chatHistory[reply.args[0]] = "";
-                                //isReplyOk = true;
 
-                                //m_ui->alert(reply.args[0] + " has sent you a friend request", true);
-                                m_ui->addFriend(reply.args[0]);
-                                //m_ui->deselectAll();
-                                //m_ui->insertNotif(reply.args[0], "(*) ");
-
-                                ///////
-
-                                m_ui->setFriendActive(reply.args[0], false);
-
-                                m_addFriendReqId = -1;
-                                isReplyOk = true;
-                            }
                             else if (reply.type == Network::Reply::FriendAdded)
                             {
-                                m_ui->alert(reply.args[0] + " has sent you a friend request", false);
-                                m_ui->setFriendActive(reply.args[0], true);
+                                std::string sender = reply.args[0];
+                                DBG_LOG(ADD_FRIEND_REQ + " received from " + sender);
+                                // notify the receiver about a new pending friend request
+                                // and pop up a nice alert box with accept/ignore options
+                                m_ui->alert(sender + " has sent you a friend request!", true);
+
+                                // add an inactive friend in the friendlist
+                                // until they respond to the request
+                                m_ui->addFriend(sender);
+                                //m_ui->insertNotif(sender, "(*) ");
+                                m_ui->setFriendActive(sender, false);
+
+                                isReplyOk = true;
                             }
+
+                            else if (reply.type == Network::Reply::FriendAddedSuccess)
+                            {
+                                std::string _friend = reply.args[0];
+
+                                DBG_LOG(_friend + " has accepted your friend request!");
+                                m_ui->alert(_friend + " has accepted your friend request!", false);
+
+                                m_ui->addFriend(_friend);
+                                m_ui->setFriendActive(_friend, true);
+                                m_chatHistory[_friend] = "";
+
+                                //m_friendReqAcIgId = -1;
+                                isReplyOk = true;
+                            }
+
+//                            else if (reply.type == Network::Reply::TaskSuccess)
+//                            {
+//                                //m_ui->addFriend(reply.args[0]);
+//                                //m_chatHistory[reply.args[0]] = "";
+//                                //isReplyOk = true;
+//
+//                                m_ui->alert(reply.args[0] + " has sent you a friend request", true);
+//                                m_ui->addFriend(reply.args[0]);
+//                                //m_ui->deselectAll();
+//                                m_ui->insertNotif(reply.args[0], "(*) ");   // to highlight and direct the attention
+//
+//                                ///////
+//
+//                                m_ui->setFriendActive(reply.args[0], false); // friend isn't in the friendlist (yet)
+//
+//                                m_addFriendReqId = -1;
+//                                isReplyOk = true;
+//                            }
+////                            else if (reply.type == Network::Reply::FriendAdded)
+//                            //{
+////                                m_ui->alert(reply.args[0] + " has sent you a friend request", true);
+////                                m_ui->addFriend(reply.args[0]);
+////                                m_ui->insertNotif(reply.args[0], "(*) ");
+////                                //m_ui->setFriendActive(reply.args[0], true);
+////
+////                                m_addFriendReqId = -1;
+////                                isReplyOk = true;
+//                            //}
+//                            else if (reply.type == Network::Reply::FriendAdded)
+//                            {
+//                                m_ui->alert(reply.args[0] + " has accepted your friend request!", false);
+//                                m_ui->addFriend(reply.args[0]);
+//                                m_chatHistory[reply.args[0]] = "";
+//
+//                                m_addFriendReqId = -1;
+//                                isReplyOk = true;
+//                            }
+
+                            // ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//                            else if (reply.type == Network::Reply::FriendAdded)
+//                            {
+//                                // notify the receiver about a new pending friend request
+//                                // and pop up a nice alert box with accept/ignore options
+//                                m_ui->alert(reply.args[0] + " has sent you a friend request!", true);
+//
+//                                // add an inactive friend in the friendlist
+//                                // until they respond to the request
+//                                m_ui->addFriend(reply.args[0]);
+//                                m_ui->insertNotif(reply.args[0], "(*) ");
+//                                m_ui->setFriendActive(reply.args[0], false);
+//
+//                                m_addFriendReqId = -1;
+//                                isReplyOk = true;
+//                            }
+//
+//                            else if (reply.type == Network::Reply::FriendAddedSuccess)
+//                            {
+//                                m_ui->alert(reply.args[0] + " has accepted your friend request!");
+//
+//                                m_friendReqAccIgId = -1;
+//                                isReplyOk = true;
+//                            }
+
+                            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         }
 
                         if (reply.id != 0 && m_unsentMsgReqId.size() > 0)
@@ -251,28 +327,57 @@ namespace prattle
 //                            isReplyOk = true;
 //                        }
 
+                        // !!!!!!!!!!
                         if (reply.id == m_addFriendReqId && reply.type == Network::Reply::TaskSuccess)
                         {
+                            std::string _friend = reply.args[0];
+                            DBG_LOG("Friend request sent to \'" + _friend + "\'");
+                            m_ui->alert("Friend request sent to \'" + _friend + "\'", false);
+
+                            isReplyOk = true;
+                            m_addFriendReqId = -1;
+
                             //std::cout << "Reply : " << reply.id << m_addFriendReqId << std::endl;
                             //std::cout << "Recieved : " << reply.args[0] << std::endl;
                             //std::cout << "Recieved : +" << reply.args[0].substr(0, 5) << "+" << std::endl;
 
-                            if (reply.args[0].substr(0, 5) == "ERROR")
-                            {
-                                m_ui->alert(reply.args[0].substr(9, reply.args[0].size()), false);
-                                isReplyOk = true;
-                                m_addFriendReqId = -1;
-                            }
-                            else
-                            {
-                                //std::cout << "REQ ID : " << m_addFriendReqId << std::endl;
-                                //m_ui->addFriend(reply.args[0]);
-                                //m_chatHistory[reply.args[0]] = "";
-                                m_ui->alert("Friend request sent to \'" + reply.args[0] + "\'!", false);
-                                isReplyOk = true;
-                                m_addFriendReqId = -1;
-                            }
+//                            if (reply.args[0].substr(0, 5) == "ERROR")
+//                            {
+//                                m_ui->alert(reply.args[0].substr(9, reply.args[0].size()), false);
+//                                isReplyOk = true;
+//                                m_addFriendReqId = -1;
+//                            }
+//                            else
+//                            {
+//                                //std::cout << "REQ ID : " << m_addFriendReqId << std::endl;
+////                                m_ui->addFriend(reply.args[0]);
+////                                m_chatHistory[reply.args[0]] = "";
+//                                m_ui->alert("Friend request sent to \'" + reply.args[0] + "\'!", false);
+//                                isReplyOk = true;
+//                                m_addFriendReqId = -1;
+//                            }
+
+//                            m_ui->alert("Friend request received from \'" + reply.args[0] + "\'");
+//
+//                            isReplyOk = true;
+//                            m_addFriendReqId = -1;
                         }
+
+                        if (reply.id == m_friendReqAcIgId && reply.type == Network::Reply::TaskSuccess)
+                        {
+
+                            std::string _friend = reply.args[0];
+                            //m_ui->alert("You're now friends with " + _friend, false);
+                            m_ui->setFriendActive(_friend, true);
+                            DBG_LOG("act frnd : " + _friend);
+                            //m_ui->insertNotif(_friend, "");
+                            m_chatHistory[_friend] = "";
+
+                            isReplyOk = true;
+                            m_friendReqAcIgId = -1;
+                        }
+
+                        DBG_LOG("foobar12345");
 
                         if (!isReplyOk)
                             WRN_LOG("Received an unexpected network reply in state Chatting. Received reply : " + std::to_string(reply.id) + " " + std::to_string(reply.type));
@@ -417,38 +522,68 @@ namespace prattle
                             m_ui->insertNotif(m_ui->getSelectedFriend(), "");
                             break;
 
+//                        case UserInterface::UIEvent::AddFriend:
+//                            {
+//                                DBG_LOG("Selected result : " + m_ui->getSelectedResult());
+//
+//                                m_addFriendReqId = m_network.send(Network::Task::AddFriend,
+//                                                                  {m_ui->getSelectedResult()});
+//
+//                                DBG_LOG("Add friend task added.");
+//                            }
+//                            break;
+
                         case UserInterface::UIEvent::AddFriend:
                             {
-                                DBG_LOG("Selected result : " + m_ui->getSelectedResult());
-
+                                std::string _friend = m_ui->getSelectedResult();
                                 m_addFriendReqId = m_network.send(Network::Task::AddFriend,
-                                                                  {m_ui->getSelectedResult()});
-
-                                DBG_LOG("Add friend task added.");
+                                                                  {_friend});
+                                DBG_LOG(ADD_FRIEND + " task initiated");
                             }
                             break;
+
+//                        case UserInterface::UIEvent::AddFriendAccept:
+//                            {
+//                                //m_friendReqAccIgId = m_network.send(Network::Task::FriendRequestAccept, {m_ui->});
+//
+//                                DBG_LOG("Clicked on yes");
+//                                //m_ui->setFriendInactive(m_ui->getSelectedFriend(), true);
+//                                //m_ui->alert(m_ui->getSelectedFriend() + " has sent you a friend request", true);
+//
+//                                DBG_LOG("Selected friend : " + m_ui->getSelectedFriendItem());
+//
+//                                m_addFriendReqId = m_network.send(Network::Task::FriendRequestAccept,
+//                                                                  {m_ui->getSelectedFriendItem()});
+//                            }
+//                            break;
 
                         case UserInterface::UIEvent::AddFriendAccept:
                             {
-                                //m_friendReqAccIgId = m_network.send(Network::Task::FriendRequestAccept, {m_ui->});
-
-                                DBG_LOG("Clicked on yes");
-                                //m_ui->setFriendInactive(m_ui->getSelectedFriend(), true);
-                                //m_ui->alert(m_ui->getSelectedFriend() + " has sent you a friend request", true);
-
-                                DBG_LOG("Selected friend : " + m_ui->getSelectedResult());
-
-//                                m_addFriendReqId = m_network.send(Network::Task::FriendRequestAccept,
-//                                                                  {m_ui->getSelectedResult()});
+                                //std::string sender = m_ui->getSelectedFriendItem();
+                                //DBG_LOG("You accepted \'" + sender + "\'s friend request");
+                                DBG_LOG("You accepted \'" + m_ui->getSelectedFriendItem() + "\'s friend request");
+                                m_friendReqAcIgId = m_network.send(Network::Task::FriendRequestAccept,
+                                                                   {m_ui->getSelectedFriendItem()});
+                                DBG_LOG(ADD_FRIEND_ACCEPT + " request added");
                             }
                             break;
 
+//                        case UserInterface::UIEvent::AddFriendReject:
+//                            {
+//                                DBG_LOG("Clicked on no");
+//
+//                                m_addFriendReqId = m_network.send(Network::Task::FriendRequestIgnore,
+//                                                                  {m_ui->getSelectedFriendItem()});
+//                            }
+//                            break;
+
                         case UserInterface::UIEvent::AddFriendReject:
                             {
-                                DBG_LOG("Clicked on no");
-
-                                m_addFriendReqId = m_network.send(Network::Task::FriendRequestIgnore,
-                                                                  {m_ui->getSelectedResult()});
+                                std::string sender = m_ui->getSelectedFriendItem();
+                                DBG_LOG("You rejected \'" + sender + "\'s friend request");
+                                m_friendReqAcIgId = m_network.send(Network::Task::FriendRequestIgnore,
+                                                                   {sender});
+                                DBG_LOG(ADD_FRIEND_IGNORE + " request initiated");
                             }
                             break;
 

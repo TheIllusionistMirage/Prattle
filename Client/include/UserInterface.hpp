@@ -80,6 +80,7 @@ namespace prattle
             virtual void setStatusOfFriend(const std::string& sender, unsigned int status) = 0;
             virtual void showSearchResults(const std::vector<std::string>& results) = 0;
             virtual std::string getSelectedResult() = 0;
+            virtual std::string getSelectedFriendItem() = 0;
             virtual void addFriend(const std::string& friendName) = 0;
 
             virtual void insertNotif(const std::string& friendName, const std::string& notif = "") = 0;

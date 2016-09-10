@@ -91,7 +91,7 @@ namespace prattle
 
         dbFile.seekp(0, std::ios::end);
 
-        if(!(dbFile << username << ':' << newRecord.hashed_pwd << ':' << newRecord.salt << ':' << std::endl))
+        if(!(dbFile << username << ':' << newRecord.hashed_pwd << ':' << newRecord.salt << "::" << std::endl))
         {
             ERR_LOG("FATAL ERROR :: Error in writing a new recored to database " + USER_LIST + "!");
             throw std::runtime_error("Error while writing new record to " + USER_LIST);

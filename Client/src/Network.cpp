@@ -144,8 +144,6 @@ namespace prattle
             break;
             case Task::Type::AddFriend:
             {
-                DBG_LOG("Add friend task added");
-
                 if (args.size() != 1)
                     throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Add Friend");
 
@@ -171,18 +169,16 @@ namespace prattle
 
                 if(status == sf::Socket::Status::Done)
                 {
-                    DBG_LOG("Add friend packet sent to server");
+                    DBG_LOG(ADD_FRIEND + " request forwarded to server");
                     return rid;
                 }
                 else
-                    ERR_LOG("ERROR in sending add friend packet to sever!");
+                    ERR_LOG("Unable to forward " + ADD_FRIEND + " request to server");
             }
             break;
 
             case Task::Type::FriendRequestAccept:
             {
-                DBG_LOG("Friend request accept task added");
-
                 if (args.size() != 1)
                     throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Friend Request Accept");
 
@@ -218,8 +214,6 @@ namespace prattle
 
             case Task::Type::FriendRequestIgnore:
             {
-                DBG_LOG("Friend request ignore task added");
-
                 if (args.size() != 1)
                     throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Friend Request ignore");
 
@@ -390,6 +384,18 @@ namespace prattle
 //                                            Reply::Type::TaskSuccess,
 //                                            {sender} });
 //                    }
+//                    else if (reply == ADD_FRIEND_REQ)
+//                    {
+//                        std::string sender;
+//                        response >> sender;
+//
+//                        m_replies.push_front(Reply{
+//                                            InvalidRequest,
+//                                            Reply::Type::TaskSuccess,
+//                                            {sender}});
+//                    }
+
+
                     else if (reply == ADD_FRIEND_REQ)
                     {
                         std::string sender;
@@ -397,23 +403,36 @@ namespace prattle
 
                         m_replies.push_front(Reply{
                                             InvalidRequest,
-                                            Reply::Type::TaskSuccess,
+                                            Reply::Type::FriendAdded,
                                             {sender}});
                     }
+
+//                    else if (reply == ADD_FRIEND_SUCCESS)
+//                    {
+//                        std::string friendname;
+//
+//                        response >> friendname;
+//
+//                        m_replies.push_front(Reply{
+//                                            InvalidRequest,
+//                                            Reply::Type::FriendAdded,
+//                                            {friendname}});
+//
+//                        DBG_LOG("Add friend task completed");
+//                        //m_tasks.erase(res);
+//                    }
 
                     else if (reply == ADD_FRIEND_SUCCESS)
                     {
                         std::string friendname;
-
                         response >> friendname;
 
                         m_replies.push_front(Reply{
                                             InvalidRequest,
-                                            Reply::Type::FriendAdded,
+                                            Reply::Type::FriendAddedSuccess,
                                             {friendname}});
 
-                        DBG_LOG("Add friend task completed");
-                        //m_tasks.erase(res);
+                        DBG_LOG(ADD_FRIEND + " request completed");
                     }
 
                     else
@@ -499,19 +518,39 @@ namespace prattle
                                         ERR_LOG("Damaged packet received");
                                 }
 
-                                else if (reply == ADD_FRIEND_REQ_SUCCESS ||
-                                          reply == ADD_FRIEND_REQ_FAILURE)
+                                else if (reply == ADD_FRIEND_REQ_ACK)
                                 {
-                                    std::string result;
-                                    response >> result;
+                                    std::string status, _friend;
+                                    response >> status >> _friend;
 
-                                    m_replies.push_front(Reply{
-                                                        rid,
-                                                        Reply::Type::TaskSuccess,
-                                                        {result}});
-                                    DBG_LOG("Friend request sent to \'" + result + "\'.");
+                                    /*
+                                        Error checking code goes here, if any
+                                    */
+                                    // (use the contents of status to check for errors)
+                                    // for now it always contains "success"
+                                    /* /// */
+
+                                    m_replies.push_front(Reply{rid,
+                                                               Reply::Type::TaskSuccess,
+                                                               {_friend}});
                                     m_tasks.erase(res);
+
+                                    DBG_LOG("Friend request to \'" + _friend + "\' sent");
                                 }
+
+//                                else if (reply == ADD_FRIEND_REQ_SUCCESS ||
+//                                          reply == ADD_FRIEND_REQ_FAILURE)
+//                                {
+//                                    std::string result;
+//                                    response >> result;
+//
+//                                    m_replies.push_front(Reply{
+//                                                        rid,
+//                                                        Reply::Type::TaskSuccess,
+//                                                        {result}});
+//                                    DBG_LOG("Friend request sent to \'" + result + "\'.");
+//                                    m_tasks.erase(res);
+//                                }
 //                                else if (reply == ADD_FRIEND_SUCCESS ||
 //                                          reply == ADD_FRIEND_FAILURE)
 //                                {

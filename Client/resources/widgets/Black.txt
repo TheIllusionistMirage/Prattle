@@ -2,7 +2,7 @@ Button {
     NormalImage     : "Black.png" Part( 0, 64, 45, 50) Middle(10, 0, 25, 50);
     HoverImage      : "Black.png" Part(45, 64, 45, 50) Middle(10, 0, 25, 50);
     DownImage       : "Black.png" Part(90, 64, 45, 50) Middle(10, 0, 25, 50);
-    TextColorNormal : rgb(190, 190, 190);
+    TextColorNormal : rgb(255, 255, 255);
     TextColorHover  : rgb(250, 250, 250);
     TextColorDown   : rgb(250, 250, 250);
 }
@@ -19,15 +19,15 @@ Checkbox {
     UncheckedHoverImage : "Black.png" Part(188, 0, 32, 32);
     CheckedHoverImage   : "Black.png" Part(220, 0, 32, 32);
     TextColorNormal     : rgb(190, 190, 190);
-    TextColorHover      : rgb(250, 250, 250);
+    TextColorHover      : rgb(70, 66, 66);
 }
 
 ChildWindow {
     TitlebarImage   : "Black.png" Part(48, 154, 75, 25) Middle(25, 0, 25, 25);
-    TitleColor      : rgb(190, 190, 190);
-    BackgroundColor : rgb( 80,  80,  80);
+    TitleColor      : rgb(118, 118, 118);
+    BackgroundColor : rgba( 255, 255, 255);
     BorderColor     : rgb(0, 0, 0);
-    Borders         : (1, 1, 1, 1);
+    Borders         : (0, 0, 0, 0);
     DistanceToSide  : 5;
     CloseButton     : "ChildWindowCloseButton";
 }

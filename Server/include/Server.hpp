@@ -37,17 +37,23 @@ namespace prattle
     const std::string SEARCH_USER         = "search_user";
     const std::string SEARCH_USER_RESULTS = "search_user_results";
 
-    const std::string ADD_FRIEND          = "add_friend";
-    const std::string ADD_FRIEND_REQ_SUCCESS = "add_friend_req_success";
-    const std::string ADD_FRIEND_REQ_FAILURE = "add_friend_req_failure";
+//    const std::string ADD_FRIEND          = "add_friend";
+//    const std::string ADD_FRIEND_REQ_SUCCESS = "add_friend_req_success";
+//    const std::string ADD_FRIEND_REQ_FAILURE = "add_friend_req_failure";
+//    const std::string ADD_FRIEND_SUCCESS = "add_friend_success";
+//    const std::string ADD_FRIEND_FAILURE = "add_friend_failure";
+//    const std::string ADD_FRIEND_REQ = "add_friend_req";
+//    const std::string ADD_FRIEND_ACCEPT = "add_friend_accept";
+//    const std::string ADD_FRIEND_IGNORE = "add_friend_ignore";
+//    //const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
+//    //const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
+//    //const std::string ADD_NEW_FRIEND      = "add_new_friend";
+    const std::string ADD_FRIEND         = "add_friend"        ;
+    const std::string ADD_FRIEND_REQ_ACK = "add_friend_req_ack";
+    const std::string ADD_FRIEND_REQ     = "add_friend_req"    ;
+    const std::string ADD_FRIEND_ACCEPT  = "add_friend_accept" ;
+    const std::string ADD_FRIEND_IGNORE  = "add_friend_ignore" ;
     const std::string ADD_FRIEND_SUCCESS = "add_friend_success";
-    const std::string ADD_FRIEND_FAILURE = "add_friend_failure";
-    const std::string ADD_FRIEND_REQ = "add_friend_req";
-    const std::string ADD_FRIEND_ACCEPT = "add_friend_accept";
-    const std::string ADD_FRIEND_IGNORE = "add_friend_ignore";
-    //const std::string ADD_FRIEND_SUCCESS  = "add_friend_success";
-    //const std::string ADD_FRIEND_FAILURE  = "add_friend_failure";
-    //const std::string ADD_NEW_FRIEND      = "add_new_friend";
 
     const std::string STATUS_ONLINE       = "status_online";
     const std::string STATUS_OFFLINE      = "status_offline";
