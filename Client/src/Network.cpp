@@ -50,7 +50,7 @@ namespace prattle
                                   rid = generateId(),
                                   Task::Type::Login,
                                   std::chrono::steady_clock::now()});
-                unsigned short port = std::stoi(args[1]);
+                unsigned short port = stoi(args[1]);
                 m_connectManifest.address = args[0];
                 m_connectManifest.port = port;
                 m_connectManifest.username = args[2];
@@ -73,7 +73,7 @@ namespace prattle
                                   rid = generateId(),
                                   Task::Type::Signup,
                                   std::chrono::steady_clock::now()});
-                unsigned short port = std::stoi(args[1]);
+                unsigned short port = stoi(args[1]);
                 m_connectManifest.address = args[0];
                 m_connectManifest.port = port;
                 m_connectManifest.username = args[2];
@@ -98,8 +98,8 @@ namespace prattle
                                   std::chrono::steady_clock::now()});
 
                 sf::Packet packet;
-                packet << SEND_MSG << std::to_string(rid) << args[0] << args[1];
-                //std::cout << SEND_MSG << " " + std::to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
+                packet << SEND_MSG << to_string(rid) << args[0] << args[1];
+                //std::cout << SEND_MSG << " " + to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
                 auto status = m_socket.send(packet);
 
                 if(status == sf::Socket::Status::Done)
@@ -129,8 +129,8 @@ namespace prattle
                                   std::chrono::steady_clock::now()});
 
                 sf::Packet packet;
-                packet << SEARCH_USER << std::to_string(rid) << args[0];
-                //std::cout << SEND_MSG << " " + std::to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
+                packet << SEARCH_USER << to_string(rid) << args[0];
+                //std::cout << SEND_MSG << " " + to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
                 auto status = m_socket.send(packet);
 
                 if(status == sf::Socket::Status::Done)
@@ -163,7 +163,7 @@ namespace prattle
                                   std::chrono::steady_clock::now()});
 
                 sf::Packet packet;
-                packet << ADD_FRIEND << std::to_string(rid) << args[0];
+                packet << ADD_FRIEND << to_string(rid) << args[0];
 
                 auto status = m_socket.send(packet);
 
@@ -198,7 +198,7 @@ namespace prattle
                                   std::chrono::steady_clock::now()});
 
                 sf::Packet packet;
-                packet << ADD_FRIEND_ACCEPT << std::to_string(rid) << args[0];
+                packet << ADD_FRIEND_ACCEPT << to_string(rid) << args[0];
 
                 auto status = m_socket.send(packet);
 
@@ -233,7 +233,7 @@ namespace prattle
                                   std::chrono::steady_clock::now()});
 
                 sf::Packet packet;
-                packet << ADD_FRIEND_IGNORE << std::to_string(rid) << args[0];
+                packet << ADD_FRIEND_IGNORE << to_string(rid) << args[0];
 
                 auto status = m_socket.send(packet);
 
@@ -288,7 +288,7 @@ namespace prattle
                     }
                     else
                         reqPacket << SIGNUP;
-                    reqPacket << std::to_string(m_tasks.front().id) << m_connectManifest.username
+                    reqPacket << to_string(m_tasks.front().id) << m_connectManifest.username
                               << m_connectManifest.password;
 
                     //Try sending the login/signup request
@@ -305,7 +305,7 @@ namespace prattle
                     }
                     else
                     {
-                        ERR_LOG("Error in sending request packet. Status code: " + std::to_string(status));
+                        ERR_LOG("Error in sending request packet. Status code: " + to_string(status));
                         m_replies.push_front(Reply{
                                             m_tasks.front().id,
                                             Reply::Type::TaskError,
@@ -316,7 +316,7 @@ namespace prattle
                 }
                 else if (status == sf::Socket::Error)
                 {
-                    ERR_LOG("Error in connecting. Status code: " + std::to_string(status));
+                    ERR_LOG("Error in connecting. Status code: " + to_string(status));
                     m_replies.push_front(Reply{
                                         m_tasks.front().id,
                                         Reply::Type::TaskError,
@@ -440,7 +440,7 @@ namespace prattle
                         if (response >> temp)
                         {
                             //std::cout << "Rid : " << temp << std::endl;
-                            RequestId rid = std::stoi(temp);
+                            RequestId rid = stoi(temp);
 
                             const auto comparator = [&](const Task& t) { return t.id == rid; };
                             auto res = std::find_if(m_tasks.begin(), m_tasks.end(), comparator);
@@ -465,7 +465,7 @@ namespace prattle
                                         auto& vec = m_replies.front().args;
                                         int noOfFriends;
                                         response >> noOfFriends;
-                                        vec.push_back(std::to_string(noOfFriends));
+                                        vec.push_back(to_string(noOfFriends));
                                         while (response >> temp)
                                             vec.push_back(temp);
                                     }
@@ -502,7 +502,7 @@ namespace prattle
 
                                     if (response >> noOfFriends)
                                     {
-                                        result.push_back(std::to_string(noOfFriends));
+                                        result.push_back(to_string(noOfFriends));
                                         while (response >> temp)
                                             result.push_back(temp);
 
@@ -590,7 +590,7 @@ namespace prattle
                 auto d = std::chrono::steady_clock::now() - i->timeStarted;
                 if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
                 {
-                    DBG_LOG("LOG :: Task timed out. Request id: " + std::to_string(i->id) + " Time elapsed: " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
+                    DBG_LOG("LOG :: Task timed out. Request id: " + to_string(i->id) + " Time elapsed: " + to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
                     m_replies.push_front(Reply{
                                         i->id,
                                         Reply::Type::TaskTimeout,

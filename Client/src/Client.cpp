@@ -28,7 +28,7 @@ namespace prattle
             changeState(UserInterface::State::Connecting);
             m_loginReqId = m_network.send(Network::Task::Login, {
                                            m_clientConf.addr,
-                                           std::to_string(m_clientConf.port),
+                                           to_string(m_clientConf.port),
                                            m_loginInfo.username,
                                            m_loginInfo.password });
             //m_loginInfo.enabled = false;
@@ -71,7 +71,7 @@ namespace prattle
                     {
                         if (reply.type == Network::Reply::TaskSuccess)
                         {
-                            int noOfFriends = std::stoi(reply.args[0]);
+                            int noOfFriends = stoi(reply.args[0]);
                             //DBG_LOG("User has " + reply.args[0] + " friends.");
                             std::vector<std::string> friends;
 
@@ -167,7 +167,7 @@ namespace prattle
                             }
                             else if (reply.type == Network::Reply::OnlineNotif)
                             {
-                                //DBG_LOG("x" + std::to_string(reply.type) + " " + reply.args[0] + "x");
+                                //DBG_LOG("x" + to_string(reply.type) + " " + reply.args[0] + "x");
                                 m_ui->setStatusOfFriend(reply.args[0], 0);  // remember from GraphicListItem class, 0 is for offline, 1 is for online textures.
                                 isReplyOk = true;
                             }
@@ -380,7 +380,7 @@ namespace prattle
                         DBG_LOG("foobar12345");
 
                         if (!isReplyOk)
-                            WRN_LOG("Received an unexpected network reply in state Chatting. Received reply : " + std::to_string(reply.id) + " " + std::to_string(reply.type));
+                            WRN_LOG("Received an unexpected network reply in state Chatting. Received reply : " + to_string(reply.id) + " " + to_string(reply.type));
                     }
                     break;
                 case UserInterface::State::Exit:
@@ -396,7 +396,7 @@ namespace prattle
 //            changeState(UserInterface::State::Connecting);
 //            m_loginReqId = m_network.send(Network::Task::Login, {
 //                                           m_clientConf.addr,
-//                                           std::to_string(m_clientConf.port),
+//                                           to_string(m_clientConf.port),
 //                                           m_loginInfo.username,
 //                                           m_loginInfo.password });
 //            //m_loginInfo.enabled = false;
@@ -435,7 +435,7 @@ namespace prattle
 
                             m_loginReqId = m_network.send(Network::Task::Login, {
                                            m_clientConf.addr,
-                                           std::to_string(m_clientConf.port),
+                                           to_string(m_clientConf.port),
                                            m_loginInfo.username,
                                            m_loginInfo.password });
 
@@ -448,7 +448,7 @@ namespace prattle
                     else if (event == UserInterface::UIEvent::StateChanged)
                     {}
                     else
-                        WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + std::to_string(event));
+                        WRN_LOG("Unexpected UIEvent received in Login State. Event code: " + to_string(event));
                     break;
                 case UserInterface::State::Signup:
                     if (event == UserInterface::UIEvent::UserSignup)
@@ -459,7 +459,7 @@ namespace prattle
                                 changeState(UserInterface::State::Connecting);
                                 m_signupReqId = m_network.send(Network::Task::Signup, {
                                                m_clientConf.addr,
-                                               std::to_string(m_clientConf.port),
+                                               to_string(m_clientConf.port),
                                                m_ui->getUsername(),
                                                m_ui->getPassword() });
                                 DBG_LOG("Signup event.");
@@ -468,7 +468,7 @@ namespace prattle
                                 m_ui->alert("Can't leave either signup fields blank!", false);
                     }
                     else
-                        WRN_LOG("Unexpected UIEvent received in Signup State. Event code: " + std::to_string(event));
+                        WRN_LOG("Unexpected UIEvent received in Signup State. Event code: " + to_string(event));
                     break;
                 case UserInterface::State::Connecting:
                     break;
@@ -653,7 +653,7 @@ namespace prattle
                 switch(mapping->second.first)
                 {
                     case INT:
-                        *static_cast<int*>(mapping->second.second) = std::stoi(value);
+                        *static_cast<int*>(mapping->second.second) = stoi(value);
                         break;
                     case STRING:
                         *static_cast<std::string*>(mapping->second.second) = value;

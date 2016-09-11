@@ -1,4 +1,5 @@
 #include "../include/TeeStream.hpp"
+#include <cstdio>   // for EOF
 
 namespace prattle
 {

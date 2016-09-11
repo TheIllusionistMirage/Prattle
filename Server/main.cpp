@@ -6,13 +6,14 @@
 //If POSIX compliant OS, bind a function to the SIGINT signal (^C) so that the server closes gracefully
 #if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__))
     #include <signal.h>
-
 namespace
 {
     //Undesirable but there is no other way around this :(
     //Except the signal handler, no object should access this
     prattle::Server* serverPtr = nullptr;
 }
+
+using std::to_string;
 #endif
 
 int main()

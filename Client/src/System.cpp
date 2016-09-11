@@ -7,7 +7,20 @@
 
 */
 
+#if defined (_WIN32) && (defined (__MINGW32__) || defined (__MINGW64__))
+    #include <sstream>
+    // declared in System.hpp
+    int stoi(std::string str)
+    {
+        int i;
+        std::stringstream ss(str);
+        ss >> i;
+        return i;
+    }
+#endif
+
 #include "../include/System.hpp"
+#include <ctime> // for time
 
 namespace prattle
 {

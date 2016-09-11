@@ -11,6 +11,23 @@
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
 
+#if defined (_WIN32) && (defined (__MINGW32__) || defined (__MINGW64__))
+    #include <sstream>
+
+    template <typename T>
+    std::string to_string(T t)
+    {
+        std::stringstream ss;
+        ss << t;
+        return ss.str();
+    }
+
+    int stoi(std::string str);
+#else
+    using std::string;
+    using st::stoi;
+#endif
+
 #include <string>
 #include "../include/Logger.hpp"
 

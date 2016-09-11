@@ -33,9 +33,9 @@ namespace prattle
         for(int i = 1; status != sf::Socket::Done && i <= 5 ; ++i)
         {
             sf::Time attempt_delay = sf::seconds(5);
-            ERR_LOG("Unable to  bind the listener at port : " + std::to_string(m_server_port)
-                + "\nRetrying in " + std::to_string(int(attempt_delay.asSeconds())) + " seconds. "
-                + "\nAttempt : " + std::to_string(i));
+            ERR_LOG("Unable to  bind the listener at port : " + to_string(m_server_port)
+                + "\nRetrying in " + to_string(int(attempt_delay.asSeconds())) + " seconds. "
+                + "\nAttempt : " + to_string(i));
 
             sf::sleep(attempt_delay);
             status = m_listener.listen(m_server_port);
@@ -44,7 +44,7 @@ namespace prattle
         {
             throw std::runtime_error("Unable to bind listener.");
         }
-        DBG_LOG("sf::TcpListener object now listening to port " + std::to_string(m_server_port));
+        DBG_LOG("sf::TcpListener object now listening to port " + to_string(m_server_port));
 
         m_selector.add(m_listener);
         DBG_LOG("sf::SocketSelector object now ready to interact with multiple sf::TcpSockets");
@@ -96,7 +96,7 @@ namespace prattle
                     switch(mapping->second.first)
                     {
                     case INT:
-                        *static_cast<int*>(mapping->second.second) = std::stoi(value);
+                        *static_cast<int*>(mapping->second.second) = stoi(value);
                         break;
                     case STRING:
                         *static_cast<std::string*>(mapping->second.second) = value;
@@ -202,7 +202,7 @@ namespace prattle
         auto status = m_controller->send(packet);
         if(status != sf::Socket::Done)
         {
-            ERR_LOG("Unable to send packet to controller. Status code : " + std::to_string(status));
+            ERR_LOG("Unable to send packet to controller. Status code : " + to_string(status));
         }
         return status == sf::Socket::Done;
     }
@@ -1270,9 +1270,9 @@ namespace prattle
             else if(request == S_CONTROLLER_STATS)
             {
                 std::string replyStr;
-                replyStr += "Uptime : " + std::to_string(m_clock.getElapsedTime().asSeconds()/60.f) + " minutes\n";
-                replyStr += "Users logged : " + std::to_string(m_clients.size()) + '\n';
-                replyStr += "New Connections pending : " + std::to_string(m_new_connections.size());
+                replyStr += "Uptime : " + to_string(m_clock.getElapsedTime().asSeconds()/60.f) + " minutes\n";
+                replyStr += "Users logged : " + to_string(m_clients.size()) + '\n';
+                replyStr += "New Connections pending : " + to_string(m_new_connections.size());
                 reply << "ack" << replyStr;
             }
             else if(request == S_CONTROLLER_REMOVE_USER)
@@ -1303,7 +1303,7 @@ namespace prattle
         }
         else if(status == sf::Socket::Error)
         {
-            ERR_LOG("Unable to receive packet from controller. Status code : " + std::to_string(status));
+            ERR_LOG("Unable to receive packet from controller. Status code : " + to_string(status));
         }
     }
     // The shutdown() function shouldn't do anything
