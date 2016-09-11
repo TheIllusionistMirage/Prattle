@@ -336,6 +336,30 @@ namespace prattle
                     DBG_LOG("All tasks cleared");
                     disconnect();
                 }
+                else if (status == sf::Socket::Partial)
+                {
+                    ERR_LOG("Unable to send full data, partial data sent. Please retry");
+                    m_replies.push_front(Reply{
+                                        m_tasks.front().id,
+                                        Reply::Type::TaskError,
+                                        {} });
+
+                    m_tasks.clear();
+                    DBG_LOG("All tasks cleared");
+                    disconnect();
+                }
+                else if (status == sf::Socket::NotReady)
+                {
+                    ERR_LOG("Remote server is not listening. Please retry");
+                    m_replies.push_front(Reply{
+                                        m_tasks.front().id,
+                                        Reply::Type::TaskError,
+                                        {} });
+
+                    m_tasks.clear();
+                    DBG_LOG("All tasks cleared");
+                    disconnect();
+                }
             }
             assert(m_tasks.size() <= 1);
         }
