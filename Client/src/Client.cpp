@@ -183,12 +183,12 @@ namespace prattle
                                 DBG_LOG(ADD_FRIEND_REQ + " received from " + sender);
                                 // notify the receiver about a new pending friend request
                                 // and pop up a nice alert box with accept/ignore options
-                                m_ui->alert(sender + " has sent you a friend request!", true);
+                                m_ui->alert(sender + " has sent you a friend request! Open friendlist to review", false);
 
                                 // add an inactive friend in the friendlist
                                 // until they respond to the request
                                 m_ui->addFriend(sender);
-                                //m_ui->insertNotif(sender, "(*) ");
+                                m_ui->insertNotif(sender, "(*) ");
                                 m_ui->setFriendActive(sender, false);
 
                                 isReplyOk = true;
@@ -369,7 +369,7 @@ namespace prattle
                             std::string _friend = reply.args[0];
                             //m_ui->alert("You're now friends with " + _friend, false);
                             m_ui->setFriendActive(_friend, true);
-                            DBG_LOG("act frnd : " + _friend);
+                            //DBG_LOG("act frnd : " + _friend);
                             //m_ui->insertNotif(_friend, "");
                             m_chatHistory[_friend] = "";
 
@@ -377,7 +377,7 @@ namespace prattle
                             m_friendReqAcIgId = -1;
                         }
 
-                        DBG_LOG("foobar12345");
+                        //DBG_LOG("foobar12345");
 
                         if (!isReplyOk)
                             WRN_LOG("Received an unexpected network reply in state Chatting. Received reply : " + to_string(reply.id) + " " + to_string(reply.type));

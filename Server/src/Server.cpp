@@ -366,7 +366,6 @@ namespace prattle
 
                     /* //// */
 
-                    m_friendReqs.at(user).push_back(user);
                     result << ADD_FRIEND_REQ_ACK << rid << status << user;
 
                     /* Send acknowledgement to sender about his request */
@@ -388,8 +387,8 @@ namespace prattle
                         else
                             ERR_LOG("Unable to forward \'" + sender + "\'s friend request to \'" + user + "\'");
                     }
-                    else
-                        m_friendReqs[user].push_back(sender);
+                    //else
+                    m_friendReqs[user].push_back(sender);
                 }
                 else
                     ERR_LOG("Corrupt packet received. Skipping operation \'" + ADD_FRIEND + "\'");
@@ -452,6 +451,12 @@ namespace prattle
                             else
                                 ERR_LOG("ERROR :: Error in sending status to \'" + user + "\' from the server");
                         }
+
+                        // remove the corresponding friend request
+                        //auto freqs = m_friendReqs[sender];
+                        for (auto f = 0u; f < m_friendReqs[sender].size(); f++)
+                            if (m_friendReqs[sender][f] == user)
+                                m_friendReqs[sender].erase(m_friendReqs[sender].begin() + f);
                     }
                     else
                     {
@@ -963,6 +968,7 @@ namespace prattle
                             {
                                 if (db.isValidPassword(sender, plainPassword))
                                 {
+                                    // send login success to client
                                     sf::Packet loginResult;
                                     loginResult << LOGIN_SUCCESS << rid << sf::Uint32(db.getFriends(sender).size());
 
@@ -980,6 +986,8 @@ namespace prattle
 
                                     //std::cout << "[" + sender + "] joined chat on " << getCurrentTimeAndDate() << std::endl;
                                     DBG_LOG("[" + sender + "] joined chat on " + getCurrentTimeAndDate() + " .");
+
+                                    // send to client all pending messages
                                     auto itr_end = m_messages.upper_bound(sender);
                                     for(auto itr_2 = m_messages.lower_bound(sender) ; itr_2 != itr_end ; ++itr_2)
                                     {
@@ -997,6 +1005,7 @@ namespace prattle
                                     //m_friendReqs.insert(std::make_pair(sender, std::vector<std::string>{}));
 
                                     ///
+                                    // notify all online friends of client aout his online status
                                     auto sender_friends = db.getFriends(sender);
                                     for (auto& friendName : sender_friends)
                                     {
@@ -1035,6 +1044,38 @@ namespace prattle
                                             }
                                         }
                                     }
+
+                                    // relay all pending friend requests
+
+                                    if (m_friendReqs[sender].size() != 0)
+                                    {
+                                        for (auto&& fi : m_friendReqs[sender])
+                                        {
+                                            sf::Packet result;
+                                            result << ADD_FRIEND_REQ << fi;
+                                            DBG_LOG("friend req : " + fi);
+
+                                            if (send(result, sender))
+                                                DBG_LOG("Forwarded \'" + sender + "\'s friend request to \'" + fi + "\'");
+                                            else
+                                                ERR_LOG("Unable to forward \'" + sender + "\'s friend request to \'" + fi + "\'");
+                                        }
+                                    }
+
+//                                    auto freq_itr = m_friendReqs.find(sender);
+//                                    if (freq_itr->second.size() != 0) // i.e. pending friend requests exist
+//                                    {
+//                                        for (auto&& fi : freq_itr->second)
+//                                        {
+//                                            sf::Packet result;
+//                                            result << ADD_FRIEND_REQ << fi;
+//
+//                                            if (send(result, sender))
+//                                                DBG_LOG("Forwarded \'" + sender + "\'s friend request to \'" + fi + "\'");
+//                                            else
+//                                                ERR_LOG("Unable to forward \'" + sender + "\'s friend request to \'" + fi + "\'");
+//                                        }
+//                                    }
 
 //                                    // send any pending friend requests
 //                                    auto jtr = m_friendReqs.find(sender);

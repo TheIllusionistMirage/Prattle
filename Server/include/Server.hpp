@@ -102,7 +102,7 @@ namespace prattle
             std::map<std::string, std::unique_ptr<sf::TcpSocket>> m_clients;
                                                 // The TcpSockets that act as clients.
             std::map<std::string, std::vector<std::string>> m_friendReqs;
-                                                // stores friend requests
+                                                // stores friend requests ( < user, <frind1, frnd2, ...> > )
             bool m_running;                     // Boolean to indicate the running state of the server.
             UserDatabase db;                    // The user database object that handles or database related tasks.
             sf::Time timeOut;                   // The timeout limit for waiting on packets/connections.

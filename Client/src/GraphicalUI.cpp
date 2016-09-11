@@ -819,8 +819,8 @@ namespace prattle
     void GraphicalUI::alert(const std::string& message, const bool choice)
     {
         //m_inactiveFilter->show();
-        m_inactiveFilter->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
-        m_inactiveFilter->moveToFront();
+//        m_inactiveFilter->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
+//        m_inactiveFilter->moveToFront();
 
         m_alertMessage->setText(message);
         m_alertBox->setSize(m_alertMessage->getSize().x + 100, m_alertMessage->getSize().y + 100);
@@ -847,8 +847,10 @@ namespace prattle
         }
 
         //m_alertBox->show();
-        m_alertBox->moveToFront();
+        m_inactiveFilter->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
         m_alertBox->showWithEffect(tgui::ShowAnimationType::Fade, sf::milliseconds(400));
+        m_inactiveFilter->moveToFront();
+        m_alertBox->moveToFront();
 
         for (auto w : m_gui.getWidgets())
             w->disable();
