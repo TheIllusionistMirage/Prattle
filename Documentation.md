@@ -102,18 +102,22 @@ Note : Each word seperated by a space is a different string, thus must be extrac
     4.1 Sent to Server to search a user            | search_user \<req id> \<name>
     4.2 Sent to Client as reply (found)            | search_user_result \<req id> \<number of matches> \<name1> \<name2> ...
     4.3 Sent to Client as reply (not found)        | search_user_result \<req id> 0
-TODO: Limit and/or "paginate" the matches
+
+    TODO: Limit and/or "paginate" the matches
 
 **5. Adding friends**
 
-    Packet Type                            | Packet format
-    ---------------------------------------|-----------------------------------------------
-    5.1 Sent to Server                     | add_friend \<req id> \<friendname>
-    5.2 Sent to Client as reply            | add_friend_success \<req id> \<friendname>
-    5.3 Sent to Client (friend)            | add_new_friend \<friendname>
-    5.4 Sent to Client as reply            | add_friend_failure \<req id> \<friendname> \<server message>
+    Packet Type                        | Packet format
+    -----------------------------------|-----------------------------------------------
+    5.1.1 Sent to Server(sender)       | add_friend \<req id> \<friendname>
+    5.1.2 Sent to client(sender)       | add_friend_req_ack \<reqid> \<success> \<friend>
+    5.2.1 Sent to client(friend)       | add_friend_req  \<sender>
+    5.2.2 Sent to server(friend)       | add_friend_accept \<reqid> \<sender>
+    5.2.3 Sent to server(friend)       | add_friend_ignore \<reqid> \<sender>
+    5.2.4 Sent to client(friend)       | add_friend_req_ack \<reqid> \<success> \<sender>
+    5.3.1 Sent to client(sender)       | add_friend_success \<friend>
 
-**6. Status **
+**6. Status**
 
     Packet Type                                               | Packet format
     ----------------------------------------------------------|------------------------------------------------
