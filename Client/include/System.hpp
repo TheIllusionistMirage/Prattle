@@ -24,8 +24,9 @@
 
     int stoi(std::string str);
 #else
-    using std::string;
-    using st::stoi;
+    #include <string>
+    using std::to_string;
+    using std::stoi;
 #endif
 
 #include <string>
