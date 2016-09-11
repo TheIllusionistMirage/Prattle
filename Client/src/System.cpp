@@ -31,7 +31,7 @@ namespace prattle
         char       buf[80];
         tstruct = *localtime(&now);
 
-        strftime(buf, sizeof(buf), "%r, %a %d %b %Y", &tstruct);
+        strftime(buf, sizeof(buf), "%I:%m:%S %p, %a %d %b %Y", &tstruct);
 
         return buf;
     }

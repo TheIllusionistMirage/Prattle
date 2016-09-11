@@ -21,6 +21,7 @@
 
 #include "../include/System.hpp"
 #include <ctime>    // for time
+#include <cstdio>
 
 namespace prattle
 {
@@ -39,7 +40,8 @@ namespace prattle
         struct tm tstruct;
         char buf[80];
         tstruct = *localtime(&now);
-        strftime(buf, sizeof(buf), "%r, %a %d %b %Y", &tstruct);
+        strftime(buf, sizeof(buf), "%I:%m:%S %p, %a %d %b %Y", &tstruct);
+        printf("t:%s:t\n", buf);
         return buf;
     }
 
