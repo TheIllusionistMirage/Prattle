@@ -508,7 +508,7 @@ namespace prattle
                             }
                             else
                                 m_ui->alert("Search string cannot be empty!", false);
-
+                            break;
                         case UserInterface::UIEvent::TabSelected:
                             //
                             //m_ui->setInputBufferText(m_ui->getSelectedFriend(), m_ui->getInputText());

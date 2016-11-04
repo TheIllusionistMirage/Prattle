@@ -274,10 +274,12 @@ namespace prattle
         if (!isConnected())
         {
             //if either login or signup is a task
-            if (/*m_tasks.size() == 1 &&*/
+            if (!m_tasks.empty() &&
                 (m_tasks.front().type == Task::Login || m_tasks.front().type == Task::Signup))
             {
                 auto status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
+                while (status == sf::Socket::NotReady)
+                    status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
                 if (status == sf::Socket::Done)
                 {
                     DBG_LOG("Connected to server");
