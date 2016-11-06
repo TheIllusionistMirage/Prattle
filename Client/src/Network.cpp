@@ -278,8 +278,13 @@ namespace prattle
                 (m_tasks.front().type == Task::Login || m_tasks.front().type == Task::Signup))
             {
                 auto status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
-                while (status == sf::Socket::NotReady)
-                    status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
+
+                std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+                bool isTimedOut =
+                    std::chrono::duration_cast<std::chrono::milliseconds>
+                        (t1 - m_tasks.front().timeStarted).count() >
+                            m_defaultTaskTimeout;
+
                 if (status == sf::Socket::Done)
                 {
                     DBG_LOG("Connected to server");
@@ -316,7 +321,7 @@ namespace prattle
                         disconnect();
                     }
                 }
-                else if (status == sf::Socket::Error)
+                else if (status == sf::Socket::Error && isTimedOut)
                 {
                     ERR_LOG("Error in connecting. Status code: " + to_string(status));
                     m_replies.push_front(Reply{
@@ -350,7 +355,7 @@ namespace prattle
                     DBG_LOG("All tasks cleared");
                     disconnect();
                 }
-                else if (status == sf::Socket::NotReady)
+                else if (status == sf::Socket::NotReady && isTimedOut)
                 {
                     ERR_LOG("Remote server is not listening. Please retry");
                     m_replies.push_front(Reply{
@@ -610,19 +615,34 @@ namespace prattle
                 disconnect();
             }
 
-            //Check expired tasks
-            for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
+//            //Check expired tasks
+//            for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
+//            {
+//                auto d = std::chrono::steady_clock::now() - i->timeStarted;
+//                if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
+//                {
+//                    DBG_LOG("LOG :: Task timed out. Request id: " + to_string(i->id) + " Time elapsed: " + to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
+//                    m_replies.push_front(Reply{
+//                                        i->id,
+//                                        Reply::Type::TaskTimeout,
+//                                        {} });
+//                    i = std::prev(m_tasks.erase(i));
+//                }
+//            }
+        }
+
+        //Check expired tasks
+        for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
+        {
+            auto d = std::chrono::steady_clock::now() - i->timeStarted;
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
             {
-                auto d = std::chrono::steady_clock::now() - i->timeStarted;
-                if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
-                {
-                    DBG_LOG("LOG :: Task timed out. Request id: " + to_string(i->id) + " Time elapsed: " + to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
-                    m_replies.push_front(Reply{
-                                        i->id,
-                                        Reply::Type::TaskTimeout,
-                                        {} });
-                    i = std::prev(m_tasks.erase(i));
-                }
+                DBG_LOG("LOG :: Task timed out. Request id: " + to_string(i->id) + " Time elapsed: " + to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
+                m_replies.push_front(Reply{
+                                    i->id,
+                                    Reply::Type::TaskTimeout,
+                                    {} });
+                i = std::prev(m_tasks.erase(i));
             }
         }
 
