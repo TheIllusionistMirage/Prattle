@@ -515,11 +515,14 @@ namespace prattle
 
                             //std::cout << m_ui->getInputText() << std::endl;
                             m_ui->clearChat();
-                            m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
-                            m_ui->setInputText(m_ui->getInputBufferText(m_ui->getSelectedFriend()));
+                            if (!m_ui->isStringWhitespace(m_ui->getSelectedFriend()))
+                            {
+                                m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                                m_ui->setInputText(m_ui->getInputBufferText(m_ui->getSelectedFriend()));
                             //std::cout << m_ui->getSelectedFriend() << " " << m_ui->getInputBufferText(m_ui->getSelectedFriend()) << std::endl;
                             //std::cout << "cur tab : " << m_ui->getSelectedFriend() << std::endl;
-                            m_ui->insertNotif(m_ui->getSelectedFriend(), "");
+                                m_ui->insertNotif(m_ui->getSelectedFriend(), "");
+                            }
                             break;
 
 //                        case UserInterface::UIEvent::AddFriend:
