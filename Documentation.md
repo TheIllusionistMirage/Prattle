@@ -1,9 +1,17 @@
 Contents of this file
 ======================
 
+* [Disclaimer](#disclaimer)
 * [Introduction](#introduction)
 * [Server-Client Protocol](#server-client-protocol)
 * [Server-(Server-Controller) Protocol](#server-server-controller-protocol)
+
+
+Disclaimer
+-----------
+
+The 'protocols' and the 'contents' of network packets that we define are what is sent inside `sf::Packet` objects to/from the server from/to the client. They do not describe the 'actual' contents of the packets sent/received themselves!
+
 
 Introduction
 -------------
