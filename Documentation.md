@@ -1,5 +1,8 @@
-Contents of this file
-======================
+
+# Protocol Documentation of Prattle
+
+Contents 
+=========
 
 * [Disclaimer](#disclaimer)
 * [Introduction](#introduction)
@@ -10,7 +13,9 @@ Contents of this file
 Disclaimer
 -----------
 
-The 'protocols' and the 'contents' of network packets that we define are what is sent inside `sf::Packet` objects to/from the server from/to the client. They do not describe the 'actual' contents of the packets sent/received themselves!
+The *protocols* and the *contents* of network packets that we define are what is sent inside 
+`sf::Packet` objects to/from the server from/to the client. They *DO NOT* describe the *actual*
+contents of the packets sent/received themselves!
 
 
 Introduction
