@@ -1,14 +1,24 @@
-/**
+/*************************************************************
+ *                                                           *
+ *                Prattle/Server/System.hpp                  *
+ *                                                           *
+ *    ===================================================    *
+ *                                                           *
+ *    Contains various constants and helpers                 *
+ *    related to handling the server.                        *
+ *                                                           *
+ *    See https://github.com/TheIllusionistMirage/Prattle    *
+ *    for more details.                                      *
+ *                                                           *
+ *************************************************************/
 
-    Prattle/Server/System.hpp
-    =========================
-
-    Contains various constants related to handling the server.
-
-*/
 
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
+
+// Workaround for MinGW versions missing to_string & stoi
+
+#include <string>
 
 #if defined (_WIN32) && (defined (__MINGW32__) || defined (__MINGW64__))
     #include <sstream>
@@ -23,12 +33,10 @@
 
     int stoi(std::string str);
 #else
-    #include <string>
     using std::to_string;
     using std::stoi;
 #endif
 
-#include <string>
 #include <random>
 #include "../include/SHA256/SHA256.h"
 #include "../include/Logger.hpp"
@@ -36,11 +44,14 @@
 namespace prattle
 {
     /* Constants */
+
+    // Server config file
     const std::string SERVER_CONFIG_FILE = "resources/server.conf";
-    //const int         OPEN_PORT         = 19999;            // The port to which the server listens for connections/communication
-    //const std::string SERVER_IP_ADDRESS = "116.203.150.19";      // The IP address of the server
-                                                            // Remember to change it to your desired host's IP
-    const std::string USER_LIST         = "resources/members.db";    // The user database
+
+    // User database
+    const std::string USER_LIST          = "resources/members.db";
+
+    // Prattle's ASCII logo, courtesy of amhndu
     const std::string prattle_logo =
         "           , | .\n"
         "         ' | | | ! .\n"
@@ -60,11 +71,16 @@ namespace prattle
         " ||`==='`   ''       `'==` '' ''   ''  ''   `'==='\n"
         " ||                               Always be near";
 
-    /* Functions */
-    std::uint32_t     djb2_hash(std::string str);
-    std::string       getCurrentTimeAndDate();                                    // Returns the current date & time in the host machine
-    std::string       generate_salt(int length = 5);                              // Generates a salt to add to the hashed password
-    std::string       pwd_hash(const std::string& str,const std::string& salt);   // Hashes the password using the SHA256
+    /* Helpers */
+
+    // Returns the current date & time in the host machine
+    std::string   getCurrentTimeAndDate();
+
+    // Generates a salt to add to the hashed password
+    std::string   generate_salt(int length = 5);
+
+    // Hashes the password using the SHA256
+    std::string   pwd_hash(const std::string& str,const std::string& salt);
 }
 
 #endif // SYSTEM_HPP_INCLUDED

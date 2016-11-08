@@ -1,20 +1,17 @@
-/**
+/******************************************************************
+ *                                                                *
+ *                Prattle/Server/UserDatabse.hpp                  *
+ *                                                                *
+ *    ========================================================    *
+ *                                                                *
+ *    Contains the class to handle all database related tasks.    *
+ *                                                                *
+ *    See Documentation.md on                                     *
+ *    https://github.com/TheIllusionistMirage/Prattle for         *
+ *    more details.                                               *
+ *                                                                *
+ ******************************************************************/
 
-    Prattle/Server/UserDatabse.hpp
-    ===============================
-
-    Contains the class to handle all database related tasks.
-
-    Records are stored as:
-
-        # MEMBERS.DAT
-        # Lines beginning with '#' are ignored
-
-        USERNAME_1:HASHED_PASSWORD:SALT:FRIEND-1,FRIEND-2,...,FRIEND-N,:
-        USERNAME_2:HASHED_PASSWORD:SALT:FRIEND-1,FRIEND-2,...,FRIEND-N,:
-        USERNAME_3:HASHED_PASSWORD:SALT:FRIEND-1,FRIEND-2,...,FRIEND-N,:
-
-*/
 
 #ifndef USERDATABASE_HPP
 #define USERDATABASE_HPP
@@ -26,54 +23,88 @@
 
 namespace prattle
 {
-    // This the format in which the records minus the username are stored
-    // The username is used as the key for the map which stores these records
+    ///////////////////////////////////////////////////////////////////
+    //                                                               //
+    //  UserDatabase is a complete interface for interacting with    //
+    //  members.db to fetch/modify registered records and add new    //
+    //  ones.                                                        //
+    //                                                               //
+    //  Records are stored using the Record structure. The           //
+    //  complete records in members.db are stored as a map with      //
+    //  the usernames as the keys to the records.                    //
+    //                                                               //
+    ///////////////////////////////////////////////////////////////////
 
+    // Holds the records partially. Used in conjunction with std::map
     struct Record
     {
-        std::string hashed_pwd;
-        std::string salt;
-        std::vector<std::string> friends;
+        std::string              hashed_pwd ; // Store hashed password
+        std::string              salt       ; // Store the password salt
+        std::vector<std::string> friends    ; // Store the friends
     };
 
-    // Class UserDatabase which handles all tasks related
-    // to the user database (i.e., members.db)
     class UserDatabase
     {
         public:
 
-            UserDatabase();
+            // Returns the database size (no. of regeistered users).
+            unsigned int getDbSize();
 
-            bool isValidPassword(const std::string& username,
-                                 const std::string& plain_pwd); // Returns true if the username/password
-                                                                // combination is matching an entry in the user database.
-            bool addNewUser(const std::string &username,
-                            const std::string& plain_pwd);      // Returns true if 'username' was added to the database.
+            // Returns TRUE if the username-password combination
+            // provided for logging in matches a corresponding entry
+            // in the database. Else returns FALSE.
+            bool isValidPassword(const std::string& username ,
+                                 const std::string& plain_pwd);
 
-            bool addNewFriend(const std::string& username,
-                              const std::string& friendname);   // Add a friend's name for the person 'username'.
-                                                                // Returns if the addition was successful.
-            bool isUserRegistered(const std::string& username);     // Returns true if 'username' is registered.
-
-            std::vector<std::string> getMatchingUsers(const std::string& sender, const std::string& str);
-
+            // Returns all usernames in database.
             const std::vector<std::string> getAllUsernames();
 
-            const std::vector<std::string>& getFriends(const std::string& username);
+            // Returns all the friends of a specified user
+            const std::vector<std::string>&
+            getFriends(const std::string& username);
 
+            // Add a new user to the database. The function returns
+            // TRUE if operation was successful. Else FALSE is
+            // returned and errors, if any, are logged
+            bool addNewUser(const std::string& username ,
+                            const std::string& plain_pwd);
+
+            // Inserts a specified user (2nd argument) as the
+            // friend of an existing user (1st argument)
+            bool addNewFriend(const std::string& username ,
+                              const std::string& friendname);
+
+            // Returns TRUE if the user entry exists in the database
+            bool isUserRegistered(const std::string& username);
+
+            // Returns all users who usernames contain
+            // the search substring (2nd argument)
+            std::vector<std::string>
+            getMatchingUsers(const std::string& sender ,
+                             const std::string& str);
+
+            // Delete an existing user's record from the database
             bool removeUser(const std::string& username);
 
-            unsigned int getDbSize();
+            UserDatabase();
 
         private:
 
-            void printAllRecords(); //For debugging purposes
+            // Private helper called by addNewFriend() to make
+            // changes to an existing user entry in the database.
+            bool updateRecordOnFile(const std::string& username);
 
-            bool updateRecordOnFile(const std::string& username);   // Updates the record for the user 'username' on file.
+            // Parse the file and read the records.
+            void parseFile();
 
-            void                          parseFile();         // Parse the file and read the records.
-            std::fstream                  dbFile;               // The database file (i.e., members.db).
-            std::map<std::string, Record> records;              // The map of records built after reading the database.
+            // The database file (i.e., members.db).
+            std::fstream dbFile;
+
+            // The map of records built after reading the database.
+            std::map<std::string, Record> records;
+
+            /* Debugging functions */
+            void printAllRecords();
     };
 }
 

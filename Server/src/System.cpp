@@ -1,15 +1,23 @@
-/**
+/*************************************************************
+ *                                                           *
+ *                Prattle/Server/System.cpp                  *
+ *                                                           *
+ *    ===================================================    *
+ *                                                           *
+ *    Contains implementations of helpers declared in        *
+ *    Prattle/Server/System.hpp.                             *
+ *                                                           *
+ *    See https://github.com/TheIllusionistMirage/Prattle    *
+ *    for more details.                                      *
+ *                                                           *
+ *************************************************************/
 
-    Prattle/Server/System.cpp
-    =========================
-
-    Contains implementations of functions declared in Prattle/Server/System.hpp
-
-*/
 
 #if defined (_WIN32) && (defined (__MINGW32__) || defined (__MINGW64__))
     #include <sstream>
-    // declared in System.hpp
+
+    // Declared in Prattle/Server/System.hpp
+
     int stoi(std::string str)
     {
         int i;
@@ -25,15 +33,7 @@
 
 namespace prattle
 {
-    std::uint32_t djb2_hash(std::string str)
-    {
-        std::uint32_t hash = 5381;
-        for (int c : str)
-            hash = ((hash << 5) + hash) + c;
-
-        return hash;
-    }
-
+    // By following http://www.cplusplus.com/reference/ctime/strftime/
     std::string getCurrentTimeAndDate()
     {
         time_t now = time(0);
