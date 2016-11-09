@@ -8,17 +8,7 @@
 Prattle is a simple chat program written in C++11, using SFML's networking
 module (http://www.sfml-dev.org) and TGUI (https://tgui.eu) for the GUI.
 
-Prattle has three components - **Prattle-Server**, **Prattle-Client** and
-**Prattle-Server-Controller**. Since Prattle follows a single
-server, multiclient architecture, the usage of the server and client involves
-running Prattle-Server on a, well, server, with OPEN_PORT (which is by
-default 19999) being set to a port cabable of listening for incoming
-connections. Then multiple clients can connect to it by getting access to the
-server's address. Multiple Prattle-Servers running on different hosts run
-independently of each other, i.e., no inter-server communication is possible.
-The Prattle-Server can be controlled remotely or on the same machine using
-Prattle-Server-Controller. The server controller features a bunch of shell
-like commands to manipulate the server and connected clients.
+Prattle has three components - **Prattle-Server**, **Prattle-Client** and **Prattle-Server-Controller**. Since Prattle follows a single server, multiclient architecture, the usage of the server and client involves running Prattle-Server on a, well, server, with OPEN_PORT (which is by default 19999) being set to a port cabable of listening for incoming connections. Then multiple clients can connect to it by getting access to the server's address. Multiple Prattle-Servers running on different hosts run independently of each other, i.e., no inter-server communication is possible. The Prattle-Server can be controlled remotely or on the same machine using Prattle-Server-Controller. The server controller features a bunch of shell like commands to manipulate the server and connected clients.
 
 Currently, the features supported are:
 
