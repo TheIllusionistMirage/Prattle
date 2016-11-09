@@ -9,7 +9,7 @@ Prattle is a simple chat program written in C++11, using SFML's networking
 module (http://www.sfml-dev.org) and TGUI (https://tgui.eu) for the GUI.
 
 Prattle has three components - **Prattle-Server**, **Prattle-Client** and
-**Prattle-Server-Controller**. Since Prattle follows a decentralized single
+**Prattle-Server-Controller**. Since Prattle follows a single
 server, multiclient architecture, the usage of the server and client involves
 running Prattle-Server on a, well, server, with OPEN_PORT (which is by
 default 19999) being set to a port cabable of listening for incoming
@@ -87,7 +87,7 @@ See [AUTHORS][2]
 
 ##TODO
 
-You can view our [LONG to-do list][3] and Prattle's development status on Trello.
+You can view our LONG [to-do list][3] and Prattle's development status on Trello.
 
 [1]: https://github.com/TheIllusionistMirage/Prattle/blob/master/Documentation.md "network documentation"
 [2]: https://github.com/TheIllusionistMirage/Prattle/blob/master/AUTHORS "AUTHORS"
