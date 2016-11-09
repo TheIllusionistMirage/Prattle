@@ -45,7 +45,7 @@ Prattle conists of two separate CMake scripts for building Prattle-Server
 and Prattle-Client.
 
 Build pre-requisites:
-* C++11 compilant compiler
+* C++11 compliant compiler
 * SFML-2.4.1 or greater
 * TGUI-0.7.1 or greater
 
