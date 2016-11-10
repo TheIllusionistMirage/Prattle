@@ -62,7 +62,7 @@ namespace prattle
             } m_loginInfo;
             //bool m_autoLoginEnabled;
 
-            std::map<std::string, std::string> m_chatHistory;
+            std::map<std::string, std::vector<std::string>> m_chatHistory;
     };
 }
 

@@ -1,15 +1,18 @@
-/**
+/*************************************************
+ *                                               *
+ *           Prattle/Client/Config.hpp           *
+ *    =======================================    *
+ *                                               *
+ *    Holds OS specific code for implementing    *
+ *    a minimum window size (800x600).           *
+ *                                               *
+ *************************************************/
 
-    Prattle/Client/Config.hpp
-    =========================
-
-    Holds OS specific includes/codes for implementing a minimum window size.
-
-*/
 
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+// *nix systems
 #if defined(SFML_SYSTEM_LINUX) || defined(SFML_SYSTEM_FREEBSD)
     #include <X11/Xlib.h>
     #include <X11/Xutil.h>
@@ -17,7 +20,7 @@
     #undef Status
 #endif
 
-/** TO DO */
+// TODO
 #if defined(_WIN32)
  // add WIN API code here
 #endif

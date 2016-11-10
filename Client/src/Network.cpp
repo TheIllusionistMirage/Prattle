@@ -1,138 +1,234 @@
+/**************************************************************
+ *                                                            *
+ *                 Prattle/Client/Network.hpp                 *
+ *    ====================================================    *
+ *                                                            *
+ *    Contains implementation details of class Network        *
+ *    described in Prattle/Client/Network.hpp.                *
+ *    Network class handles all network operations with       *
+ *    the prattle-server.                                     *
+ *                                                            *
+ *    See https://github.com/TheIllusionistMirage/Prattle     *
+ *    for more details.                                       *
+ *                                                            *
+ **************************************************************/
+
+
 #include "../include/Network.hpp"
 #include <cassert>
 
 namespace prattle
 {
-    Network::Network() :
-        m_connected(false),
-        m_idCounter{0}
+    Network::RequestId Network::send(Task::Type task ,
+                                     const std::vector<std::string>& args)
     {
-        m_socket.setBlocking(false);
-    }
-
-    void Network::reset()
-    {
-        m_socket.disconnect();
-        m_tasks.clear();
-        m_replies.clear();
-        m_connected = false;
-        m_idCounter = 0;
-    }
-
-    Network::RequestId Network::generateId()
-    {
-        return ++m_idCounter;
-    }
-
-    Network::RequestId Network::send(Task::Type task, const std::vector<std::string>& args)
-    {
-        //If task is not Login or Signup and the socket is disconnected, return InvalidRequest
-        if(task != Task::Type::Login && task != Task::Type::Signup && m_socket.getRemotePort() == 0)
+        // If task is not Login or Signup and the socket
+        // is disconnected, return InvalidRequest.
+        if(task != Task::Type::Login &&
+            task != Task::Type::Signup &&
+             m_socket.getRemotePort() == 0)
             return InvalidRequest;
 
-        RequestId rid = InvalidRequest; //initialize to InvalidRequest
+        // Initialize to InvalidRequest.
+        RequestId rid = InvalidRequest;
 
+        // Determine the task type and construct corresponding
+        // task entry and add it to the pending task list.
         switch(task)
         {
+
+            //////////////////////////////////////
+            //                                  //
+            //            LOGIN task            //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::Login:
             {
-                DBG_LOG("Task Login added.");
+                // If invalid info is passed
                 if (args.size() != 4)
-                    throw std::invalid_argument("Wrong number of arguments provided for task: Login");
+                    throw std::invalid_argument("FATAL ERROR :: Wrong number of arguments provided for task LOGIN");
+
                 if (!m_tasks.empty())
-                    WRN_LOG("Warning: Trying to login to a new server but the task list is not empty. It is cleared.");
+                    WRN_LOG("Trying to login to a new server but the task list is not empty. It is cleared.");
+
                 m_tasks.clear();
+
                 if (!m_replies.empty())
-                    WRN_LOG("Warning: Trying to login to a new server but the replies stack is not empty. It is cleared.");
+                    WRN_LOG("Trying to login to a new server but the replies stack is not empty. It is cleared.");
+
                 m_replies.clear();
 
+                // Create the LOGIN task and add it to the pending task list.
                 m_tasks.push_front(Task{
-                                  rid = generateId(),
-                                  Task::Type::Login,
+                                  rid = generateId() ,
+                                  Task::Type::Login  ,
                                   std::chrono::steady_clock::now()});
-                unsigned short port = stoi(args[1]);
-                m_connectManifest.address = args[0];
-                m_connectManifest.port = port;
+
+                // Create the connection manifest to store
+                // login info fetched from UserInterface.
+                unsigned short port        = stoi(args[1]);
+                m_connectManifest.address  = args[0];
+                m_connectManifest.port     = port;
                 m_connectManifest.username = args[2];
                 m_connectManifest.password = args[3];
+
+                DBG_LOG("LOGIN Task created.");
             }
             break;
+
+
+            //////////////////////////////////////
+            //                                  //
+            //           SIGNUP task            //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::Signup:
             {
-                DBG_LOG("Task Signup added.");
+                // If invalid info is passed.
                 if (args.size() != 4)
                     throw std::invalid_argument("Wrong number of arguments provided for task: Signup");
+
                 if (!m_tasks.empty())
-                    WRN_LOG("Warning: Trying to signup on a new server but the task list is not empty. It is cleared.");
+                    WRN_LOG("Trying to signup on a new server but the task list is not empty. It is cleared.");
+
                 m_tasks.clear();
+
                 if (!m_replies.empty())
-                    WRN_LOG("Warning: Trying to signup on a new server but the replies stack is not empty. It is cleared.");
+                    WRN_LOG("Trying to signup on a new server but the replies stack is not empty. It is cleared.");
+
                 m_replies.clear();
 
+                // Create SIGNUP task and add it to the pending task list.
                 m_tasks.push_front(Task{
-                                  rid = generateId(),
-                                  Task::Type::Signup,
+                                  rid = generateId() ,
+                                  Task::Type::Signup ,
                                   std::chrono::steady_clock::now()});
-                unsigned short port = stoi(args[1]);
-                m_connectManifest.address = args[0];
-                m_connectManifest.port = port;
+
+                // Create the connection manifest to store
+                // signup info fetched from UserInterface.
+                unsigned short port        = stoi(args[1]);
+                m_connectManifest.address  = args[0];
+                m_connectManifest.port     = port;
                 m_connectManifest.username = args[2];
                 m_connectManifest.password = args[3];
+
+                DBG_LOG("SIGNUP task created.");
             }
             break;
+
+
+            //////////////////////////////////////
+            //                                  //
+            //          SEND_MSG task           //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::SendMsg:
             {
-                DBG_LOG("Message Sending task added");
+                // If invalied arguments are passed.
                 if (args.size() != 2)
                     throw std::invalid_argument("Wrong number of arguments provided for task: Signup");
+
                 if (!m_tasks.empty())
-                    WRN_LOG("Warning: Trying to signup on a new server but the task list is not empty. It is cleared.");
+                    WRN_LOG("Trying to signup on a new server but the task list is not empty. It is cleared.");
+
                 m_tasks.clear();
+
                 if (!m_replies.empty())
-                    WRN_LOG("Warning: Trying to signup on a new server but the replies stack is not empty. It is cleared.");
+                    WRN_LOG("Trying to signup on a new server but the replies stack is not empty. It is cleared.");
+
                 m_replies.clear();
 
+                // Create a SEND_MSG task and add it to the pending task list.
                 m_tasks.push_front(Task{
-                                  rid = generateId(),
-                                  Task::Type::SendMsg,
+                                  rid = generateId()  ,
+                                  Task::Type::SendMsg ,
                                   std::chrono::steady_clock::now()});
+
+                DBG_LOG("SEND_MSG task created.");
+
+                ////////////////////////////////////////////////////////////
+                //                                                        //
+                // Create a high level packet as per Prattle's networking //
+                // protocols.                                             //
+                //                                                        //
+                // (Documentation.md, section 3.1 of Server-Client        //
+                // protocol)                                              //
+                //                                                        //
+                // sendmsg <req id> <receiver> <data>                     //
+                //                                                        //
+                ////////////////////////////////////////////////////////////
 
                 sf::Packet packet;
                 packet << SEND_MSG << to_string(rid) << args[0] << args[1];
-                //std::cout << SEND_MSG << " " + to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
+
+                // Send the packet to the server.
                 auto status = m_socket.send(packet);
 
+                // If successful in sending packet, return
+                // the new request id of this task.
                 if(status == sf::Socket::Status::Done)
                 {
-                    DBG_LOG("Message packet sent to server");
+                    DBG_LOG("SEND_MSG request sent to server.");
                     return rid;
                 }
                 else
-                    ERR_LOG("ERROR in sending message packet to sever!");
+                    ERR_LOG("Unable to send SEND_MSG request to server.");
             }
             break;
+
+
+            //////////////////////////////////////
+            //                                  //
+            //         SEARCH_USER task         //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::SearchUser:
             {
-                DBG_LOG("Searching task added");
+                // Check if invalid info is passed
                 if (args.size() != 1)
                     throw std::invalid_argument("Wrong number of arguments provided for task: Search");
+
                 if (!m_tasks.empty())
                     WRN_LOG("Warning: Trying to search on a new server but the task list is not empty. It is cleared.");
+
                 m_tasks.clear();
+
                 if (!m_replies.empty())
                     WRN_LOG("Warning: Trying to search on a new server but the replies stack is not empty. It is cleared.");
+
                 m_replies.clear();
 
+                // Create SEARCH_USER task and add it to the pending task list.
                 m_tasks.push_front(Task{
-                                  rid = generateId(),
-                                  Task::Type::SearchUser,
+                                  rid = generateId()     ,
+                                  Task::Type::SearchUser ,
                                   std::chrono::steady_clock::now()});
+
+                DBG_LOG("SEARCH_USER task created.");
+
+                ////////////////////////////////////////////////////////////
+                //                                                        //
+                // Create a high level packet as per Prattle's networking //
+                // protocols.                                             //
+                //                                                        //
+                // (Documentation.md, section 4.1 of Server-Client        //
+                // protocol)                                              //
+                //                                                        //
+                // search_user <req id> <name>                            //
+                //                                                        //
+                ////////////////////////////////////////////////////////////
 
                 sf::Packet packet;
                 packet << SEARCH_USER << to_string(rid) << args[0];
-                //std::cout << SEND_MSG << " " + to_string(rid) << " " << args[0] << " " << args[1] << std::endl;
+
                 auto status = m_socket.send(packet);
 
+                // If successful in sending packet, return
+                // the new request id of this task.
                 if(status == sf::Socket::Status::Done)
                 {
                     DBG_LOG("Search packet sent to server");
@@ -142,31 +238,57 @@ namespace prattle
                     ERR_LOG("ERROR in sending search packet to sever!");
             }
             break;
+
+
+            //////////////////////////////////////
+            //                                  //
+            //         ADD_FRIEND task          //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::AddFriend:
             {
+                // If invalid info is passed
                 if (args.size() != 1)
                     throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Add Friend");
 
                 if (!m_tasks.empty())
-                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the task list is not empty. It is cleared.");
+                    WRN_LOG("Trying to initiate a add friend task but the task list is not empty. It is cleared.");
 
                 m_tasks.clear();
 
                 if (!m_replies.empty())
-                    WRN_LOG("WARNING :: Trying to initiate a add friend task but the replies list is not empty. It is cleared.");
+                    WRN_LOG("Trying to initiate a add friend task but the replies list is not empty. It is cleared.");
 
                 m_replies.clear();
 
+                // Create a ADD_FRIEND task and add it to the pending task list.
                 m_tasks.push_front(Task{
-                                  rid = generateId(),
-                                  Task::Type::AddFriend,
+                                  rid = generateId()    ,
+                                  Task::Type::AddFriend ,
                                   std::chrono::steady_clock::now()});
+
+                DBG_LOG("ADD_FRIEND task created.");
+
+                ////////////////////////////////////////////////////////////
+                //                                                        //
+                // Create a high level packet as per Prattle's networking //
+                // protocols.                                             //
+                //                                                        //
+                // (Documentation.md, section 5.1.1 of Server-Client      //
+                // protocol)                                              //
+                //                                                        //
+                // add_friend <req id> <friendname>                       //
+                //                                                        //
+                ////////////////////////////////////////////////////////////
 
                 sf::Packet packet;
                 packet << ADD_FRIEND << to_string(rid) << args[0];
 
                 auto status = m_socket.send(packet);
 
+                // If successful in sending packet, return
+                // the request id of this task.
                 if(status == sf::Socket::Status::Done)
                 {
                     DBG_LOG(ADD_FRIEND + " request forwarded to server");
@@ -177,8 +299,15 @@ namespace prattle
             }
             break;
 
+            //////////////////////////////////////
+            //                                  //
+            //     FRIEND_REQUST_ACCEPT task    //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::FriendRequestAccept:
             {
+                // If invalid info is passed.
                 if (args.size() != 1)
                     throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Friend Request Accept");
 
@@ -192,16 +321,34 @@ namespace prattle
 
                 m_replies.clear();
 
+                // Create a FRIEND_REQUEST_ACCEPT task
+                // and add it to the pending task list.
                 m_tasks.push_front(Task{
-                                  rid = generateId(),
-                                  Task::Type::FriendRequestAccept,
+                                  rid = generateId()              ,
+                                  Task::Type::FriendRequestAccept ,
                                   std::chrono::steady_clock::now()});
+
+                DBG_LOG("FRIEND_REQUEST_ACCEPT task created.");
+
+                ////////////////////////////////////////////////////////////
+                //                                                        //
+                // Create a high level packet as per Prattle's networking //
+                // protocols.                                             //
+                //                                                        //
+                // (Documentation.md, section 5.2.2 of Server-Client      //
+                // protocol)                                              //
+                //                                                        //
+                // add_friend_accept <reqid> <sender>                     //
+                //                                                        //
+                ////////////////////////////////////////////////////////////
 
                 sf::Packet packet;
                 packet << ADD_FRIEND_ACCEPT << to_string(rid) << args[0];
 
                 auto status = m_socket.send(packet);
 
+                // If successful in sending packet,
+                // return the request id of this task.
                 if(status == sf::Socket::Status::Done)
                 {
                     DBG_LOG("Friend request accept packet sent to server");
@@ -212,8 +359,16 @@ namespace prattle
             }
             break;
 
+
+            //////////////////////////////////////
+            //                                  //
+            //     FRIEND_REQUST_IGNORE task    //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::FriendRequestIgnore:
             {
+                // If invalid info is passed.
                 if (args.size() != 1)
                     throw std::invalid_argument("ERROR :: Wrong number of arguments provided for task : Friend Request ignore");
 
@@ -227,16 +382,32 @@ namespace prattle
 
                 m_replies.clear();
 
+                // Create a DRIEND_REQUEST_IGNORE task
+                // and add it to the pending task list.
                 m_tasks.push_front(Task{
-                                  rid = generateId(),
-                                  Task::Type::FriendRequestIgnore,
+                                  rid = generateId()             ,
+                                  Task::Type::FriendRequestIgnore ,
                                   std::chrono::steady_clock::now()});
 
+
+                ////////////////////////////////////////////////////////////
+                //                                                        //
+                // Create a high level packet as per Prattle's networking //
+                // protocols.                                             //
+                //                                                        //
+                // (Documentation.md, section 5.2.3 of Server-Client      //
+                // protocol)                                              //
+                //                                                        //
+                // add_friend_ignore <reqid> <sender>                     //
+                //                                                        //
+                ////////////////////////////////////////////////////////////
                 sf::Packet packet;
                 packet << ADD_FRIEND_IGNORE << to_string(rid) << args[0];
 
                 auto status = m_socket.send(packet);
 
+                // If successful in sending packet,
+                // return the request id of this task.
                 if(status == sf::Socket::Status::Done)
                 {
                     DBG_LOG("Friend request ignore packet sent to server");
@@ -247,59 +418,88 @@ namespace prattle
             }
             break;
 
+
+            //////////////////////////////////////
+            //                                  //
+            //            LOGOUT task           //
+            //                                  //
+            //////////////////////////////////////
+
             case Task::Type::Logout:
-                DBG_LOG("Network :: Logging out");
+            {
+                DBG_LOG("Client logging out.");
                 reset();
-                break;
+            }
+            break;
+
             default:
                 ERR_LOG("FATAL ERROR :: Unhandled task");
                 break;
         }
+
         return rid;
-    }
-
-    bool Network::isConnected()
-    {
-        return m_connected;
-    }
-
-    void Network::disconnect()
-    {
-        m_socket.disconnect();
-        m_connected = false;
     }
 
     int Network::update()
     {
+        // Updation of pending tasks is done by subcategorizing pending
+        // tasks into two - tasks in disconnected state (LOGIN, SIGNUP)
+        // and tasks in connected state (SEND_MSG, SEARCH_USER, ADD_FRIEND,
+        // FRIEND_REQUEST_ACCEPT and FRIEND_REQUEST_IGNORE).
+
         if (!isConnected())
         {
-            //if either login or signup is a task
             if (!m_tasks.empty() &&
-                (m_tasks.front().type == Task::Login || m_tasks.front().type == Task::Signup))
+                (m_tasks.front().type == Task::Login ||
+                  m_tasks.front().type == Task::Signup))
             {
-                auto status = m_socket.connect(m_connectManifest.address, m_connectManifest.port);
+                // Connection attempt this update iteration
+                auto status = m_socket.connect(m_connectManifest.address ,
+                                               m_connectManifest.port);
 
+                // Flag `isTimedOut` is set if this task has timed out.
                 std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
                 bool isTimedOut =
                     std::chrono::duration_cast<std::chrono::milliseconds>
                         (t1 - m_tasks.front().timeStarted).count() >
                             m_defaultTaskTimeout;
 
+                // If the socket has status sf::Socket::Done,
+                // client socket is connected to server. The
+                // pending LOGIN/SIGNUP task may be processed.
+                //
+                // If any the socket status is anything else and the
+                // LOGIN/SIGNUP task also timed out, it's an error.
                 if (status == sf::Socket::Done)
                 {
-                    DBG_LOG("Connected to server");
+                    DBG_LOG("Client socket connected to server.");
+
+                    /////////////////////////////////////////////////
+                    //                                             //
+                    // Create a high level packet as per Prattle's //
+                    // networking protocols.                       //
+                    //                                             //
+                    // (Documentation.md, section 1.1 of           //
+                    // Server-Client protocol)                     //
+                    //                                             //
+                    // login <req id> <username> <password>        //
+                    //                                             //
+                    /////////////////////////////////////////////////
+
                     sf::Packet reqPacket;
+
                     if (m_tasks.front().type == Task::Login)
-                    {
                         reqPacket << LOGIN;
-                    }
                     else
                         reqPacket << SIGNUP;
-                    reqPacket << to_string(m_tasks.front().id) << m_connectManifest.username
+
+                    reqPacket << to_string(m_tasks.front().id)
+                              << m_connectManifest.username
                               << m_connectManifest.password;
 
-                    //Try sending the login/signup request
+                    // Try sending the login/signup request
                     int tries = 5;
+
                     do
                     {
                         status = m_socket.send(reqPacket);
@@ -307,70 +507,87 @@ namespace prattle
                     } while (status == sf::Socket::Partial && tries >= 0);
 
                     if (status == sf::Socket::Done)
-                    {
                         m_connected = true;
-                    }
                     else
                     {
-                        ERR_LOG("Error in sending request packet. Status code: " + to_string(status));
+                        ERR_LOG("Unable to send LOGIN/SIGNUP request to server. Socket status : " +
+                                convertToString(status));
+
+                        // Create a new reply denoting LOGIN/SIGNUP task error
                         m_replies.push_front(Reply{
-                                            m_tasks.front().id,
-                                            Reply::Type::TaskError,
+                                            m_tasks.front().id     ,
+                                            Reply::Type::TaskError ,
                                             {} });
                         m_tasks.clear();
+                        DBG_LOG("All pending tasks cleared.");
                         disconnect();
                     }
                 }
-                else if (status == sf::Socket::Error && isTimedOut)
+
+                else if ((status == sf::Socket::NotReady     ||
+                           status == sf::Socket::Partial      ||
+                            status == sf::Socket::Disconnected ||
+                             status == sf::Socket::Error) &&
+                           isTimedOut)
                 {
-                    ERR_LOG("Error in connecting. Status code: " + to_string(status));
+                    ERR_LOG("Unable to send LOGIN/SIGNUP request to server. Socket status : " +
+                            convertToString(status));
+
+                    // Create a new reply denoting LOGIN/SIGNUP task error
                     m_replies.push_front(Reply{
-                                        m_tasks.front().id,
-                                        Reply::Type::TaskError,
-                                        {} });
-                    m_tasks.clear();
-                    DBG_LOG("All tasks cleared");
-                    disconnect();
-                }
-                else if (status == sf::Socket::Disconnected)
-                {
-                    ERR_LOG("Prematurely disconnected.");
-                    m_replies.push_front(Reply{
-                                        m_tasks.front().id,
-                                        Reply::Type::TaskError,
-                                        {} });
-                    m_tasks.clear();
-                    DBG_LOG("All tasks cleared");
-                    disconnect();
-                }
-                else if (status == sf::Socket::Partial)
-                {
-                    ERR_LOG("Unable to send full data, partial data sent. Please retry");
-                    m_replies.push_front(Reply{
-                                        m_tasks.front().id,
-                                        Reply::Type::TaskError,
+                                        m_tasks.front().id     ,
+                                        Reply::Type::TaskError ,
                                         {} });
 
                     m_tasks.clear();
-                    DBG_LOG("All tasks cleared");
+                    DBG_LOG("All pending tasks cleared.");
                     disconnect();
                 }
-                else if (status == sf::Socket::NotReady && isTimedOut)
-                {
-                    ERR_LOG("Remote server is not listening. Please retry");
-                    m_replies.push_front(Reply{
-                                        m_tasks.front().id,
-                                        Reply::Type::TaskError,
-                                        {} });
 
-                    m_tasks.clear();
-                    DBG_LOG("All tasks cleared");
-                    disconnect();
-                }
+//                else if (status == sf::Socket::Partial && isTimedOut)
+//                {
+//                    ERR_LOG("Unable to send full data, partial data sent. Please retry");
+//                    m_replies.push_front(Reply{
+//                                        m_tasks.front().id,
+//                                        Reply::Type::TaskError,
+//                                        {} });
+//
+//                    m_tasks.clear();
+//                    DBG_LOG("All tasks cleared");
+//                    disconnect();
+//                }
+//
+//                else if (status == sf::Socket::Disconnected)
+//                {
+//                    ERR_LOG("Prematurely disconnected.");
+//                    m_replies.push_front(Reply{
+//                                        m_tasks.front().id,
+//                                        Reply::Type::TaskError,
+//                                        {} });
+//                    m_tasks.clear();
+//                    DBG_LOG("All tasks cleared");
+//                    disconnect();
+//                }
+//
+//                else if (status == sf::Socket::Error && isTimedOut)
+//                {
+//                    ERR_LOG("Error in connecting. Status code: " +
+//                            to_string(status));
+//
+//                    m_replies.push_front(Reply{
+//                                        m_tasks.front().id     ,
+//                                        Reply::Type::TaskError ,
+//                                        {} });
+//
+//                    m_tasks.clear();
+//                    DBG_LOG("All tasks cleared");
+//                    disconnect();
+//                }
+//            }
+//            assert(m_tasks.size() <= 1);
             }
-            assert(m_tasks.size() <= 1);
         }
-        else //connected
+        else // connected
         {
             sf::Packet response;
             auto status = m_socket.receive(response);
@@ -380,7 +597,6 @@ namespace prattle
                 std::string reply, temp;
                 if (response >> reply)
                 {
-                    //std::cout << "Protocol : " << reply << std::endl;
                     if (reply == SEND_MSG)
                     {
                         std::string sender, data;
@@ -405,27 +621,6 @@ namespace prattle
                                             reply == STATUS_ONLINE ? Reply::Type::OnlineNotif : Reply::Type::OfflineNotif,// Reply::Type::OnlineNotif,
                                             {sender} });
                     }
-//                    else if (reply == ADD_FRIEND)
-//                    {
-//                        std::string sender;
-//                        response >> sender;
-//
-//                        m_replies.push_front(Reply{
-//                                            InvalidRequest,
-//                                            Reply::Type::TaskSuccess,
-//                                            {sender} });
-//                    }
-//                    else if (reply == ADD_FRIEND_REQ)
-//                    {
-//                        std::string sender;
-//                        response >> sender;
-//
-//                        m_replies.push_front(Reply{
-//                                            InvalidRequest,
-//                                            Reply::Type::TaskSuccess,
-//                                            {sender}});
-//                    }
-
 
                     else if (reply == ADD_FRIEND_REQ)
                     {
@@ -437,21 +632,6 @@ namespace prattle
                                             Reply::Type::FriendAdded,
                                             {sender}});
                     }
-
-//                    else if (reply == ADD_FRIEND_SUCCESS)
-//                    {
-//                        std::string friendname;
-//
-//                        response >> friendname;
-//
-//                        m_replies.push_front(Reply{
-//                                            InvalidRequest,
-//                                            Reply::Type::FriendAdded,
-//                                            {friendname}});
-//
-//                        DBG_LOG("Add friend task completed");
-//                        //m_tasks.erase(res);
-//                    }
 
                     else if (reply == ADD_FRIEND_SUCCESS)
                     {
@@ -569,35 +749,6 @@ namespace prattle
                                     DBG_LOG("Friend request to \'" + _friend + "\' sent");
                                 }
 
-//                                else if (reply == ADD_FRIEND_REQ_SUCCESS ||
-//                                          reply == ADD_FRIEND_REQ_FAILURE)
-//                                {
-//                                    std::string result;
-//                                    response >> result;
-//
-//                                    m_replies.push_front(Reply{
-//                                                        rid,
-//                                                        Reply::Type::TaskSuccess,
-//                                                        {result}});
-//                                    DBG_LOG("Friend request sent to \'" + result + "\'.");
-//                                    m_tasks.erase(res);
-//                                }
-//                                else if (reply == ADD_FRIEND_SUCCESS ||
-//                                          reply == ADD_FRIEND_FAILURE)
-//                                {
-//                                    std::string result;
-//
-//                                    response >> result;
-//
-//                                    m_replies.push_front(Reply{
-//                                                        rid,
-//                                                        Reply::Type::TaskSuccess,
-//                                                        {result}});
-//
-//                                    DBG_LOG("Add friend task completed");
-//                                    m_tasks.erase(res);
-//                                }
-
                                 else
                                     ERR_LOG("Unrecognized reply. (either not implemented yet or it is invalid)");
                             }
@@ -605,40 +756,31 @@ namespace prattle
                     }
                 }
             }
+
             else if (status == sf::Socket::Error)
             {
                 ERR_LOG("Error while receiving from socket.");
             }
+
             else if (status == sf::Socket::Disconnected)
             {
                 DBG_LOG("Disconnected.");
                 disconnect();
             }
-
-//            //Check expired tasks
-//            for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
-//            {
-//                auto d = std::chrono::steady_clock::now() - i->timeStarted;
-//                if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
-//                {
-//                    DBG_LOG("LOG :: Task timed out. Request id: " + to_string(i->id) + " Time elapsed: " + to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
-//                    m_replies.push_front(Reply{
-//                                        i->id,
-//                                        Reply::Type::TaskTimeout,
-//                                        {} });
-//                    i = std::prev(m_tasks.erase(i));
-//                }
-//            }
         }
 
-        //Check expired tasks
+        // Check if any task has expired and remove
+        // them from the pending task list.
         for (auto i = m_tasks.begin(); i != m_tasks.end(); i++)
         {
             auto d = std::chrono::steady_clock::now() - i->timeStarted;
-            if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() > m_defaultTaskTimeout)
+
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(d).count() >
+                m_defaultTaskTimeout)
             {
-                DBG_LOG("LOG :: Task timed out. Request id: " + to_string(i->id) + " Time elapsed: " + to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
-                m_replies.push_front(Reply{
+                DBG_LOG(" Task timed out. Request id: " + to_string(i->id) + " Time elapsed: " + to_string(std::chrono::duration_cast<std::chrono::milliseconds>(d).count()));
+
+                    m_replies.push_front(Reply{
                                     i->id,
                                     Reply::Type::TaskTimeout,
                                     {} });
@@ -656,4 +798,73 @@ namespace prattle
         return r;
     }
 
+    bool Network::isConnected()
+    {
+        return m_connected;
+    }
+
+    void Network::reset()
+    {
+        // Disconnect from server.
+        m_socket.disconnect();
+
+        // Discard pending tasks.
+        m_tasks.clear();
+
+        // Discard unprocessed replies.
+        m_replies.clear();
+
+        // Reset connection state.
+        m_connected = false;
+
+        // Reset request id counter.
+        m_idCounter = 0;
+    }
+
+    Network::Network() : m_idCounter{0} ,
+                         m_connected(false)
+    {
+        m_socket.setBlocking(false);
+    }
+
+    void Network::disconnect()
+    {
+        m_socket.disconnect();
+        m_connected = false;
+    }
+
+    Network::RequestId Network::generateId()
+    {
+        // A new id is generated jut by incrementing the id counter.
+        return ++m_idCounter;
+    }
+
+    const std::string Network::convertToString(const sf::Socket::Status status) const
+    {
+        switch (status)
+        {
+            case sf::Socket::Status::Done        :  return "Done";
+            case sf::Socket::Status::NotReady    :  return "NotReady";
+            case sf::Socket::Status::Partial     :  return "Partial";
+            case sf::Socket::Status::Disconnected:  return "Disconnected";
+            case sf::Socket::Status::Error       :  return "Error";
+            default                              :  return "Unknown status";
+        }
+    }
+
+    const std::string Network::convertToString(const Task task) const
+    {
+        switch (task.type)
+        {
+            case Task::Type::Login              : return "LOGIN";
+            case Task::Type::Logout             : return "LOGOUT";
+            case Task::Type::Signup             : return "SIGNUP";
+            case Task::Type::SendMsg            : return "SEND_MSG";
+            case Task::Type::SearchUser         : return "SEARCH_USER";
+            case Task::Type::AddFriend          : return "ADD_FRIEND";
+            case Task::Type::FriendRequestAccept: return "FRIEND_REQUEST_ACCEPT";
+            case Task::Type::FriendRequestIgnore: return "FRIEND_REQUEST_IGNORE";
+            default                             : return "UNKNOWN TASK";
+        }
+    }
 }

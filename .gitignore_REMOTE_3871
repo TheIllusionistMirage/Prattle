@@ -1,0 +1,16 @@
+*.layout
+*.cbp
+*.depend
+*_log.txt
+bin/
+obj/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+<<<<<<< HEAD
+=======
+prattle-client
+prattle-server-controller
+prattle-server
+>>>>>>> client2

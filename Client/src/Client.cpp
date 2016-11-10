@@ -79,7 +79,8 @@ namespace prattle
                             {
 
                                 friends.push_back(reply.args[i]);
-                                m_chatHistory[friends.back()] = "";
+                                //m_chatHistory[friends.back()] = "";
+                                m_chatHistory[friends.back()] = {};
                             }
 
                             m_ui->fillFriendList(friends);
@@ -150,10 +151,15 @@ namespace prattle
                                 //if (m_ui->getSelectedFriendItem() == reply.args[0])
                                 if (m_ui->getSelectedFriend() == reply.args[0])
                                     m_ui->addToChatArea(reply.args[0] + " : " + reply.args[1]);
-                                if (m_chatHistory.find(reply.args[0])->second == "")
-                                    m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + reply.args[0] + " : " + reply.args[1];
+//                                if (m_chatHistory.find(reply.args[0])->second == "")
+//                                    m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + reply.args[0] + " : " + reply.args[1];
+//                                else
+//                                    m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + "\n" + reply.args[0] + " : " + reply.args[1];
+
+                                if (m_chatHistory.find(reply.args[0])->second.size() == 0)
+                                    m_chatHistory.find(reply.args[0])->second.push_back(reply.args[0] + " : " + reply.args[1]);
                                 else
-                                    m_chatHistory.find(reply.args[0])->second = m_chatHistory.find(reply.args[0])->second + "\n" + reply.args[0] + " : " + reply.args[1];
+                                    m_chatHistory.find(reply.args[0])->second.push_back(reply.args[0] + " : " + reply.args[1]);
 
                                 // set the notification to unread
                                 //std::cout << "tabs : " << m_ui->getFocusedTab() << " " <<  reply.args[0] << std::endl;
@@ -203,7 +209,8 @@ namespace prattle
 
                                 m_ui->addFriend(_friend);
                                 m_ui->setFriendActive(_friend, true);
-                                m_chatHistory[_friend] = "";
+                                //m_chatHistory[_friend] = "";
+                                m_chatHistory[_friend] = {};
 
                                 //m_friendReqAcIgId = -1;
                                 isReplyOk = true;
@@ -283,13 +290,18 @@ namespace prattle
                             {
                                 if (reply.type == Network::Reply::TaskSuccess)
                                 {
-                                    if (m_chatHistory.find(m_ui->getSelectedFriend())->second == "")
-                                        m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1);
-                                    else
-                                        m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + "\n" + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1);
+//                                    if (m_chatHistory.find(m_ui->getSelectedFriend())->second == "")
+//                                        m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1);
+//                                    else
+//                                        m_chatHistory.find(m_ui->getSelectedFriend())->second = m_chatHistory.find(m_ui->getSelectedFriend())->second + "\n" + m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1);
 
-                                    m_ui->addToChatArea(m_loginInfo.username + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
-                                    m_ui->setInputText("");
+//                                    m_ui->addToChatArea(m_loginInfo.username + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
+//                                    m_ui->setInputText("");
+
+                                    //m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                                    for (auto&& vs : m_chatHistory.find(m_ui->getSelectedFriend())->second)
+                                        m_ui->addToChatArea(vs);// + "\n");
+
                                     DBG_LOG("Successfully sent message");
                                     m_unsentMsgReqId.erase(msgId);
 
@@ -371,7 +383,9 @@ namespace prattle
                             m_ui->setFriendActive(_friend, true);
                             //DBG_LOG("act frnd : " + _friend);
                             //m_ui->insertNotif(_friend, "");
-                            m_chatHistory[_friend] = "";
+
+                            //m_chatHistory[_friend] = "";
+                            m_chatHistory[_friend] = {};
 
                             isReplyOk = true;
                             m_friendReqAcIgId = -1;
@@ -492,11 +506,26 @@ namespace prattle
                             m_unsentMsgReqId.push_back(m_network.send(Network::Task::SendMsg, {
                                            m_ui->getSelectedFriend(),
                                            m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1) }));
+
+                            //m_ui->setInputText("");
                                            //m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1)
                             //m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText());
 //                            m_ui->addToChatArea(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
 //                            m_ui->setInputText("");
                             //DBG_LOG("Message sent to server.");
+
+                            if (m_chatHistory.find(m_ui->getSelectedFriend())->second.size() == 0)
+                            {
+                                m_chatHistory.find(m_ui->getSelectedFriend())->second.push_back(m_ui->getUsername() +
+                                                                                                " : " +
+                                                                                                m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1)
+                                                                                               );
+                            }
+                            else
+                                m_chatHistory.find(m_ui->getSelectedFriend())->second.push_back(m_ui->getUsername() + " : " + m_ui->getInputText().substr(0, m_ui->getInputText().length() - 1));
+
+                            m_ui->setInputText("");
+
                             break;
                         case UserInterface::UIEvent::Search:
                             if (!m_ui->isStringWhitespace(m_ui->getSearchString()))
@@ -517,7 +546,9 @@ namespace prattle
                             m_ui->clearChat();
                             if (!m_ui->isStringWhitespace(m_ui->getSelectedFriend()))
                             {
-                                m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                                //m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
+                                for (auto vs : m_chatHistory.find(m_ui->getSelectedFriend())->second)
+                                    m_ui->addToChatArea(vs);// + "\n");
                                 m_ui->setInputText(m_ui->getInputBufferText(m_ui->getSelectedFriend()));
                             //std::cout << m_ui->getSelectedFriend() << " " << m_ui->getInputBufferText(m_ui->getSelectedFriend()) << std::endl;
                             //std::cout << "cur tab : " << m_ui->getSelectedFriend() << std::endl;

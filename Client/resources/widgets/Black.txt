@@ -53,7 +53,7 @@ EditBox {
     NormalImage : "Black.png" Part(0, 114, 60, 40) Middle(15, 0, 30, 40);
     HoverImage  : "Black.png" Part(0, 114, 60, 40) Middle(15, 0, 30, 40);
 
-    TextColor                   : rgb(190, 190, 190);
+    TextColor                   : rgb(84, 94, 109);
     SelectedTextColor           : rgb(255, 255, 255);
     SelectedTextBackgroundColor : rgb( 10, 110, 255);
     DefaultTextColor            : rgb(120, 120, 120);
@@ -146,7 +146,7 @@ Tab {
 
 TextBox {
     BackgroundImage             : "Black.png" Part(0, 154, 48, 48) Middle(16, 16, 16, 16);
-    TextColor                   : rgb(190, 190, 190);
+    TextColor                   : rgb(84, 94, 109);
     SelectedTextColor           : rgb(255, 255, 255);
     SelectedTextBackgroundColor : rgb( 10, 110, 255);
     CaretColor                  : rgb(110, 110, 255);

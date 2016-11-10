@@ -1,15 +1,25 @@
-/**
 
-    Prattle/Client/System.hpp
-    =========================
-
-    Holds various constants, enumerations for use by the Client side application.
-
-*/
+/*************************************************************
+ *                                                           *
+ *                Prattle/Client/System.hpp                  *
+ *                                                           *
+ *    ===================================================    *
+ *                                                           *
+ *    Contains various constants and helpers                 *
+ *    related to handling the client.                        *
+ *                                                           *
+ *    See https://github.com/TheIllusionistMirage/Prattle    *
+ *    for more details.                                      *
+ *                                                           *
+ *************************************************************/
 
 
 #ifndef SYSTEM_HPP
 #define SYSTEM_HPP
+
+// Workaround for MinGW versions missing to_string & stoi
+
+#include <string>
 
 #if defined (_WIN32) && (defined (__MINGW32__) || defined (__MINGW64__))
     #include <sstream>
@@ -24,18 +34,23 @@
 
     int stoi(std::string str);
 #else
-    #include <string>
     using std::to_string;
     using std::stoi;
 #endif
 
-#include <string>
 #include "../include/Logger.hpp"
 
 namespace prattle
 {
-    // client.conf contains IP address of server and the open port
-    const std::string CLIENT_CONFIG_FILE = "resources/local/client.conf";
+    /* Constants */
+
+    // Server config file
+    const std::string SERVER_CONFIG_FILE = "resources/server.conf";
+
+    // User database
+    const std::string USER_LIST          = "resources/members.db";
+
+    // Prattle's ASCII logo, courtesy of amhndu
     const std::string prattle_logo =
         "           , | .\n"
         "         ' | | | ! .\n"
@@ -54,7 +69,11 @@ namespace prattle
         " |\\     ,/' ||     `\\     ,|| ||   ||  || `\\      ,\n"
         " ||`==='`   ''       `'==` '' ''   ''  ''   `'==='\n"
         " ||                               Always be near";
-    std::string getCurrentTimeAndDate();
+
+    /* Helpers */
+
+    // Returns the current date & time in the host machine
+    std::string   getCurrentTimeAndDate();
 }
 
 #endif // SYSTEM_HPP_INCLUDED

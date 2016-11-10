@@ -546,9 +546,10 @@ namespace prattle
                                             }
                                             else if (m_state == State::Chatting)
                                             {
-                                                if (event.key.shift && m_inputBox->isFocused());
+                                                //if (event.key.shift && m_inputBox->isFocused());
                                                     //m_inputBox->addText("\n");
-                                                else if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
+                                                //else if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
+                                                if (!isStringWhitespace(getInputText()) && m_inputBox->isFocused())
                                                 {
                                                     //setInputText(getInputText().substr(0, getInputText().length() - 1));
                                                     DBG_LOG("Attempt to send message");
