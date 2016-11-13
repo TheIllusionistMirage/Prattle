@@ -299,8 +299,11 @@ namespace prattle
 //                                    m_ui->setInputText("");
 
                                     //m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second);
-                                    for (auto&& vs : m_chatHistory.find(m_ui->getSelectedFriend())->second)
-                                        m_ui->addToChatArea(vs);// + "\n");
+
+                                    ///
+                                    //for (auto&& vs : m_chatHistory.find(m_ui->getSelectedFriend())->second)
+                                        //m_ui->addToChatArea(vs);// + "\n");
+                                    m_ui->addToChatArea(m_chatHistory.find(m_ui->getSelectedFriend())->second.back());
 
                                     DBG_LOG("Successfully sent message");
                                     m_unsentMsgReqId.erase(msgId);
