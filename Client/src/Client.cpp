@@ -425,7 +425,7 @@ namespace prattle
         {
             m_network.send(Network::Task::Type::Logout);
 
-            if (m_ui->isAutoLoginEnabled())
+            if (m_ui->isAutoLoginEnabled() && m_state == UserInterface::State::Chatting)
                 rewriteLoginFile(true);
             else
                 rewriteLoginFile(false);

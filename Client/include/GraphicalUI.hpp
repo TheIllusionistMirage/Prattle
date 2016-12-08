@@ -58,6 +58,7 @@ namespace prattle
             const std::string ALERT_FRAME        = "resources/images/prattle-alert-box.png";
 
             const std::string DEFAULT_GLOBAL_FONT    = "resources/fonts/Roboto-Bold.ttf";
+            const std::string DEFAULT_TITLE_FONT     = "resources/fonts/Roboto-Black.ttf";
             const std::string CLOSE_BUTTON_GRAPHIC   = "resources/images/custom/close_button.png";
             const std::string GRAPHIC_LISTITEM       = "resources/images/custom/graphic_list_item.png";
             const std::string GRAPHIC_LISTITEM_PANEL = "resources/images/custom/graphic_list_panel.png";

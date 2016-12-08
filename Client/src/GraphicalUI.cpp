@@ -80,7 +80,7 @@ namespace prattle
         //m_logo->setSize(tgui::bindWidth(m_gui) / 2, tgui::bindWidth(m_gui) / (2 * 1.333333333));
         m_logo->scale(0.7, 0.7);
         //m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x, tgui::bindTop(m_gui) + m_logo->getSize().y + 50);
-        m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x - 20, tgui::bindTop(m_gui) + m_logo->getSize().y + 50);
+        //m_logo->setPosition(tgui::bindRight(m_gui) - m_logo->getSize().x - 80, tgui::bindTop(m_gui) + m_logo->getSize().y / 1.2);
 
         //m_frame = tgui::Picture::create(FRAME);
         m_frame = std::make_shared<tgui::Picture>(FRAME);
@@ -126,7 +126,8 @@ namespace prattle
         m_loginMessage->setTextSize(40);
         m_loginMessage->setTextColor(sf::Color::White);
         //m_loginMessage->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindHeight(m_gui) / 2.25);
-        m_loginMessage->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindTop(m_gui) + 20);
+        m_loginMessage->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindTop(m_gui) + 4);
+        m_loginMessage->setFont(DEFAULT_TITLE_FONT);
 
         // the username field
         //m_usernameField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
@@ -135,6 +136,9 @@ namespace prattle
         m_usernameField->setDefaultText("Username");
         m_usernameField->setSize(tgui::bindWidth(m_gui) / 3, tgui::bindHeight(m_gui) / 15);
         m_usernameField->setPosition(tgui::bindWidth(m_gui) / 10, tgui::bindHeight(m_gui) / 1.85);
+
+        // Set the logo position relative to the editboxes
+        m_logo->setPosition(tgui::bindRight(m_usernameField) * 1.5 - 40, tgui::bindTop(m_gui) + m_logo->getSize().y / 1.2);
 
         // the password field
         //m_passwordField = tgui::EditBox::create(DEFAULT_TGUI_THEME);
@@ -175,7 +179,9 @@ namespace prattle
         m_signupMessage->setText("Need an account?");
         //m_signupMessage->setTextSize(20);
         m_signupMessage->setTextColor(sf::Color{70, 66, 66});
-        m_signupMessage->setPosition(tgui::bindLeft(m_usernameField) * m_usernameField->getSize().x * 0.005 + m_signupMessage->getSize().x , tgui::bindHeight(m_gui) / 1.09);
+        //m_signupMessage->setPosition(tgui::bindLeft(m_usernameField) * m_usernameField->getSize().x * 0.005 + m_signupMessage->getSize().x , tgui::bindHeight(m_gui) / 1.09);
+//        m_signupMessage->setPosition(tgui::bindRight(m_gui) - m_gui.getSize().x / 2 - m_signupMessage->getSize().x / 2 - m_signupScreenButton->getSize().x / 2,
+//                                     tgui::bindHeight(m_gui) / 1.09);
         //std::cout <<  m_signupMessage->getSize().x << std::endl;
 
         // the button to go to signup screen
@@ -186,22 +192,31 @@ namespace prattle
         m_signupScreenButton->setText("Sign me up!");
         m_signupScreenButton->setTextSize(20);
         m_signupScreenButton->setSize(tgui::bindWidth(m_passwordField) / 2.5 + 105, tgui::bindHeight(m_passwordField) + 10);
-        m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 15);
+        //m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 15);
         //m_signupScreenButton->connect("pressed", &GraphicalUI::setState, this, State::Signup);
         //m_signupScreenButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_signupScreenButton);
+
+//        m_signupMessage->setPosition(tgui::bindRight(m_gui) - m_gui.getSize().x / 2 - m_signupMessage->getSize().x / 2 - m_signupScreenButton->getSize().x / 2,
+//                                     tgui::bindHeight(m_gui) / 1.09);
+//        m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.10 - 15);
+
+        m_signupMessage->setPosition(tgui::bindWidth(m_gui) / 2 - (m_signupScreenButton->getSize().x/2 + m_signupMessage->getSize().x / 2),
+                                     tgui::bindHeight(m_gui) / 1.09);
+        m_signupScreenButton->setPosition(tgui::bindRight(m_signupMessage) + 10, tgui::bindHeight(m_gui) / 1.09 - 15);
 
         // the details label on the signup screen
         m_signupDetailsLabel->setText("Signup");
         m_signupDetailsLabel->setTextSize(40);
         m_signupDetailsLabel->setTextColor(sf::Color::White);
         //m_signupDetailsLabel->setPosition(tgui::bindWidth(m_gui) / 9, tgui::bindHeight(m_gui) / 2.25);
-        m_signupDetailsLabel->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindTop(m_gui) + 20);
+        m_signupDetailsLabel->setPosition(tgui::bindWidth(m_gui) / 9.5, tgui::bindTop(m_gui) + 4);
+        m_signupDetailsLabel->setFont(DEFAULT_TITLE_FONT);
 
         //m_signupButton = tgui::Button::create(DEFAULT_TGUI_THEME);
         //m_signupButton = std::make_shared<tgui::Button>(DEFAULT_TGUI_THEME);
         m_signupButton = m_theme->load("Button");
         m_signupButton->setText("Signup");
-        m_signupButton->setTextSize(15);
+        m_signupButton->setTextSize(20);
         m_signupButton->setSize(tgui::bindWidth(m_passwordField), tgui::bindHeight(m_passwordField));
         m_signupButton->setPosition(tgui::bindLeft(m_passwordField), tgui::bindHeight(m_gui) / 1.3 - 3);
         //m_signupButton->connect("MouseEntered", &GraphicalUI::animateButton, this, m_signupButton);
@@ -268,7 +283,7 @@ namespace prattle
         m_chatBox->setPosition(tgui::bindLeft(m_gui) + 50, tgui::bindBottom(m_logoutButton) + 82);
 
         // FRAME!
-        m_frame->setSize(tgui::bindWidth(m_gui), tgui::bindTop(m_chatBox));
+        m_frame->setSize(tgui::bindWidth(m_gui), tgui::bindHeight(m_frame));
 
         //m_inputBox = tgui::TextBox::create(DEFAULT_TGUI_THEME);
         m_inputBox = m_theme->load("TextBox");

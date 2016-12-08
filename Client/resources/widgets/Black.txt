@@ -18,8 +18,8 @@ Checkbox {
     CheckedImage        : "Black.png" Part(156, 0, 32, 32);
     UncheckedHoverImage : "Black.png" Part(188, 0, 32, 32);
     CheckedHoverImage   : "Black.png" Part(220, 0, 32, 32);
-    TextColorNormal     : rgb(190, 190, 190);
-    TextColorHover      : rgb(70, 66, 66);
+    TextColorNormal     : rgb(84, 94, 109);
+    TextColorHover      : rgb(150, 150, 150);
 }
 
 ChildWindow {
@@ -55,7 +55,7 @@ EditBox {
 
     TextColor                   : rgb(84, 94, 109);
     SelectedTextColor           : rgb(255, 255, 255);
-    SelectedTextBackgroundColor : rgb( 10, 110, 255);
+    SelectedTextBackgroundColor : rgb(255,183,77);
     DefaultTextColor            : rgb(120, 120, 120);
     CaretColor                  : rgb(110, 110, 255);
     Padding                     : (6, 4, 6, 4);
